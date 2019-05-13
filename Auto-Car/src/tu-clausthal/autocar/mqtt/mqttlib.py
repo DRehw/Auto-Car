@@ -40,7 +40,7 @@ def subscribe(client, *topics):
     
 def connect(client, host):
     client.loop_start()
-    client.connect(host)
+    client.connect_async(host)
 
 def getClient(name, on_connect, on_subscribe, on_message, on_disconnect):
     client = mqtt.Client(name)

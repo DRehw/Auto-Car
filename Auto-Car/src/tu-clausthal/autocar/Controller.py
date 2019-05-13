@@ -51,7 +51,6 @@ class Controller():
         if ~self.ignoreLogic:
             if zones.isObjectInRedZoneLidar(self.lidarData):
                 self.gui.resetSlider()
-            
             else:
                 self.sendCommand()
         else:
@@ -74,8 +73,9 @@ class Controller():
         #print("Message received! Topic: " + message.topic)
         if message.topic == "aadc/lidar":
             self.lidarNew = True
-            self.lidarData = sensor.parseAADCData(str(message.payload.decode("utf-8")), "pcl")
+            #self.lidarData = sensor.parseAADCData(str(message.payload.decode("utf-8")), "pcl")
             #self.lidarData = sensor.parseLidarData(str(message.payload.decode("utf-8")))
+            self.lidarData = sensor.getJsonDataFromTag(str(message.payload.decode("utf-8")), "pcl")
         elif message.topic == "aadc/sensor":
             self.sensorNew = True
             self.sensorData = json.loads(str(message.payload.decode("utf-8")))
@@ -111,7 +111,7 @@ class Controller():
             print("Disconnected successively!")
     
     def onSpeedChange(self, val):
-        self.currentSpeed = 90 + int(val)
+        self.currentSpeed = 90 - int(val)
         return
     
     def onSteerChange(self, val):

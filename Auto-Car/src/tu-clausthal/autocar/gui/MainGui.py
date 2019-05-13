@@ -55,9 +55,11 @@ class MainGui():
         return
     
     def resetSlider(self):
+        #print("Resetting slider!")
         self.speedScale.set(0)
         self.steerScale.set(0)
         self.controller.sendCommand()
+        #print("Slider resetted")
         return
     
     def connectToLocalBroker(self):

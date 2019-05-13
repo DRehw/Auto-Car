@@ -4,6 +4,16 @@ Created on May 12, 2019
 @author: Dave
 '''
 import ast
+import json
+
+def getJsonDataFromTag(jsonString, jsonTag):
+    jsonObj = json.loads(jsonString)
+    res=[[]]
+    for key, value in jsonObj.items():
+        if key == jsonTag:
+            res = ast.literal_eval(str(value))
+            break
+    return res
 
 def parseAADCData(aadc_data, JSONtag):
     start = aadc_data.find(JSONtag) + len(JSONtag) + 2
