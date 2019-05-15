@@ -29,6 +29,8 @@ class Controller():
         self.sensorNew = False
         self.lidarData = None
         self.sensorData = None
+        self.getCmdTimeStamp = 0
+        self.sendCmdTimeStamp = 0
         self.client = mqttl.getClient("Client", self.on_connect, self.on_subscribe, self.on_message, self.on_disconnect)
         return
     
@@ -46,15 +48,23 @@ class Controller():
         return
     
     def logic(self):
-        self.lidarNew = False
-        self.sensorNew = False
+        #print("Logic")
         if ~self.ignoreLogic:
-            if zones.isObjectInRedZoneLidar(self.lidarData):
-                self.gui.resetSlider()
+            if False:
+            #if self.lidarNew and self.sensorNew:
+                if zones.isObjectInRedZoneLidar(self.lidarData):
+                    self.gui.resetSlider()
+                else:
+                    self.sendCommand()
             else:
-                self.sendCommand()
+                if zones.isObjectInRedZoneUS(self.sensorData):
+                    self.gui.resetSlider()
+                else:
+                    self.sendCommand()
         else:
             self.sendCommand()
+        self.lidarNew = False
+        self.sensorNew = False
         return
     
     def connectToCar(self):
@@ -70,6 +80,7 @@ class Controller():
         return
     
     def on_message(self, client, userdata, message):
+        
         #print("Message received! Topic: " + message.topic)
         if message.topic == "aadc/lidar":
             self.lidarNew = True
@@ -78,11 +89,16 @@ class Controller():
             self.lidarData = sensor.getJsonDataFromTag(str(message.payload.decode("utf-8")), "pcl")
         elif message.topic == "aadc/sensor":
             self.sensorNew = True
-            self.sensorData = json.loads(str(message.payload.decode("utf-8")))
+            self.sensorData = str(message.payload.decode("utf-8"))
+            millis = int(round(time.time() * 1000))
+            print("Time since last sensor message: " + str(millis-self.getCmdTimeStamp))
+            self.getCmdTimeStamp = int(round(time.time() * 1000))
+            #self.gpsData = sensor.getJsonDataFromTag(self.sensorData, "position")
         elif message.topic == "aadc/rc":
+            #print("")
             pass
             #print("message received " ,str(message.payload.decode("utf-8")))
-        if self.sensorNew and self.lidarNew:
+        if self.sensorNew or self.lidarNew:
             #print("Logic")
             self.logic()
         return

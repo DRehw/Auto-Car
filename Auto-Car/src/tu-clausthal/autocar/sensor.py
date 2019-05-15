@@ -8,10 +8,11 @@ import json
 
 def getJsonDataFromTag(jsonString, jsonTag):
     jsonObj = json.loads(jsonString)
-    res=[[]]
+    res=None
     for key, value in jsonObj.items():
         if key == jsonTag:
             res = ast.literal_eval(str(value))
+            #print(res)
             break
     return res
 
