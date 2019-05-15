@@ -57,7 +57,7 @@ class Controller():
                 else:
                     self.sendCommand()
             else:
-                if zones.isObjectInRedZoneUS(self.sensorData):
+                if zones.isObjectInRedZoneUSDynamic(self.sensorData, self.currentSpeed):
                     self.gui.resetSlider()
                 else:
                     self.sendCommand()
@@ -91,7 +91,7 @@ class Controller():
             self.sensorNew = True
             self.sensorData = str(message.payload.decode("utf-8"))
             millis = int(round(time.time() * 1000))
-            print("Time since last sensor message: " + str(millis-self.getCmdTimeStamp))
+            #print("Time since last sensor message: " + str(millis-self.getCmdTimeStamp))
             self.getCmdTimeStamp = int(round(time.time() * 1000))
             #self.gpsData = sensor.getJsonDataFromTag(self.sensorData, "position")
         elif message.topic == "aadc/rc":
