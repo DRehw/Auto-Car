@@ -159,7 +159,7 @@ class Controller():
                     if "mosquitto.exe" in p:
                         onStart()
                         return
-                sleep(0.05)
+                time.sleep(0.05)
                     
         thread = threading.Thread(target=runInThread, args=(self.on_mosquittoStart,))
         thread.start()

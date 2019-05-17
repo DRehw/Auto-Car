@@ -20,6 +20,8 @@ class MainGui():
         self.controller.guiInit(self)
         self.window = tk.Tk()
         self.window.title("Auto-Car Debug")
+        self.window.bind("<KeyRelease>", self.key_release)
+        self.window.bind("<KeyPress>", self.key_press)
         self.window.option_add("*font", "Helvetica 14")
         infoFrame = tk.Frame(self.window)
         infoFrame.grid(row=0,column=0, padx=(10,10),pady=(10,10))
@@ -31,9 +33,11 @@ class MainGui():
 
         self.speedScale = tk.Scale(infoFrame, from_=15, to=-15, orient = tk.VERTICAL, label="Speed", width=20, length=300, command=self.controller.onSpeedChange)
         self.speedScale.set(0)
+        self.speedScale.bind("<ButtonRelease-1>", self.speed_scale_mouse_release)
         self.speedScale.grid(row=0,column=1, columnspan=1)
         self.steerScale = tk.Scale(infoFrame, from_=-30, to=30, orient = tk.HORIZONTAL, label="Steering", width=20, length=300, command=self.controller.onSteerChange)
         self.steerScale.set(0)
+        self.steerScale.bind("<ButtonRelease-1>", self.steer_scale_mouse_release)
         self.steerScale.grid(row=0,column=0,columnspan=1)
         tk.Button(infoFrame,text="Send Command", command=self.sendMQTT).grid(row=2,column=0,padx=(0,0),sticky=tk.W+tk.E)
         tk.Button(infoFrame,text="Stop", command=self.resetSlider).grid(row=2,column=1,padx=(0,0),sticky=tk.W+tk.E)
@@ -46,7 +50,23 @@ class MainGui():
         self.ignoreLogicButon = tk.Button(buttonFrame, text="Ignore Logic", command=self.controller.toggleIgnoreLogicButton, bg="red")
         self.ignoreLogicButon.grid(row=5,column=0,columnspan=2,sticky=tk.W+tk.E+tk.S,pady=(5,5))
         self.window.mainloop()
-    
+
+    def speed_scale_mouse_release(self, event):
+        self.speedScale.set(0)
+        self.controller.sendCommand()
+
+    def steer_scale_mouse_release(self, event):
+        self.steerScale.set(0)
+        self.controller.sendCommand()
+
+    def key_press(self, event):
+        print(event.keysym)
+        print(event.type)
+
+    def key_release(self, event):
+        print(event.keysym)
+        print(event.type)
+
     def changeIgnoreLogicBColor(self, color):
         self.ignoreLogicButon.configure(bg=color)
     
