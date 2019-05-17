@@ -54,35 +54,3 @@ def isObjectInRedZoneUSDynamic(usData, currentSpeed):
 def convertSpeed(speed):
     speed = 15 - (speed - 75)
     return speed
-
-'''
-def defineRedZoneDynamic(currentSpeed):
-    redZone = 1000.0
-    maxSpeed = 14
-    minSpeed = 6
-    maxZone = 150
-    minZone = 50
-    speed = convertSpeed(currentSpeed)
-
-    if speed >= maxSpeed:
-        redZone = maxZone
-    elif speed <= minSpeed:
-        redZone = minZone
-    else:
-        redZone = minZone + (maxZone - minZone)/((maxSpeed - minSpeed)/(wheelSpeed - minSpeed))
-    
-    return redZone
-
-def isObjectInRedZoneUSDynamic(usData, speed):
-    usData = sensor.getJsonDataFromTag(usData, "us")
-    usData = usData[1:3]
-    for dist in usData:
-        if dist > 2 and dist < defineRedZoneDynamic(speed):
-            #print(str(usData) + "True")
-            return True
-    #print(str(usData) + "False")
-
-def convertSpeed(speed):
-    speed = 15 - (speed - 75)
-    return speed
-'''
