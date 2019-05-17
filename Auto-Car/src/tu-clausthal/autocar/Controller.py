@@ -68,7 +68,10 @@ class Controller():
         return
     
     def connectToCar(self):
-        mqttl.connect(self.client, "192.168.50.141")
+        if "Mobilitaetslabor" in str(subprocess.check_output("netsh wlan show interfaces")):
+            mqttl.connect(self.client, "192.168.50.141")
+        else:
+            print("Not connected to the right Wifi!")
         return
     
     def connectToMoquitto(self):
