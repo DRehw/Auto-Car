@@ -5,9 +5,11 @@ Created on May 11, 2019
 '''
 from gui import MainGui
 import Controller
-import subprocess
-import os
+import MqttConnection
+import Logic
 
 if __name__ == '__main__':
-    controller = Controller.Controller()
+    connection = MqttConnection.MqttConnection()
+    logic = Logic.Logic(connection)
+    controller = Controller.Controller(connection, logic)
     gui = MainGui.MainGui(controller)

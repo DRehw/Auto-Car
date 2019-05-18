@@ -6,6 +6,7 @@ Created on May 12, 2019
 import ast
 import json
 
+
 def getJsonDataFromTag(jsonString, jsonTag):
     jsonObj = json.loads(jsonString)
     res=None
@@ -15,6 +16,7 @@ def getJsonDataFromTag(jsonString, jsonTag):
             #print(res)
             break
     return res
+
 
 def parseAADCData(aadc_data, JSONtag):
     start = aadc_data.find(JSONtag) + len(JSONtag) + 2
@@ -27,6 +29,7 @@ def parseAADCData(aadc_data, JSONtag):
         ss = ss[:end]
         result = ast.literal_eval(ss)
     return result
+
 
 def parseLidarData(aadc_lidar):
     start = aadc_lidar.find("[")
