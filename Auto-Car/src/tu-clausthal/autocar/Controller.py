@@ -12,6 +12,7 @@ import time
 import sensor
 import zones
 import MqttConnection
+import Map
 import json
 
 
@@ -20,25 +21,37 @@ class Controller:
     classdocs
     """
 
-    def __init__(self, mqtt_connection, logic):
+    def __init__(self, mqtt_connection, logic, occupancy_map):
         """
         Constructor
         """
         self.gui = None
         self.currentSpeed = 90
         self.currentSteer = 90
+        self.euler_reseted = False
         self.ignoreLogic = False
         self.lidarNew = False
         self.sensorNew = False
         self.lidarData = None
         self.sensorData = None
+        #self.position = None
+        #self.euler = None
+        self.occupancy_map = occupancy_map
         self.logic = logic
         self._mqtt_connection = mqtt_connection
         return
     
     def gui_init(self, gui):
         self.gui = gui
-    
+
+    def show_map_button(self):
+        self.occupancy_map.show_map()
+
+    def reset_euler_button(self):
+        euler = sensor.getJsonDataFromTag(self.sensorData, "euler")
+        self.occupancy_map.calcConstant(euler)
+        self.euler_reseted = True
+
     def toggle_ignore_logic_button(self):
         self.ignoreLogic = ~self.ignoreLogic
         if self.ignoreLogic:
@@ -58,9 +71,18 @@ class Controller:
                     self.gui.reset_slider()
                 else:
                     self.send_command()
+                    self.sendCommand()
+                #elsif zones.isObjectInYellowZoneUSDynamic(self.lidarData):
+                   # currentSpeed = 83
+                    #self.sendCommand()
             else:
                 if zones.isObjectInRedZoneUSDynamic(self.sensorData, self.currentSpeed):
                     self.gui.reset_slider()
+                    self.currentSpeed = 90
+                    self.sendCommand()
+                elif zones.isObjectInYellowZoneUSDynamic(self.sensorData, self.currentSpeed):
+                    self.currentSpeed = 84
+                    self.sendCommand()
                 else:
                     self.send_command()
         else:
@@ -84,31 +106,29 @@ class Controller:
         self._mqtt_connection.pub("aadc/rc", mqttl.getJSONCmd(self.currentSpeed, self.currentSteer))
         return
 
-    """
-    def on_message(self, client, userdata, message):
-        
-        print("Message received! Topic: " + message.topic)
-        if message.topic == "aadc/lidar":
-            self.lidarNew = True
-            #self.lidarData = sensor.parseAADCData(str(message.payload.decode("utf-8")), "pcl")
-            #self.lidarData = sensor.parseLidarData(str(message.payload.decode("utf-8")))
-            self.lidarData = sensor.getJsonDataFromTag(str(message.payload.decode("utf-8")), "pcl")
-        elif message.topic == "aadc/sensor":
-            self.sensorNew = True
-            self.sensorData = str(message.payload.decode("utf-8"))
-            #millis = int(round(time.time() * 1000))
-            #print("Time since last sensor message: " + str(millis-self.getCmdTimeStamp))
-            self.getCmdTimeStamp = int(round(time.time() * 1000))
-            #self.gpsData = sensor.getJsonDataFromTag(self.sensorData, "position")
-        elif message.topic == "aadc/rc":
-            #print("")
-            pass
-            #print("message received " ,str(message.payload.decode("utf-8")))
-        if self.sensorNew or self.lidarNew:
-            #print("Logic")
-            self.logic()
+
+    def fill_map(self):
+        position = sensor.getJsonDataFromTag(self.sensorData, "position")
+        euler = sensor.getJsonDataFromTag(self.sensorData, "euler")
+        #print(euler)
+        self.occupancy_map.addLidarDataToMap(self.lidarData, position, euler)
+
+    def on_subscribe(self, client, userdata, mid, granted_qos):
+        if self.mid != None:
+            if self.mid == mid:
+                print("Subscribed successively!")
+            else:
+                print("Subscription not successful!")
+        else:
+            print("No previous subscription attempt ?!")
         return
-    """
+    
+    def on_connect(self, client, userdata, flags, rc):
+        if rc != 0:
+            print("Could not connect!")
+        else:
+            print("Connected successively!")
+        return
     
     def on_speed_change(self, val):
         self.currentSpeed = 90 - int(val)

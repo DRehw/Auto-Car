@@ -5,6 +5,8 @@ Created on May 11, 2019
 """
 
 import tkinter as tk
+import Controller
+import Map
 
 
 class MainGui:
@@ -18,6 +20,8 @@ class MainGui:
         """
         self.controller = controller
         self.controller.gui_init(self)
+        self.Map = Map
+        self.controller.guiInit(self)
         self.window = tk.Tk()
         self.window.title("Auto-Car Debug")
         self.window.bind("<KeyRelease>", self.key_release)
@@ -111,6 +115,18 @@ class MainGui:
                                    columnspan=2,
                                    sticky=tk.W+tk.E+tk.S,
                                    pady=(5, 5))
+        tk.Button(button_frame,
+                  text="Show Map",
+                  command=self.controller.show_map_button).grid(row=6,
+                                                                column=0,
+                                                                sticky=tk.W + tk.E + tk.N,
+                                                                pady=(5, 5))
+        tk.Button(button_frame,
+                  text="Reset Euler",
+                  command=self.controller.reset_euler_button).grid(row=6,
+                                                                   column=1,
+                                                                   sticky=tk.W + tk.E + tk.N,
+                                                                   pady=(5, 5))
         self.window.mainloop()
 
     def speed_scale_mouse_release(self, event):
