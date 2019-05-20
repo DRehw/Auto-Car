@@ -69,9 +69,16 @@ class Controller():
                     self.gui.resetSlider()
                 else:
                     self.sendCommand()
+                #elsif zones.isObjectInYellowZoneUSDynamic(self.lidarData):
+                   # currentSpeed = 83
+                    #self.sendCommand()
             else:
                 if zones.isObjectInRedZoneUSDynamic(self.sensorData, self.currentSpeed):
-                    self.gui.resetSlider()
+                    self.currentSpeed = 90
+                    self.sendCommand()
+                elif zones.isObjectInYellowZoneUSDynamic(self.sensorData, self.currentSpeed):
+                    self.currentSpeed = 84
+                    self.sendCommand()
                 else:
                     self.sendCommand()
         else:
@@ -107,9 +114,9 @@ class Controller():
         elif message.topic == "aadc/sensor":
             self.sensorNew = True
             self.sensorData = str(message.payload.decode("utf-8"))
-            millis = int(round(time.time() * 1000))
+            #millis = int(round(time.time() * 1000))
             #print("Time since last sensor message: " + str(millis-self.getCmdTimeStamp))
-            self.getCmdTimeStamp = int(round(time.time() * 1000))
+            #self.getCmdTimeStamp = int(round(time.time() * 1000))
             #self.position = sensor.getJsonDataFromTag(self.sensorData, "position")
             #self.euler = sensor.getJsonDataFromTag(self.sensorData, "euler")
         elif message.topic == "aadc/rc":
