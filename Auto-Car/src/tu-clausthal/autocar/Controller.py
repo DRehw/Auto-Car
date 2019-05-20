@@ -11,6 +11,7 @@ import os
 import time
 import sensor
 import zones
+import Map
 import json
 
 class Controller():
@@ -18,17 +19,21 @@ class Controller():
     classdocs
     '''
 
-    def __init__(self):
+    def __init__(self, occupancy_map):
         '''
         Constructor
         '''
         self.currentSpeed = 90
         self.currentSteer = 90
+        self.euler_reseted = False
         self.ignoreLogic = False
         self.lidarNew = False
         self.sensorNew = False
         self.lidarData = None
         self.sensorData = None
+        #self.position = None
+        #self.euler = None
+        self.occupancy_map = occupancy_map
         self.getCmdTimeStamp = 0
         self.sendCmdTimeStamp = 0
         self.client = mqttl.getClient("Client", self.on_connect, self.on_subscribe, self.on_message, self.on_disconnect)
@@ -36,6 +41,14 @@ class Controller():
     
     def guiInit(self, gui):
         self.gui = gui
+
+    def show_map_button(self):
+        self.occupancy_map.show_map()
+
+    def reset_euler_button(self):
+        euler = sensor.getJsonDataFromTag(self.sensorData, "euler")
+        self.occupancy_map.calcConstant(euler)
+        self.euler_reseted = True
     
     def toggleIgnoreLogicButton(self):
         self.ignoreLogic = ~self.ignoreLogic
@@ -90,13 +103,15 @@ class Controller():
             #self.lidarData = sensor.parseAADCData(str(message.payload.decode("utf-8")), "pcl")
             #self.lidarData = sensor.parseLidarData(str(message.payload.decode("utf-8")))
             self.lidarData = sensor.getJsonDataFromTag(str(message.payload.decode("utf-8")), "pcl")
+            #print(self.lidarData)
         elif message.topic == "aadc/sensor":
             self.sensorNew = True
             self.sensorData = str(message.payload.decode("utf-8"))
             millis = int(round(time.time() * 1000))
             #print("Time since last sensor message: " + str(millis-self.getCmdTimeStamp))
             self.getCmdTimeStamp = int(round(time.time() * 1000))
-            #self.gpsData = sensor.getJsonDataFromTag(self.sensorData, "position")
+            #self.position = sensor.getJsonDataFromTag(self.sensorData, "position")
+            #self.euler = sensor.getJsonDataFromTag(self.sensorData, "euler")
         elif message.topic == "aadc/rc":
             #print("")
             pass
@@ -104,7 +119,15 @@ class Controller():
         if self.sensorNew or self.lidarNew:
             #print("Logic")
             self.logic()
+            if self.euler_reseted == True:
+                self.fill_map()
         return
+
+    def fill_map(self):
+        position = sensor.getJsonDataFromTag(self.sensorData, "position")
+        euler = sensor.getJsonDataFromTag(self.sensorData, "euler")
+        #print(euler)
+        self.occupancy_map.addLidarDataToMap(self.lidarData, position, euler)
     
     def on_subscribe(self, client, userdata, mid, granted_qos):
         if self.mid != None:

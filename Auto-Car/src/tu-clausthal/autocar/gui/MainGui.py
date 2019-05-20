@@ -6,6 +6,7 @@ Created on May 11, 2019
 
 import tkinter as tk
 import Controller
+import Map
 
 class MainGui():
     '''
@@ -17,6 +18,7 @@ class MainGui():
         Constructor
         '''
         self.controller = controller
+        self.Map = Map
         self.controller.guiInit(self)
         self.window = tk.Tk()
         self.window.title("Auto-Car Debug")
@@ -47,6 +49,9 @@ class MainGui():
         tk.Button(buttonFrame, text="Subscribe to 'aadc/rc','aadc/sensor','aadc/lidar'", command=self.subscribe).grid(row=2,column=0,columnspan=2,sticky=tk.W+tk.E,pady=(5,5))
         tk.Button(buttonFrame, text="Open Cmd at Mosquitto path", command=self.cmdSend).grid(row=3,column=0,columnspan=2,sticky=tk.W+tk.E,pady=(5,5))
         tk.Button(buttonFrame, text="Send test messages", command=self.controller.sendTest).grid(row=4,column=0,columnspan=2,sticky=tk.W+tk.E,pady=(5,5))
+        tk.Button(buttonFrame, text="Show Map", command=self.controller.show_map_button).grid(row=6, column=0, sticky=tk.W + tk.E + tk.N,pady=(5, 5))
+        tk.Button(buttonFrame, text="Reset Euler", command=self.controller.reset_euler_button).grid(row=6, column=1, sticky=tk.W + tk.E + tk.N, pady=(5, 5))
+
         self.ignoreLogicButon = tk.Button(buttonFrame, text="Ignore Logic", command=self.controller.toggleIgnoreLogicButton, bg="red")
         self.ignoreLogicButon.grid(row=5,column=0,columnspan=2,sticky=tk.W+tk.E+tk.S,pady=(5,5))
         self.window.mainloop()
@@ -96,4 +101,4 @@ class MainGui():
     
     def cmdSend(self):
         self.controller.startCmdMosqPath()
-        return 
+        return

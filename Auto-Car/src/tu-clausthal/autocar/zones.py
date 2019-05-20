@@ -37,7 +37,7 @@ def defineRedZoneDynamic(currentSpeed):
         redZone = minZone
     else:
         redZone = minZone + (maxZone - minZone)/((maxSpeed - minSpeed)/(speed - minSpeed))
-    print(redZone)
+    #print(redZone)
     return redZone
 
 def isObjectInRedZoneUSDynamic(usData, currentSpeed):
