@@ -21,7 +21,7 @@ class MainGui:
         self.controller = controller
         self.controller.gui_init(self)
         self.Map = Map
-        self.controller.guiInit(self)
+        self.controller.gui_init(self)
         self.window = tk.Tk()
         self.window.title("Auto-Car Debug")
         self.window.bind("<KeyRelease>", self.key_release)
@@ -68,10 +68,13 @@ class MainGui:
                                                                                 column=0,
                                                                                 padx=(0, 0),
                                                                                 sticky=tk.W+tk.E)
-        tk.Button(info_frame, text="Stop", command=self.reset_slider).grid(row=2,
-                                                                           column=1,
-                                                                           padx=(0, 0),
-                                                                           sticky=tk.W+tk.E)
+        self.stop_btn = tk.Button(info_frame,
+                                  text="Stop",
+                                  command=self.stop)
+        self.stop_btn.grid(row=2,
+                           column=1,
+                           padx=(0, 0),
+                           sticky=tk.W+tk.E)
     
         tk.Button(button_frame,
                   text="Connect to local Broker",
@@ -106,15 +109,14 @@ class MainGui:
                                                           columnspan=2,
                                                           sticky=tk.W+tk.E,
                                                           pady=(5, 5))
-        self.ignoreLogicButon = tk.Button(button_frame,
-                                          text="Ignore Logic",
-                                          command=self.controller.toggle_ignore_logic_button,
-                                          bg="red")
-        self.ignoreLogicButon.grid(row=5,
-                                   column=0,
-                                   columnspan=2,
-                                   sticky=tk.W+tk.E+tk.S,
-                                   pady=(5, 5))
+        self.manual_control_btn = tk.Button(button_frame,
+                                            text="Ignore Logic",
+                                            command=self.controller.toggle_manual_control_button)
+        self.manual_control_btn.grid(row=5,
+                                     column=0,
+                                     columnspan=2,
+                                     sticky=tk.W+tk.E+tk.S,
+                                     pady=(5, 5))
         tk.Button(button_frame,
                   text="Show Map",
                   command=self.controller.show_map_button).grid(row=6,
@@ -131,11 +133,10 @@ class MainGui:
 
     def speed_scale_mouse_release(self, event):
         self.speedScale.set(0)
-        self.controller.send_command()
 
     def steer_scale_mouse_release(self, event):
-        self.steerScale.set(0)
-        self.controller.send_command()
+        pass
+        #self.steerScale.set(0)
 
     @staticmethod
     def key_press(event):
@@ -147,17 +148,17 @@ class MainGui:
         print(event.keysym)
         print(event.type)
 
-    def ignore_logic_set_color(self, color):
-        self.ignoreLogicButon.configure(bg=color)
+    def manual_control_btn_set_color(self, color):
+        self.manual_control_btn.configure(bg=color)
+
+    def stop_btn_set_color(self, color):
+        self.stop_btn.configure(bg=color)
     
     def send_mqtt(self):
-        self.controller.send_command()
         return
     
-    def reset_slider(self):
-        self.speedScale.set(0)
-        self.steerScale.set(0)
-        self.controller.send_command()
+    def stop(self):
+        self.controller.stop_cmd()
         return
     
     def connect_to_local_broker(self):
