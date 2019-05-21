@@ -4,15 +4,14 @@ Hallo
 import json
 import ast
 import zones
+from CurrentData import CurrentData
 
 
 class Logic:
 
     def __init__(self, mqtt_connection):
         self.mqtt_connection = mqtt_connection
-        self.mqtt_connection.set_callback_methods(on_message=self.on_mqtt_message)
-        self.lidar_json = None
-        self.sensor_json = None
+        CurrentData.register_method_as_observer(self.on_data_change)
         self.__manual_control = False
         self.__stop = False
         self.__current_speed = 90
@@ -51,36 +50,21 @@ class Logic:
         if ~self.__stop and self.__manual_control:
             self.send_command_manual()
 
-    def on_mqtt_message(self, client, userdata, message):
-        a = 0
-        if message.topic == "aadc/lidar":
-            self.lidar_json = json.loads(str(message.payload.decode("utf-8")))
-            a += 1
-        elif message.topic == "aadc/sensor":
-            self.sensor_json = json.loads(str(message.payload.decode("utf-8")))
-            a += 1
-        if a > 0:
-            self.main_logic()
-        return
-
-    def get_value_from_json_tag(self, json_obj, tag_str):
-        res = None
-        for key, value in json_obj.items():
-            if key == tag_str:
-                res = ast.literal_eval(str(value))
-                break
-        return res
-
     def send_command_manual(self):
         self.mqtt_connection.send_car_command(self.__current_speed_slider, self.__current_steer_slider)
 
     def send_command_logic(self):
+        print("self command logic")
         self.mqtt_connection.send_car_command(self.__current_speed, self.__current_steer)
 
+    def on_data_change(self, changed_data_str):
+        if changed_data_str == "lidar" or changed_data_str == "sensor":
+            self.main_logic()
+        return
+
     def main_logic(self):
-        print("logic")
         if ~self.__stop:
-            if ~self.manual_control:
+            if ~self.__manual_control:
                 if False:
                 #if self.lidarNew and self.sensorNew:
                     if zones.isObjectInRedZoneLidar(self.lidarData):
@@ -91,10 +75,10 @@ class Logic:
                     # currentSpeed = 83
                         #self.sendCommand()
                 else:
-                    if zones.isObjectInRedZoneUSDynamic(self.sensor_json, self.__current_speed):
+                    if zones.isObjectInRedZoneUSDynamic(self.__current_speed):
                         self.__current_speed = 90
                         self.send_command_logic()
-                    elif zones.isObjectInYellowZoneUSDynamic(self.sensor_json, self.__current_speed):
+                    elif zones.isObjectInYellowZoneUSDynamic(self.__current_speed):
                         self.__current_speed = 84
                         self.send_command_logic()
                     else:

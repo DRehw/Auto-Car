@@ -4,7 +4,6 @@ Created on May 11, 2019
 @author: Dave
 """
 
-import mqtt.mqttlib as mqttl
 import subprocess
 import threading
 import os
@@ -14,6 +13,7 @@ import zones
 import MqttConnection
 import Map
 import json
+from MqttConnection import MqttConnection
 
 
 class Controller:
@@ -47,7 +47,7 @@ class Controller:
 
     def reset_euler_button(self):
         euler = sensor.getJsonDataFromTag(self.sensorData, "euler")
-        self.occupancy_map.calcConstant(euler)
+        self.occupancy_map.calc_constant(euler)
         self.euler_reseted = True
 
     def toggle_manual_control_button(self):
@@ -70,12 +70,6 @@ class Controller:
     def connect_to_moquitto(self):
         self.__mqtt_connection.connect()
         return
-
-    def fill_map(self):
-        position = sensor.getJsonDataFromTag(self.sensorData, "position")
-        euler = sensor.getJsonDataFromTag(self.sensorData, "euler")
-        #print(euler)
-        self.occupancy_map.addLidarDataToMap(self.lidarData, position, euler)
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
         if self.mid != None:
@@ -104,7 +98,7 @@ class Controller:
     
     def start_cmd_mosq_path(self):
         mosqPath = '"' + os.environ.get('MOSQUITTO_DIR')+'\\"'
-        cmdMosqPub = "mosquitto_pub -t aadc/rc -h 192.168.50.141 -m \"{}\"".format(mqttl.getJSONCmd(90,90))
+        cmdMosqPub = "mosquitto_pub -t aadc/rc -h 192.168.50.141 -m \"{}\"".format(get_json_cmd(90, 90))
         cmdMosqSub = "mosquitto_sub -t aadc/ -h 192.168.50.141"
         os.system('start "Send Mosquitto Messages" cmd /k "cd ' + mosqPath + ' && echo ' + cmdMosqPub + ' && echo ---------- && echo ' + cmdMosqSub + '"')
         return 

@@ -8,6 +8,7 @@ Created on 14.05.2019
 import math
 import matplotlib as mpl
 from matplotlib import pyplot
+from CurrentData import CurrentData
 import numpy as np
 
 
@@ -35,11 +36,16 @@ class Map:
                                 the x-dimension and height is the size
                                 of the y-dimension.
         '''
+        CurrentData.register_method_as_observer(self.on_data_change)
         self.width = width  # x_max
         self.height = height  # y_max
         #self.grid = np.arange(width*height).reshape(width,height)
         self.grid = np.zeros((width,height))
         self.constant = 0  #Used to correct for wrong starting position of euler
+
+    def on_data_change(self, changed_data_str):
+        if changed_data_str == "lidar":
+            self.add_lidar_data_to_map()
 
     def set_cell(self, x, y, val):
         ''' Set the value of a cell in the grid.
@@ -81,7 +87,7 @@ class Map:
         pyplot.show()
         return
 
-    def getLidarVector(self, measurement, position, euler):
+    def get_lidar_vector(self, measurement, position, euler):
         # calculates coordinates based on a lidar measurement, used in addLidarDataToMap
         radians = math.radians(measurement[1])
         radians = radians + math.radians(euler[0])
@@ -91,21 +97,23 @@ class Map:
         #print(xCoord, yCoord)
         return (int(round(xCoord, 0)), int(round(yCoord, 0)))
 
-    def addLidarDataToMap(self, lidarData, position, euler):
+    def add_lidar_data_to_map(self):
     # implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
     # should be called on whenever Controller.onMessage() receives lidar data
-
+        position = CurrentData.get_value_from_tag_from_sensor("position")
+        euler = CurrentData.get_value_from_tag_from_sensor("euler")
+        lidarData = CurrentData.get_value_from_tag_from_lidar("pcl")
         for i in range(len(lidarData)):
             if lidarData[i][1] < 90 or lidarData[i][1] > 270:
-                coord = self.getLidarVector(lidarData[i], position, euler)
+                coord = self.get_lidar_vector(lidarData[i], position, euler)
                 #print(coord[0], coord[1])
                 if (self.width > coord[0] > 0) and (self.height > coord[1] > 0):
                     #print("coordinates ok")
-                    Map.set_cell(self,coord[0],coord[1],1)
+                    Map.set_cell(self,coord[0], coord[1], 1)
                     #map[coord[0]][coord[1]] = True
         return
 
-    def calcConstant(self, euler):
+    def calc_constant(self, euler):
         # calculates constant based on aadc/sensor/euler, to be used when car is put in the base position
         # should get a GUI Button
 

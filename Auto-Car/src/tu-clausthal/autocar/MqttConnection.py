@@ -3,6 +3,8 @@
 """
 import paho.mqtt.client as mqtt
 from time import time
+from CurrentData import CurrentData
+from json import loads
 
 
 class MqttConnection:
@@ -92,6 +94,10 @@ class MqttConnection:
     def _on_message(self, client, userdata, message):
         if self.on_message is not None:
             self.on_message(client, userdata, message)
+        if message.topic == "aadc/lidar":
+            CurrentData.set_lidar_json(loads(str(message.payload.decode("utf-8"))))
+        elif message.topic == "aadc/sensor":
+            CurrentData.set_sensor_json(loads(str(message.payload.decode("utf-8"))))
         return
 
     def _on_subscribe(self, client, userdata, mid, granted_qos):

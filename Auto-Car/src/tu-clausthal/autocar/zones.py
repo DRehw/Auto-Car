@@ -6,6 +6,7 @@ Created on May 12, 2019
 
 import math
 import sensor
+from CurrentData import CurrentData
 
 
 def isObjectInRedZoneLidar(lidarData):
@@ -15,8 +16,8 @@ def isObjectInRedZoneLidar(lidarData):
             return True
     return False
 
-def isObjectInRedZoneUS(usData):
-    usData = sensor.getJsonDataFromTag(usData, "us")
+def isObjectInRedZoneUS():
+    usData = CurrentData.get_value_from_tag_from_sensor("us")
     usData = usData[1:3]
     for dist in usData:
         if dist > 2 and dist < 100:
@@ -58,8 +59,8 @@ def defineYellowZoneDynamic(currentSpeed):
     #print(redZone)
     return redZone
 
-def isObjectInRedZoneUSDynamic(usData, currentSpeed):
-    usData = sensor.getJsonDataFromTag(usData, "us")
+def isObjectInRedZoneUSDynamic(currentSpeed):
+    usData = CurrentData.get_value_from_tag_from_sensor("us")
     usData = usData[1:3]
     for dist in usData:
         if dist > 2 and dist < defineRedZoneDynamic(currentSpeed):
@@ -70,8 +71,8 @@ def isObjectInRedZoneUSDynamic(usData, currentSpeed):
     #print(str(usData) + "False")
 
 
-def isObjectInYellowZoneUSDynamic(usData, currentSpeed):
-    usData = sensor.getJsonDataFromTag(usData, "us")
+def isObjectInYellowZoneUSDynamic(currentSpeed):
+    usData = CurrentData.get_value_from_tag_from_sensor("us")
     usData = usData[1:3]
     for dist in usData:
         if dist > 2 and dist < defineYellowZoneDynamic(currentSpeed):
