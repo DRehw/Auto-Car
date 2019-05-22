@@ -28,6 +28,10 @@ class CurrentData:
             self.__observer_methods = []
 
         def set_lidar_json(self, lidar_json):
+            parsed_lidar_data = CurrentData.get_value_from_tag_from_json(lidar_json, "pcl")
+
+            filtered_lidar_data = [data for data in parsed_lidar_data if not (data[0] <= 10)]  # and data[2] < 1920.5
+            lidar_json["pcl"] = str(filtered_lidar_data)
             self.__lidar_json = lidar_json
 
         def get_lidar_json(self):
@@ -67,7 +71,7 @@ class CurrentData:
     def __on_data_change(changed_data_str):
         if CurrentData.instance:
             for method in CurrentData.instance.get_observer_methods():
-                #print("method to run: " + str(method))
+                # print("method to run: " + str(method))
                 method(changed_data_str)
         return
 
