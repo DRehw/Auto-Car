@@ -31,7 +31,7 @@ class Controller:
         self.occupancy_map = occupancy_map
         self.logic = logic
         self.__mqtt_connection = mqtt_connection
-        self.__mqtt_connection.set_callback_methods(on_connect=self.subscribe)
+        self.__mqtt_connection.add_callback_methods(on_connect=self.subscribe)
         return
 
     def subscribe(self, client, userdata, flags, rc):
