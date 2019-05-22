@@ -38,6 +38,13 @@ class MainGui:
                           padx=(10, 10),
                           pady=(10, 10),
                           sticky=tk.N)
+        simulator_frame = tk.Frame(self.window)
+        simulator_frame.grid(row=1,
+                             column=0,
+                             columnspan=2,
+                             padx=(10, 10),
+                             pady=(10, 10),
+                             sticky=tk.N + tk.E + tk.W)
 
         self.window.columnconfigure(0, weight=1)
         self.window.columnconfigure(1, weight=1)
@@ -121,6 +128,90 @@ class MainGui:
                                                                    column=1,
                                                                    sticky=tk.W + tk.E + tk.N,
                                                                    pady=(5, 5))
+        simulator_frame.columnconfigure(0, weight=1)
+        simulator_frame.columnconfigure(1, weight=1)
+
+        simulator_record_frame = tk.Frame(simulator_frame)
+        simulator_record_frame.grid(row=0,
+                                    column=0,
+                                    sticky=tk.N + tk.W + tk.E,
+                                    pady=(5, 5),
+                                    padx=(5, 5))
+        simulator_record_frame.columnconfigure(0, weight=3)
+        simulator_record_frame.columnconfigure(1, weight=1)
+
+        simulator_play_frame = tk.Frame(simulator_frame)
+        simulator_play_frame.grid(row=0,
+                                  column=1,
+                                  sticky=tk.N + tk.W + tk.E,
+                                  pady=(5, 5),
+                                  padx=(5, 5))
+        simulator_play_frame.columnconfigure(0, weight=3)
+        simulator_play_frame.columnconfigure(1, weight=1)
+
+        tk.Label(simulator_record_frame, text="Record data").grid(row=0,
+                                                                  column=0,
+                                                                  columnspan=2,
+                                                                  padx=(5, 5),
+                                                                  pady=(5, 5))
+        play_data_path_entry = tk.Entry(simulator_record_frame)
+        play_data_path_entry.grid(row=1,
+                                  column=0,
+                                  sticky=tk.W + tk.E + tk.N + tk.S,
+                                  padx=(5, 5),
+                                  pady=(5, 5))
+        play_data_select_path_btn = tk.Button(simulator_record_frame,
+                                              text="Change Path")
+        play_data_select_path_btn.grid(row=1,
+                                       column=1,
+                                       sticky=tk.E + tk.W + tk.N + tk.S,
+                                       padx=(5, 5),
+                                       pady=(5, 5))
+        tk.Label(simulator_play_frame, text="Play data").grid(row=0,
+                                                              column=0,
+                                                              columnspan=2,
+                                                              padx=(5, 5),
+                                                              pady=(5, 5))
+        play_data_play_btn = tk.Button(simulator_play_frame,
+                                       text="Play")
+        play_data_play_btn.grid(row=2,
+                                column=0,
+                                sticky=tk.N + tk.S + tk.E + tk.W,
+                                padx=(5, 5),
+                                pady=(5, 5))
+        play_data_stop_btn = tk.Button(simulator_play_frame,
+                                       text="Stop")
+        play_data_stop_btn.grid(row=2,
+                                column=1,
+                                sticky=tk.N + tk.S + tk.E + tk.W,
+                                padx=(5, 5),
+                                pady=(5, 5))
+        record_data_path_entry = tk.Entry(simulator_play_frame)
+        record_data_path_entry.grid(row=1,
+                                    column=0,
+                                    sticky=tk.W + tk.E + tk.N + tk.S,
+                                    padx=(5, 5),
+                                    pady=(5, 5))
+        record_data_select_path_btn = tk.Button(simulator_play_frame,
+                                                text="Change Path")
+        record_data_select_path_btn.grid(row=1,
+                                         column=1,
+                                         sticky=tk.E + tk.W + tk.N + tk.S,
+                                         pady=(5, 5))
+        record_data_record_btn = tk.Button(simulator_record_frame,
+                                           text="Start Record")
+        record_data_record_btn.grid(row=2,
+                                    column=0,
+                                    sticky=tk.N + tk.S + tk.E + tk.W,
+                                    padx=(5, 5),
+                                    pady=(5, 5))
+        record_data_stop_btn = tk.Button(simulator_record_frame,
+                                         text="Stop")
+        record_data_stop_btn.grid(row=2,
+                                  column=1,
+                                  sticky=tk.N + tk.S + tk.E + tk.W,
+                                  padx=(5, 5),
+                                  pady=(5, 5))
         self.window.mainloop()
 
     def speed_scale_mouse_release(self, event):
@@ -128,13 +219,15 @@ class MainGui:
 
     @staticmethod
     def key_press(event):
-        print(event.keysym)
-        print(event.type)
+        # print(event.keysym)
+        # print(event.type)
+        pass
 
     @staticmethod
     def key_release(event):
-        print(event.keysym)
-        print(event.type)
+        # print(event.keysym)
+        # print(event.type)
+        pass
 
     def manual_control_btn_set_color(self, color):
         self.manual_control_btn.configure(bg=color)
