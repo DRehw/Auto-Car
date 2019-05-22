@@ -42,27 +42,27 @@ class MainGui:
         self.window.columnconfigure(0, weight=1)
         self.window.columnconfigure(1, weight=1)
 
-        self.speedScale = tk.Scale(info_frame,
-                                   from_=15,
-                                   to=-15,
-                                   orient=tk.VERTICAL,
-                                   label="Speed",
-                                   width=20,
-                                   length=300,
-                                   command=self.controller.on_speed_change)
-        self.speedScale.set(0)
-        self.speedScale.bind("<ButtonRelease-1>", self.speed_scale_mouse_release)
-        self.speedScale.grid(row=0, column=1, columnspan=1)
-        self.steerScale = tk.Scale(info_frame,
-                                   from_=-30,
-                                   to=30,
-                                   orient=tk.HORIZONTAL,
-                                   label="Steering",
-                                   width=20,
-                                   length=300,
-                                   command=self.controller.on_steer_change)
-        self.steerScale.set(0)
-        self.steerScale.grid(row=0, column=0, columnspan=1)
+        self.speed_scale = tk.Scale(info_frame,
+                                    from_=15,
+                                    to=-15,
+                                    orient=tk.VERTICAL,
+                                    label="Speed",
+                                    width=20,
+                                    length=300,
+                                    command=self.controller.on_speed_change)
+        self.speed_scale.set(0)
+        self.speed_scale.bind("<ButtonRelease-1>", self.speed_scale_mouse_release)
+        self.speed_scale.grid(row=0, column=1, columnspan=1)
+        self.steer_scale = tk.Scale(info_frame,
+                                    from_=-30,
+                                    to=30,
+                                    orient=tk.HORIZONTAL,
+                                    label="Steering",
+                                    width=20,
+                                    length=300,
+                                    command=self.controller.on_steer_change)
+        self.steer_scale.set(0)
+        self.steer_scale.grid(row=0, column=0, columnspan=1)
         tk.Button(info_frame, text="Send Command", command=self.send_mqtt).grid(row=2,
                                                                                 column=0,
                                                                                 padx=(0, 0),
@@ -124,7 +124,7 @@ class MainGui:
         self.window.mainloop()
 
     def speed_scale_mouse_release(self, event):
-        self.speedScale.set(0)
+        self.speed_scale.set(0)
 
     @staticmethod
     def key_press(event):
