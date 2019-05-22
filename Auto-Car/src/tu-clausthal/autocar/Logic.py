@@ -54,7 +54,7 @@ class Logic:
         self.mqtt_connection.send_car_command(self.__current_speed_slider, self.__current_steer_slider)
 
     def send_command_logic(self):
-        print("self command logic")
+        #print("self command logic")
         self.mqtt_connection.send_car_command(self.__current_speed, self.__current_steer)
 
     def on_data_change(self, changed_data_str):
@@ -63,9 +63,9 @@ class Logic:
         return
 
     def main_logic(self):
-        if ~self.__stop:
-            if ~self.__manual_control:
-                if False:
+        if not self.__stop:
+            if not self.__manual_control:
+                """
                 #if self.lidarNew and self.sensorNew:
                     if zones.isObjectInRedZoneLidar(self.lidarData):
                         self.__current_speed = 0
@@ -74,18 +74,16 @@ class Logic:
                     #elsif zones.isObjectInYellowZoneUSDynamic(self.lidarData):
                     # currentSpeed = 83
                         #self.sendCommand()
+                """
+                if zones.isObjectInRedZoneUSDynamic(self.__current_speed):
+                    self.__current_speed = 90
+                    self.send_command_logic()
+                    """elif zones.isObjectInYellowZoneUSDynamic(self.__current_speed):
+                    self.__current_speed = 84
+                    self.send_command_logic()"""
                 else:
-                    if zones.isObjectInRedZoneUSDynamic(self.__current_speed):
-                        self.__current_speed = 90
-                        self.send_command_logic()
-                    elif zones.isObjectInYellowZoneUSDynamic(self.__current_speed):
-                        self.__current_speed = 84
-                        self.send_command_logic()
-                    else:
-                        pass
-                        #self.send_command_manual()
+                    self.send_command_manual()
             else:
-                pass
-                #self.send_command_manual()
+                self.send_command_manual()
         else:
             self.send_stop()

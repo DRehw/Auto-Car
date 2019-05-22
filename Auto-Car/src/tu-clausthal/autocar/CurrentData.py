@@ -67,7 +67,7 @@ class CurrentData:
     def __on_data_change(changed_data_str):
         if CurrentData.instance:
             for method in CurrentData.instance.get_observer_methods():
-                print("method to run: " + str(method))
+                #print("method to run: " + str(method))
                 method(changed_data_str)
         return
 

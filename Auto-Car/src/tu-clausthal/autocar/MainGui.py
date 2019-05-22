@@ -62,7 +62,6 @@ class MainGui:
                                    length=300,
                                    command=self.controller.on_steer_change)
         self.steerScale.set(0)
-        self.steerScale.bind("<ButtonRelease-1>", self.steer_scale_mouse_release)
         self.steerScale.grid(row=0, column=0, columnspan=1)
         tk.Button(info_frame, text="Send Command", command=self.send_mqtt).grid(row=2,
                                                                                 column=0,
@@ -89,43 +88,36 @@ class MainGui:
                                                     sticky=tk.W+tk.E,
                                                     pady=(5, 5))
         tk.Button(button_frame,
-                  text="Subscribe to 'aadc/rc','aadc/sensor','aadc/lidar'",
-                  command=self.subscribe).grid(row=2,
-                                               column=0,
-                                               columnspan=2,
-                                               sticky=tk.W+tk.E,
-                                               pady=(5, 5))
-        tk.Button(button_frame,
                   text="Open Cmd at Mosquitto path",
-                  command=self.cmd_send).grid(row=3,
+                  command=self.cmd_send).grid(row=2,
                                               column=0,
                                               columnspan=2,
                                               sticky=tk.W+tk.E,
                                               pady=(5, 5))
         tk.Button(button_frame,
                   text="Send test messages",
-                  command=self.controller.send_test).grid(row=4,
+                  command=self.controller.send_test).grid(row=3,
                                                           column=0,
                                                           columnspan=2,
                                                           sticky=tk.W+tk.E,
                                                           pady=(5, 5))
         self.manual_control_btn = tk.Button(button_frame,
-                                            text="Ignore Logic",
+                                            text="Manual Control",
                                             command=self.controller.toggle_manual_control_button)
-        self.manual_control_btn.grid(row=5,
+        self.manual_control_btn.grid(row=4,
                                      column=0,
                                      columnspan=2,
                                      sticky=tk.W+tk.E+tk.S,
                                      pady=(5, 5))
         tk.Button(button_frame,
                   text="Show Map",
-                  command=self.controller.show_map_button).grid(row=6,
+                  command=self.controller.show_map_button).grid(row=5,
                                                                 column=0,
                                                                 sticky=tk.W + tk.E + tk.N,
                                                                 pady=(5, 5))
         tk.Button(button_frame,
                   text="Reset Euler",
-                  command=self.controller.reset_euler_button).grid(row=6,
+                  command=self.controller.reset_euler_button).grid(row=5,
                                                                    column=1,
                                                                    sticky=tk.W + tk.E + tk.N,
                                                                    pady=(5, 5))
@@ -133,10 +125,6 @@ class MainGui:
 
     def speed_scale_mouse_release(self, event):
         self.speedScale.set(0)
-
-    def steer_scale_mouse_release(self, event):
-        pass
-        #self.steerScale.set(0)
 
     @staticmethod
     def key_press(event):
