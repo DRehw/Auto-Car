@@ -109,7 +109,7 @@ class Map:
                 #print(coord[0], coord[1])
                 if (self.width > coord[0] > 0) and (self.height > coord[1] > 0):
                     #print("coordinates ok")
-                    Map.set_cell(self,coord[0], coord[1], 1)
+                    Map.set_cell(self, coord[0], coord[1], 1)
                     #map[coord[0]][coord[1]] = True
         return
 
