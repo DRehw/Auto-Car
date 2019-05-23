@@ -111,16 +111,26 @@ class MainGui:
                                      pady=(5, 5))
         tk.Button(button_frame,
                   text="Show Map",
-                  command=self.controller.show_map_button).grid(row=5,
+                  command=self.controller.show_map_button).grid(row=6,
                                                                 column=0,
                                                                 sticky=tk.W + tk.E + tk.N,
                                                                 pady=(5, 5))
         tk.Button(button_frame,
                   text="Reset Euler",
-                  command=self.controller.reset_euler_button).grid(row=5,
+                  command=self.controller.reset_euler_button).grid(row=6,
                                                                    column=1,
                                                                    sticky=tk.W + tk.E + tk.N,
                                                                    pady=(5, 5))
+        self.autopilot_control_btn = tk.Button(button_frame,
+                                               text="Enable Autopilot",
+                                               command=self.controller.toggle_autopilot_button)
+
+        self.autopilot_control_btn.grid(row=5,
+                                        column=0,
+                                        columnspan=2,
+                                        sticky=tk.W + tk.E + tk.N,
+                                        pady=(5, 5))
+
         self.window.mainloop()
 
     def speed_scale_mouse_release(self, event):
@@ -138,6 +148,9 @@ class MainGui:
 
     def manual_control_btn_set_color(self, color):
         self.manual_control_btn.configure(bg=color)
+
+    def autopilot_control_btn_set_color(self, color):
+        self.autopilot_control_btn.configure(bg = color)
 
     def stop_btn_set_color(self, color):
         self.stop_btn.configure(bg=color)

@@ -57,6 +57,12 @@ class Controller:
         self.euler_reseted = True
 
     def toggle_manual_control_button(self):
+        # disable autopilot
+        if self.logic.get_autopilot_control():
+            self.logic.set_autopilot_control(not self.logic.get_autopilot_control())
+            print("Autopilot disabled")
+            self.gui.autopilot_control_btn_set_color("SystemButtonFace")
+        # switch manual control
         self.logic.set_manual_control(~self.logic.get_manual_control())
         if self.logic.get_manual_control():
             print("Switched to manual control!")
@@ -65,7 +71,22 @@ class Controller:
             print("Switched to logic mode!")
             self.gui.manual_control_btn_set_color("SystemButtonFace")
         return
-    
+
+    def toggle_autopilot_button(self):
+        # disable manual control
+        if self.logic.get_manual_control():
+            self.logic.set_manual_control(not self.logic.get_manual_control())
+            print("Manual control disabled")
+            self.gui.manual_control_btn_set_color("SystemButtonFace")
+        # switch autopilot
+        self.logic.set_autopilot_control(not self.logic.get_autopilot_control())
+        if self.logic.get_autopilot_control():
+            print("Autopilot enabled")
+            self.gui.autopilot_control_btn_set_color("red")
+        else:
+            print("Autopilot disabled")
+            self.gui.autopilot_control_btn_set_color("SystemButtonFace")
+
     def connect_to_car(self):
         if "Mobilitaetslabor" in str(subprocess.check_output("netsh wlan show interfaces")):
             self.__mqtt_connection.connect("192.168.50.141")

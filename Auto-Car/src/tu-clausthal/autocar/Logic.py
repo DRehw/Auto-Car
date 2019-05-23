@@ -13,6 +13,7 @@ class Logic:
         self.mqtt_connection = mqtt_connection
         CurrentData.register_method_as_observer(self.on_data_change)
         self.__manual_control = False
+        self.__autopilot_control = False
         self.__stop = False
         self.__current_speed = 90
         self.__current_speed_slider = 90
@@ -37,8 +38,15 @@ class Logic:
         self.__manual_control = mc
         return
 
+    def set_autopilot_control(self, ac = True):
+        self.__autopilot_control = ac
+        return
+
     def get_manual_control(self):
         return self.__manual_control
+
+    def get_autopilot_control(self):
+        return self.__autopilot_control
 
     def set_speed_slider(self, val):
         self.__current_speed_slider = val
@@ -58,6 +66,14 @@ class Logic:
         self.mqtt_connection.send_car_command(self.__current_speed, self.__current_steer)
 
     def on_data_change(self, changed_data_str):
+        """if changed_data_str == "lidar":
+            lidar = CurrentData.get_value_from_tag_from_lidar("pcl")
+            max = 0
+            for data in lidar:
+                if data[2] > max:
+                    max = data[2]
+            print(max)
+            print(str(lidar[0][2]) + "\n")"""
         if changed_data_str == "lidar" or changed_data_str == "sensor":
             self.main_logic()
         return
@@ -65,24 +81,26 @@ class Logic:
     def main_logic(self):
         if not self.__stop:
             if not self.__manual_control:
-                """
-                #if self.lidarNew and self.sensorNew:
-                    if zones.isObjectInRedZoneLidar(self.lidarData):
-                        self.__current_speed = 0
+                if self.__autopilot_control:
+                    """
+                    put speed control here
+                    """
+                    # example test:
+                    if zones.isObjectInRedZoneUSDynamic(self.__current_speed):
+                        self.__current_speed = 90
+                        self.send_command_logic()
                     else:
-                        self.send_command()
-                    #elsif zones.isObjectInYellowZoneUSDynamic(self.lidarData):
-                    # currentSpeed = 83
-                        #self.sendCommand()
-                """
-                if zones.isObjectInRedZoneUSDynamic(self.__current_speed):
-                    self.__current_speed = 90
-                    self.send_command_logic()
-                    """elif zones.isObjectInYellowZoneUSDynamic(self.__current_speed):
-                    self.__current_speed = 84
-                    self.send_command_logic()"""
-                else:
-                    self.send_command_manual()
+                        self.__current_speed = 97
+                        self.send_command_logic()
+                else:   # here is room to test autopilot functions with manual control (no button red)
+                    if zones.isObjectInRedZoneUSDynamic(self.__current_speed):
+                        self.__current_speed = 90
+                        self.send_command_logic()
+                        """elif zones.isObjectInYellowZoneUSDynamic(self.__current_speed):
+                        self.__current_speed = 84
+                        self.send_command_logic()"""
+                    else:
+                        self.send_command_manual()
             else:
                 self.send_command_manual()
         else:
