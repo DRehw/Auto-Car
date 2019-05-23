@@ -7,9 +7,9 @@ Created on 14.05.2019
 
 import math
 import matplotlib as mpl
-from matplotlib import pyplot
-from CurrentData import CurrentData
 import numpy as np
+from CurrentData import CurrentData
+from matplotlib import pyplot
 
 
 class Map:

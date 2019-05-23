@@ -1,8 +1,6 @@
 """
 Hallo
 """
-import json
-import ast
 import zones
 from CurrentData import CurrentData
 
@@ -75,7 +73,7 @@ class Logic:
                     # currentSpeed = 83
                         #self.sendCommand()
                 """
-                if zones.isObjectInRedZoneUSDynamic(self.__current_speed):
+                if zones.is_object_in_red_zone_us_dynamic(self.__current_speed):
                     self.__current_speed = 90
                     self.send_command_logic()
                     """elif zones.isObjectInYellowZoneUSDynamic(self.__current_speed):

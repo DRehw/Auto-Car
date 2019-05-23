@@ -3,12 +3,12 @@ Created on May 11, 2019
 
 @author: Dave
 '''
-from MainGui import MainGui
 import Controller
-import MqttConnection
+import CurrentData
 import Logic
 import Map
-import CurrentData
+import MqttConnection
+from MainGui import MainGui
 
 if __name__ == '__main__':
     CurrentData.CurrentData()

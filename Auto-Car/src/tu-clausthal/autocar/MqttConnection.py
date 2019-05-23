@@ -1,10 +1,11 @@
 """
 
 """
-import paho.mqtt.client as mqtt
-from time import time
-from CurrentData import CurrentData
 from json import loads
+from time import time
+
+import paho.mqtt.client as mqtt
+from CurrentData import CurrentData
 
 
 class MqttConnection:
