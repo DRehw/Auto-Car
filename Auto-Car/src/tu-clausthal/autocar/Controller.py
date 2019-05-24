@@ -32,6 +32,7 @@ class Controller:
         self.logic = logic
         self.__mqtt_connection = mqtt_connection
         self.__mqtt_connection.add_callback_methods(on_connect=self.subscribe)
+        self.logic.set_controller(self)
         return
 
     def subscribe(self, client, userdata, flags, rc):
@@ -94,7 +95,7 @@ class Controller:
             print("Not connected to the right Wifi!")
         return
     
-    def connect_to_moquitto(self):
+    def connect_to_mosquitto(self):
         self.__mqtt_connection.connect()
         return
     
@@ -105,7 +106,11 @@ class Controller:
     def on_steer_change(self, val):
         self.logic.set_steer_slider(90+int(val))
         return
-    
+
+    def show_autopilot_speed_steer(self, speed, steer):
+        self.gui.set_auto_speed_label_text(speed)
+        self.gui.set_auto_steer_label_text(steer)
+
     def start_cmd_mosq_path(self):
         if os.environ.get('MOSQUITTO_DIR'):
             mosqPath = '"' + os.environ.get('MOSQUITTO_DIR')+'\\"'
@@ -144,7 +149,7 @@ class Controller:
         """
         gets called after startMosquittoAsync, when mosquitto has been started
         """
-        self.connect_to_moquitto()
+        self.connect_to_mosquitto()
         print("Mosquitto started successively!")
         return
 

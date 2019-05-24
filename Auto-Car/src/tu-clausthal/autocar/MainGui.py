@@ -27,6 +27,10 @@ class MainGui:
         self.window.bind("<KeyRelease>", self.key_release)
         self.window.bind("<KeyPress>", self.key_press)
         self.window.option_add("*font", "Helvetica 14")
+
+        self.__display_speed = tk.StringVar()
+        self.__display_steer = tk.StringVar()
+
         info_frame = tk.Frame(self.window)
         info_frame.grid(row=0,
                         column=0,
@@ -109,18 +113,6 @@ class MainGui:
                                      columnspan=2,
                                      sticky=tk.W+tk.E+tk.S,
                                      pady=(5, 5))
-        tk.Button(button_frame,
-                  text="Show Map",
-                  command=self.controller.show_map_button).grid(row=6,
-                                                                column=0,
-                                                                sticky=tk.W + tk.E + tk.N,
-                                                                pady=(5, 5))
-        tk.Button(button_frame,
-                  text="Reset Euler",
-                  command=self.controller.reset_euler_button).grid(row=6,
-                                                                   column=1,
-                                                                   sticky=tk.W + tk.E + tk.N,
-                                                                   pady=(5, 5))
         self.autopilot_control_btn = tk.Button(button_frame,
                                                text="Enable Autopilot",
                                                command=self.controller.toggle_autopilot_button)
@@ -130,6 +122,28 @@ class MainGui:
                                         columnspan=2,
                                         sticky=tk.W + tk.E + tk.N,
                                         pady=(5, 5))
+        self.speed_label = tk.Label(button_frame, textvariable=self.__display_speed)
+        self.speed_label.grid(row=6,
+                              column=1,
+                              sticky=tk.W + tk.E + tk.N,
+                              pady=(5, 5))
+        self.steer_label = tk.Label(button_frame, textvariable=self.__display_steer)
+        self.steer_label.grid(row=6,
+                              column=0,
+                              sticky=tk.W + tk.E + tk.N,
+                              pady=(5, 5))
+        tk.Button(button_frame,
+                  text="Show Map",
+                  command=self.controller.show_map_button).grid(row=7,
+                                                                column=0,
+                                                                sticky=tk.W + tk.E + tk.N,
+                                                                pady=(5, 5))
+        tk.Button(button_frame,
+                  text="Reset Euler",
+                  command=self.controller.reset_euler_button).grid(row=7,
+                                                                   column=1,
+                                                                   sticky=tk.W + tk.E + tk.N,
+                                                                   pady=(5, 5))
 
         self.window.mainloop()
 
@@ -150,11 +164,17 @@ class MainGui:
         self.manual_control_btn.configure(bg=color)
 
     def autopilot_control_btn_set_color(self, color):
-        self.autopilot_control_btn.configure(bg = color)
+        self.autopilot_control_btn.configure(bg=color)
 
     def stop_btn_set_color(self, color):
         self.stop_btn.configure(bg=color)
-    
+
+    def set_auto_speed_label_text(self, speed):
+        self.__display_speed.set(speed-90)
+
+    def set_auto_steer_label_text(self, steer):
+        self.__display_steer.set(steer-90)
+
     def send_mqtt(self):
         return
     

@@ -12,6 +12,7 @@ class Logic:
     def __init__(self, mqtt_connection):
         self.mqtt_connection = mqtt_connection
         CurrentData.register_method_as_observer(self.on_data_change)
+        self.controller = None
         self.__manual_control = False
         self.__autopilot_control = False
         self.__stop = False
@@ -20,6 +21,9 @@ class Logic:
         self.__current_steer = 90
         self.__current_steer_slider = 90
         return
+
+    def set_controller(self, controller):
+        self.controller = controller
 
     def set_stop(self, stop=True):
         self.__stop = stop
@@ -48,6 +52,12 @@ class Logic:
     def get_autopilot_control(self):
         return self.__autopilot_control
 
+    def get_current_speed(self):
+        return self.__current_speed
+
+    def get_currrent_steer(self):
+        return self.__current_steer
+
     def set_speed_slider(self, val):
         self.__current_speed_slider = val
         if ~self.__stop and self.__manual_control:
@@ -62,7 +72,7 @@ class Logic:
         self.mqtt_connection.send_car_command(self.__current_speed_slider, self.__current_steer_slider)
 
     def send_command_logic(self):
-        #print("self command logic")
+        self.controller.show_autopilot_speed_steer(self.__current_speed, self.__current_steer)
         self.mqtt_connection.send_car_command(self.__current_speed, self.__current_steer)
 
     def on_data_change(self, changed_data_str):
