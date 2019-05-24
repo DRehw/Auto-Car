@@ -3,7 +3,6 @@ Created on May 12, 2019
 """
 
 import math
-import sensor
 from CurrentData import CurrentData
 
 
