@@ -8,7 +8,7 @@ from CurrentData import CurrentData
 __is_recording = False
 __is_playing = False
 __buffer_size = -1  # -1 would use system default buffer size
-__sim_buffer_size = 2  # number of messages before a write operation
+__sim_buffer_size = 20  # number of messages before a write operation
 __sim_buffer = []
 __sim_file_loc = ""
 __stop_thread = False
@@ -27,7 +27,7 @@ def start_recording(location):
     __is_recording = True
     file.close()
     CurrentData.register_method_as_observer(on_new_data)
-    print("Registered stuff blah")
+    print("Started recording.")
     return
 
 
@@ -36,6 +36,7 @@ def stop_recording():
     if __is_recording:
         CurrentData.remove_method_as_observer(on_new_data)
         __is_recording = False
+        print("Stopped recording!")
     else:
         print("Currently not recording.")
     return
@@ -50,7 +51,6 @@ def on_new_data(new_data_str):
         msg = ("aadc/sensor", CurrentData.get_sensor_json())
     if msg:
         timestamp = msg[1].get("timestamp")
-        print(timestamp)
         i = 0
         for i in range(len(__sim_buffer)):
             if __sim_buffer[i][0] > timestamp:
@@ -62,22 +62,16 @@ def on_new_data(new_data_str):
 
 
 def write_buffer_to_file():
-    print("Writing to file.")
     global __sim_buffer, __sim_file_loc
     if len(__sim_file_loc) > 4:
         try:
-            file = open(__sim_file_loc, "w")
+            file = open(__sim_file_loc, "a")
         except (OSError, IOError) as e:
             print("Could not open file: '{}'".format(__sim_file_loc))
             return
-        first = True
         for entry in __sim_buffer:
             new_line = "\n"
-            if first:
-                first = False
-                new_line = ""
-            print(new_line + entry[1][0] + "," + str(entry[1][1]))
-            file.write(new_line + entry[1][0] + "," + str(entry[1][1]))
+            file.write(entry[1][0] + "," + str(entry[1][1]) + new_line)
         file.close()
         __sim_buffer = []
     return
@@ -126,6 +120,7 @@ def playback_thread(location, mqtt_connection, __stop_thread):
                 print("Could not parse line: '{}' of file: '{}'".format(line, location))
                 return [], reached_eof
             lines.append(line)
+        return lines, reached_eof
 
     global __is_playing
     if location and len(location) > 4 and mqtt_connection:
@@ -139,11 +134,11 @@ def playback_thread(location, mqtt_connection, __stop_thread):
             return
         if file:
             reached_eof = False
-            while True:
+            while not reached_eof:
                 lines, reached_eof = get_n_next_lines(file, 20)
                 if len(lines) > 0:
                     index = 0
-                    while True:
+                    while not reached_eof:
                         if __stop_thread:
                             print("Stopped successful")
                             return
@@ -163,3 +158,6 @@ def playback_thread(location, mqtt_connection, __stop_thread):
                             index += 1
                         else:
                             sleep(0.03)
+                else:
+                    print("Played back all data.")
+                    return

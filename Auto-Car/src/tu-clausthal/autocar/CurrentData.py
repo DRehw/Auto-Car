@@ -25,14 +25,13 @@ class CurrentData:
             self.__observer_methods = []
 
         def set_lidar_json(self, lidar_json):
-            print("new data")
+            # print("new data")
             self.__lidar_json = lidar_json
 
         def get_lidar_json(self):
             return self.__lidar_json
 
         def set_sensor_json(self, sensor_json):
-            print("new data")
             self.__sensor_json = sensor_json
 
         def get_sensor_json(self):
@@ -67,6 +66,7 @@ class CurrentData:
     """
     @staticmethod
     def __on_data_change(changed_data_str):
+        print("new data")
         if CurrentData.instance:
             for method in CurrentData.instance.get_observer_methods():
                 # print("method to run: " + str(method))

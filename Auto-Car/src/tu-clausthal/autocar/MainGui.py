@@ -7,6 +7,7 @@ Created on May 11, 2019
 import tkinter as tk
 
 import Map
+import KeyHandler
 
 
 class MainGui:
@@ -21,7 +22,6 @@ class MainGui:
         self.controller = controller
         self.controller.gui_init(self)
         self.Map = Map
-        self.controller.gui_init(self)
         self.window = tk.Tk()
         self.window.title("Auto-Car Debug")
         self.window.bind("<KeyRelease>", self.key_release)
@@ -254,22 +254,29 @@ class MainGui:
                                        padx=(5, 5),
                                        pady=(5, 5))
 
+        self.controller.gui_init(self)
         self.window.mainloop()
+
+    def speed_scale_set(self, speed):
+        if -15 <= speed <= 15:
+            self.speed_scale.set(speed)
+
+    def steer_scale_set(self, steer):
+        if -30 <= steer <= 30:
+            self.steer_scale.set(steer)
 
     def speed_scale_mouse_release(self, event):
         self.speed_scale.set(0)
 
     @staticmethod
     def key_press(event):
-        # print(event.keysym)
-        # print(event.type)
-        pass
+        KeyHandler.on_key_event(event)
+        return
 
     @staticmethod
     def key_release(event):
-        # print(event.keysym)
-        # print(event.type)
-        pass
+        KeyHandler.on_key_event(event)
+        return
 
     def manual_control_btn_set_color(self, color):
         self.manual_control_btn.configure(bg=color)

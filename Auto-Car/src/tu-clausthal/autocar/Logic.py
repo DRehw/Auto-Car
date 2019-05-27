@@ -40,13 +40,9 @@ class Logic:
 
     def set_speed_slider(self, val):
         self.__current_speed_slider = val
-        if ~self.__stop and self.__manual_control:
-            self.send_command_manual()
 
     def set_steer_slider(self, val):
         self.__current_steer_slider = val
-        if ~self.__stop and self.__manual_control:
-            self.send_command_manual()
 
     def send_command_manual(self):
         self.mqtt_connection.send_car_command(self.__current_speed_slider, self.__current_steer_slider)

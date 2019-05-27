@@ -13,6 +13,7 @@ from tkinter import filedialog
 import Simulator
 from CurrentData import CurrentData
 from MqttConnection import MqttConnection
+from KeyController import start_loop
 
 
 class Controller:
@@ -38,6 +39,7 @@ class Controller:
 
     def gui_init(self, gui):
         self.gui = gui
+        # start_loop(self)
 
     def start_cmd_mosq_path(self):
         if os.environ.get('MOSQUITTO_DIR'):
@@ -163,3 +165,9 @@ class Controller:
     def stop_playing_btn(self):
         Simulator.stop_playback()
         return
+
+    def set_speed(self, speed):
+        self.gui.speed_scale_set(speed)
+
+    def set_steer(self, steer):
+        self.gui.steer_scale_set(steer)
