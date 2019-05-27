@@ -42,12 +42,24 @@ class Map:
         self.grid = np.zeros((width, height))
         self.constant = 0  # Used to correct for wrong starting position of euler
         self.euler_reseted = False
+        self.lidar_counter = 0
+
+    def reset_poor_map_data(self):
+        for i in range(self.width):
+            for j in range(self.height):
+                if self.grid[i][j] < 5:
+                    self.grid[i][j] = 0
 
     def on_data_change(self, changed_data_str):
         if not self.euler_reseted:
             self.calc_constant(CurrentData.get_value_from_tag_from_sensor("euler"))
         if self.euler_reseted and changed_data_str == "lidar":
             self.add_lidar_data_to_map()
+            if self.lidar_counter < 50:
+                self.lidar_counter += 1
+            else:
+                self.reset_poor_map_data()
+                self.lidar_counter = 0
         return
 
     def set_cell(self, x, y, val):
@@ -60,7 +72,8 @@ class Map:
                     There is no defined value range yet and therefore no checking for val
         """
         if 0 <= x <= self.width and 0 <= y <= self.height:
-            self.grid[x][y] = val
+            #self.grid[x][y] = val
+            self.grid[x][y] += val
         return
 
     def show_map(self):
@@ -70,7 +83,7 @@ class Map:
 
         # make a color map of fixed colors
         cmap = mpl.colors.ListedColormap(['white', 'black'])
-        bounds = [0, 1, 2]
+        bounds = [0, 5, 1000]
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 
         # tell imshow about color map so that only set colors are used
@@ -79,7 +92,7 @@ class Map:
 
         # make a color bar
         pyplot.colorbar(img, cmap=cmap,
-                        norm=norm, boundaries=bounds, ticks=[0, 1, 2])
+                        norm=norm, boundaries=bounds, ticks=[0, 5, 1000])
 
         pyplot.show()
         return
@@ -87,11 +100,12 @@ class Map:
     def get_lidar_vector(self, measurement, position, euler):
         """ calculates coordinates based on a lidar measurement, used in addLidarDataToMap
         """
+        print("Position: {}, {}".format(position[0], position[1]))
         radians = math.radians(measurement[1])
         radians = radians + math.radians(euler[0])
         radians = radians + math.radians(self.constant)
-        x_coord = (measurement[2] / 10) * math.cos(radians) + (position[0] / 10)
-        y_coord = (measurement[2] / 10) * math.sin(radians) + (position[1] / 10)
+        x_coord = (measurement[2] / 10) * math.cos(radians) + (position[1] / 10)
+        y_coord = (measurement[2] / 10) * math.sin(radians) + (position[0] / 10)
         return int(round(x_coord, 0)), int(round(y_coord, 0))
 
     def add_lidar_data_to_map(self):

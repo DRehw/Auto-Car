@@ -1,3 +1,4 @@
+from ast import literal_eval
 """
 Class CurrentData
 This class is a singleton and is used to give access to the current dataset from the car.
@@ -25,7 +26,10 @@ class CurrentData:
             self.__observer_methods = []
 
         def set_lidar_json(self, lidar_json):
-            # print("new data")
+            parsed_lidar_data = CurrentData.get_value_from_tag_from_json(lidar_json, "pcl")
+
+            filtered_lidar_data = [data for data in parsed_lidar_data if not (data[0] <= 10)]  # and data[2] < 1920.5
+            lidar_json["pcl"] = str(filtered_lidar_data)
             self.__lidar_json = lidar_json
 
         def get_lidar_json(self):
@@ -157,7 +161,7 @@ class CurrentData:
         res = None
         for key, value in json_obj.items():
             if key == tag_str:
-                # res = ast.literal_eval(str(value))
-                res = value
+                res = literal_eval(str(value))
+                # res = value
                 break
         return res
