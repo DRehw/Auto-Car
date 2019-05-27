@@ -19,11 +19,10 @@ class MqttConnection:
         self.__is_connecting = False
         self._last_sub_mid_list = []
         self.host = None
-        self.on_message = None
-        self.on_subscribe = None
-        self.on_connect = None
-        self.on_disconnect = None
-        self.on_new_data = None
+        self.on_message = []
+        self.on_subscribe = []
+        self.on_connect = []
+        self.on_disconnect = []
         self.client.on_message = self.__on_message
         self.client.on_subscribe = self.__on_subscribe
         self.client.on_connect = self.__on_connect
@@ -39,20 +38,19 @@ class MqttConnection:
         return "{{\"vehicle\": \"AADC2016\", \"type\": \"actuator\", \"drive\": {}, \"steering\": {}, \"brakelight\": 0,\"turnsignalright\": 0,\"turnsignalleft\": 0,\"dimlight\": 0,\"reverselight\": 0,\"timestamp\": {}}}".format(
             speed, steer, millis)
 
-    def set_callback_methods(self, on_message=None, on_subscribe=None, on_connect=None, on_disconnect=None, on_new_data=None):
+    def add_callback_methods(self, on_message=None, on_subscribe=None, on_connect=None, on_disconnect=None):
         if on_message is not None:
-            self.on_message = on_message
+            self.on_message.append(on_message)
         if on_subscribe is not None:
-            self.on_subscribe = on_subscribe
+            self.on_subscribe.append(on_subscribe)
         if on_connect is not None:
-            self.on_connect = on_connect
+            self.on_connect.append(on_connect)
         if on_disconnect is not None:
-            self.on_disconnect = on_disconnect
-        if on_new_data is not None:
-            self.on_new_data = on_new_data
+            self.on_disconnect.append(on_disconnect)
 
     def connect(self, host="localhost"):
         if ~self.__is_connecting and ~self.__is_connected:
+            print("Trying to connect")
             self.__is_connecting = True
             self.host = host
             self.client.loop_start()
@@ -93,8 +91,8 @@ class MqttConnection:
         return self.host
 
     def __on_message(self, client, userdata, message):
-        if self.on_message is not None:
-            self.on_message(client, userdata, message)
+        for func in self.on_message:
+            func(client, userdata, message)
         if message.topic == "aadc/lidar":
             CurrentData.set_lidar_json(loads(str(message.payload.decode("utf-8"))))
         elif message.topic == "aadc/sensor":
@@ -111,8 +109,8 @@ class MqttConnection:
         else:
             print("No previous subscription attempt ?!")
 
-        if self.on_subscribe is not None:
-            self.on_subscribe(client, userdata, mid, granted_qos)
+        for func in self.on_subscribe:
+            func(client, userdata, mid, granted_qos)
         return
 
     def __on_connect(self, client, userdata, flags, rc):
@@ -125,8 +123,9 @@ class MqttConnection:
 
         self.__is_connecting = False
 
-        if self.on_connect is not None and self.__is_connected:
-            self.on_connect(client, userdata, flags, rc)
+        if self.__is_connected:
+            for func in self.on_connect:
+                func(client, userdata, flags, rc)
         return
 
     def __on_disconnect(self, client, userdata, rc):
@@ -138,6 +137,6 @@ class MqttConnection:
 
         self.__is_connected = False
 
-        if self.on_disconnect is not None:
-            self.on_disconnect(client, userdata, rc)
+        for func in self.on_disconnect:
+            func(client, userdata, rc)
         return

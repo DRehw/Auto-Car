@@ -66,11 +66,15 @@ class CurrentData:
     """
     @staticmethod
     def __on_data_change(changed_data_str):
-        print("new data")
+        # print("new data")
         if CurrentData.instance:
             for method in CurrentData.instance.get_observer_methods():
                 # print("method to run: " + str(method))
-                method(changed_data_str)
+                try:
+                    method(changed_data_str)
+                except(Exception) as e:
+                    if method is not None:
+                        print("Method {} is not working properly!".format(str(method).split(" ")[2]))
         return
 
     """
@@ -79,6 +83,7 @@ class CurrentData:
     @staticmethod
     def register_method_as_observer(method):
         if CurrentData.instance:
+            print("Adding {} as a observer!".format(str(method)))
             CurrentData.instance.add_observer_method(method)
 
     """

@@ -32,8 +32,10 @@ def start_recording(location):
 
 
 def stop_recording():
-    global __is_recording
+    global __is_recording, __sim_buffer
     if __is_recording:
+        if len(__sim_buffer) > 0:
+            write_buffer_to_file()
         CurrentData.remove_method_as_observer(on_new_data)
         __is_recording = False
         print("Stopped recording!")
@@ -43,6 +45,7 @@ def stop_recording():
 
 
 def on_new_data(new_data_str):
+    # print("On new data")
     global __sim_buffer, __sim_buffer_size
     msg = None
     if new_data_str == "lidar":
@@ -57,7 +60,9 @@ def on_new_data(new_data_str):
                 i -= 1
                 break
         __sim_buffer.insert(i+1, (timestamp, msg))
+        # print("Insert to buffer")
         if len(__sim_buffer) >= __sim_buffer_size:
+            # print("Write buffer to file")
             write_buffer_to_file()
 
 

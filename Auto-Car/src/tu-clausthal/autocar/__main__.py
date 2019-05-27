@@ -14,6 +14,6 @@ if __name__ == '__main__':
     CurrentData.CurrentData()
     connection = MqttConnection.MqttConnection()
     logic = Logic.Logic(connection)
-    map = Map.Map()
-    controller = Controller.Controller(connection, logic, map)
+    occupancy_map = Map.Map()
+    controller = Controller.Controller(connection, logic, occupancy_map)
     gui = MainGui(controller)

@@ -29,6 +29,8 @@ class MainGui:
         self.window.option_add("*font", "Helvetica 14")
         self.record_path_string_var = tk.StringVar()
         self.play_path_string_var = tk.StringVar()
+        self.__display_speed = tk.StringVar()
+        self.__display_steer = tk.StringVar()
 
         """
         FRAMES
@@ -96,7 +98,7 @@ class MainGui:
         """
         Debug/Connection Frame Widgets
         """
-    
+
         tk.Button(button_frame,
                   text="Connect to local Broker",
                   command=self.connect_to_local_broker).grid(row=1,
@@ -125,21 +127,40 @@ class MainGui:
                                                               pady=(5, 5))
         self.manual_control_btn = tk.Button(button_frame,
                                             text="Manual Control",
-                                            command=self.controller.toggle_manual_control_btn)
+                                            command=self.controller.toggle_manual_control_button)
         self.manual_control_btn.grid(row=4,
                                      column=0,
                                      columnspan=2,
                                      sticky=tk.W+tk.E+tk.S,
                                      pady=(5, 5))
+        self.autopilot_control_btn = tk.Button(button_frame,
+                                               text="Enable Autopilot",
+                                               command=self.controller.toggle_autopilot_button)
+
+        self.autopilot_control_btn.grid(row=5,
+                                        column=0,
+                                        columnspan=2,
+                                        sticky=tk.W + tk.E + tk.N,
+                                        pady=(5, 5))
+        self.speed_label = tk.Label(button_frame, textvariable=self.__display_speed)
+        self.speed_label.grid(row=6,
+                              column=1,
+                              sticky=tk.W + tk.E + tk.N,
+                              pady=(5, 5))
+        self.steer_label = tk.Label(button_frame, textvariable=self.__display_steer)
+        self.steer_label.grid(row=6,
+                              column=0,
+                              sticky=tk.W + tk.E + tk.N,
+                              pady=(5, 5))
         tk.Button(button_frame,
                   text="Show Map",
-                  command=self.controller.show_map_btn).grid(row=5,
+                  command=self.controller.show_map_btn).grid(row=7,
                                                              column=0,
                                                              sticky=tk.W + tk.E + tk.N,
                                                              pady=(5, 5))
         tk.Button(button_frame,
                   text="Reset Euler",
-                  command=self.controller.reset_euler_btn).grid(row=5,
+                  command=self.controller.reset_euler_btn).grid(row=7,
                                                                 column=1,
                                                                 sticky=tk.W + tk.E + tk.N,
                                                                 pady=(5, 5))
@@ -282,6 +303,9 @@ class MainGui:
         self.manual_control_btn.configure(bg=color)
         return
 
+    def autopilot_control_btn_set_color(self, color):
+        self.autopilot_control_btn.configure(bg=color)
+
     def stop_btn_set_color(self, color):
         self.stop_btn.configure(bg=color)
         return
@@ -299,7 +323,14 @@ class MainGui:
 
     def get_play_path(self):
         return self.play_path_string_var.get()
-    
+
+
+    def set_auto_speed_label_text(self, speed):
+        self.__display_speed.set((speed-90)*(-1))
+
+    def set_auto_steer_label_text(self, steer):
+        self.__display_steer.set(steer-90)
+
     def send_mqtt(self):
         return
     

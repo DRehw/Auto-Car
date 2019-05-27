@@ -30,7 +30,8 @@ class Controller:
         self.occupancy_map = occupancy_map
         self.logic = logic
         self.__mqtt_connection = mqtt_connection
-        self.__mqtt_connection.set_callback_methods(on_connect=self.subscribe)
+        self.__mqtt_connection.add_callback_methods(on_connect=self.subscribe)
+        self.logic.set_controller(self)
         return
 
     def subscribe(self, client, userdata, flags, rc):
@@ -82,7 +83,7 @@ class Controller:
         """
         gets called after startMosquittoAsync, when mosquitto has been started
         """
-        self.connect_to_moquitto_btn()
+        self.connect_to_mosquitto()
         print("Mosquitto started successively!")
         return
 
@@ -109,7 +110,13 @@ class Controller:
         self.occupancy_map.calc_constant(euler)
         self.euler_reseted = True
 
-    def toggle_manual_control_btn(self):
+    def toggle_manual_control_button(self):
+        # disable autopilot
+        if self.logic.get_autopilot_control():
+            self.logic.set_autopilot_control(not self.logic.get_autopilot_control())
+            print("Autopilot disabled")
+            self.gui.autopilot_control_btn_set_color("SystemButtonFace")
+        # switch manual control
         self.logic.set_manual_control(~self.logic.get_manual_control())
         if self.logic.get_manual_control():
             print("Switched to manual control!")
@@ -119,14 +126,29 @@ class Controller:
             self.gui.manual_control_btn_set_color("SystemButtonFace")
         return
 
+    def toggle_autopilot_button(self):
+        # disable manual control
+        if self.logic.get_manual_control():
+            self.logic.set_manual_control(not self.logic.get_manual_control())
+            print("Manual control disabled")
+            self.gui.manual_control_btn_set_color("SystemButtonFace")
+        # switch autopilot
+        self.logic.set_autopilot_control(not self.logic.get_autopilot_control())
+        if self.logic.get_autopilot_control():
+            print("Autopilot enabled")
+            self.gui.autopilot_control_btn_set_color("red")
+        else:
+            print("Autopilot disabled")
+            self.gui.autopilot_control_btn_set_color("SystemButtonFace")
+
     def connect_to_car_btn(self):
         if "Mobilitaetslabor" in str(subprocess.check_output("netsh wlan show interfaces")):
             self.__mqtt_connection.connect("192.168.50.141")
         else:
             print("Not connected to the right Wifi!")
         return
-
-    def connect_to_moquitto_btn(self):
+    
+    def connect_to_mosquitto(self):
         self.__mqtt_connection.connect()
         return
 
@@ -139,6 +161,10 @@ class Controller:
         location = filedialog.asksaveasfilename(filetypes=(("text files", ".txt"),), defaultextension='.txt')
         self.gui.set_record_path(location)
         return
+
+    def show_autopilot_speed_steer(self, speed, steer):
+        self.gui.set_auto_speed_label_text(speed)
+        self.gui.set_auto_steer_label_text(steer)
 
     def path_change_play_btn(self):
         location = filedialog.askopenfilename(filetypes=(("text files", ".txt"),))
