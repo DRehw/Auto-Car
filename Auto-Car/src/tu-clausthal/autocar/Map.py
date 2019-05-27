@@ -72,7 +72,7 @@ class Map:
                     There is no defined value range yet and therefore no checking for val
         """
         if 0 <= x <= self.width and 0 <= y <= self.height:
-            #self.grid[x][y] = val
+            # self.grid[x][y] = val
             self.grid[x][y] += val
         return
 
@@ -82,7 +82,7 @@ class Map:
         """
 
         # make a color map of fixed colors
-        cmap = mpl.colors.ListedColormap(['white', 'black'])
+        cmap = mpl.colors.ListedColormap(['white', 'grey', 'black'])
         bounds = [0, 5, 1000]
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 
@@ -100,7 +100,7 @@ class Map:
     def get_lidar_vector(self, measurement, position, euler):
         """ calculates coordinates based on a lidar measurement, used in addLidarDataToMap
         """
-        print("Position: {}, {}".format(position[0], position[1]))
+        # print("Position: {}, {}".format(position[0], position[1]))
         radians = math.radians(measurement[1])
         radians = radians + math.radians(euler[0])
         radians = radians + math.radians(self.constant)
