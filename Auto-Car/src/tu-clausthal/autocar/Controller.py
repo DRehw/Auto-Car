@@ -8,7 +8,6 @@ import subprocess
 import threading
 import os
 import time
-import sensor
 import zones
 import MqttConnection
 import Map

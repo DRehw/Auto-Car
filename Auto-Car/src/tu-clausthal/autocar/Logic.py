@@ -93,14 +93,28 @@ class Logic:
             if not self.__manual_control:
                 if self.__autopilot_control:
                     """
-                    put speed control here
+                    if zones.speed_control():
+                        print("84")
+                        self.__current_speed = 84
+                        self.send_command_logic()
+                    else:
+                        print("80")
+                        self.__current_speed = 80
+                        self.send_command_logic()
                     """
                     # example test:
                     if zones.isObjectInRedZoneUSDynamic(self.__current_speed):
                         self.__current_speed = 90
                         self.send_command_logic()
+                    elif zones.isObjectInYellowZoneLidar():
+                        self.__current_speed = 84
+                        self.send_command_logic()
+                        """
+                    elif zones.isObjectInYellowZoneUSDynamic(self.__current_speed):
+                            self.__current_speed = 84
+                            self.send_command_logic()"""
                     else:
-                        self.__current_speed = 97
+                        self.__current_speed = 80
                         self.send_command_logic()
                 else:   # here is room to test autopilot functions with manual control (no button red)
                     if zones.isObjectInRedZoneUSDynamic(self.__current_speed):
