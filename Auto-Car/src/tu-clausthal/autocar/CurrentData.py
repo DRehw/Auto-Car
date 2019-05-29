@@ -1,6 +1,4 @@
-import ast
-
-
+from ast import literal_eval
 """
 Class CurrentData
 This class is a singleton and is used to give access to the current dataset from the car.
@@ -28,6 +26,10 @@ class CurrentData:
             self.__observer_methods = []
 
         def set_lidar_json(self, lidar_json):
+            parsed_lidar_data = CurrentData.get_value_from_tag_from_json(lidar_json, "pcl")
+
+            filtered_lidar_data = [data for data in parsed_lidar_data if not (data[0] <= 10)]  # and data[2] < 1920.5
+            lidar_json["pcl"] = str(filtered_lidar_data)
             self.__lidar_json = lidar_json
 
         def get_lidar_json(self):
@@ -44,6 +46,9 @@ class CurrentData:
 
         def add_observer_method(self, method):
             self.__observer_methods.append(method)
+
+        def remove_observer_method(self, method):
+            self.__observer_methods.remove(method)
 
     """
     Static variable (no "self." before it) used to store the only instance of the inner class "__CurrentData"
@@ -65,10 +70,15 @@ class CurrentData:
     """
     @staticmethod
     def __on_data_change(changed_data_str):
+        # print("new data")
         if CurrentData.instance:
             for method in CurrentData.instance.get_observer_methods():
-                #print("method to run: " + str(method))
-                method(changed_data_str)
+                # print("method to run: " + str(method))
+                try:
+                    method(changed_data_str)
+                except(Exception) as e:
+                    if method is not None:
+                        print("Method {} is not working properly!".format(str(method).split(" ")[2]))
         return
 
     """
@@ -77,7 +87,16 @@ class CurrentData:
     @staticmethod
     def register_method_as_observer(method):
         if CurrentData.instance:
+            print("Adding {} as a observer!".format(str(method)))
             CurrentData.instance.add_observer_method(method)
+
+    """
+    Used to remove a method as an observer
+    """
+    @staticmethod
+    def remove_method_as_observer(method):
+        if CurrentData.instance:
+            CurrentData.instance.remove_observer_method(method)
 
     """
     Not for usual use. Only called by MqttConnection when new data arrives.
@@ -93,7 +112,7 @@ class CurrentData:
     Internal method to get the lidar json from the instance
     """
     @staticmethod
-    def __get_lidar_json():
+    def get_lidar_json():
         if CurrentData.instance:
             return CurrentData.instance.get_lidar_json()
 
@@ -111,7 +130,7 @@ class CurrentData:
     Internal method to get the sensor json from the instance
     """
     @staticmethod
-    def __get_sensor_json():
+    def get_sensor_json():
         if CurrentData.instance:
             return CurrentData.instance.get_sensor_json()
 
@@ -122,7 +141,7 @@ class CurrentData:
     @staticmethod
     def get_value_from_tag_from_lidar(tag_str):
         if CurrentData.instance:
-            return CurrentData.get_value_from_tag_from_json(CurrentData.__get_lidar_json(), tag_str)
+            return CurrentData.get_value_from_tag_from_json(CurrentData.get_lidar_json(), tag_str)
 
     """
     Used to get a value form the sensor data which is in json format. You just have to provide it with a
@@ -131,7 +150,7 @@ class CurrentData:
     @staticmethod
     def get_value_from_tag_from_sensor(tag_str):
         if CurrentData.instance:
-            return CurrentData.get_value_from_tag_from_json(CurrentData.__get_sensor_json(), tag_str)
+            return CurrentData.get_value_from_tag_from_json(CurrentData.get_sensor_json(), tag_str)
 
     """
     Helper method to get a value from a given json-tag and given json object.
@@ -142,6 +161,7 @@ class CurrentData:
         res = None
         for key, value in json_obj.items():
             if key == tag_str:
-                res = ast.literal_eval(str(value))
+                res = literal_eval(str(value))
+                # res = value
                 break
         return res

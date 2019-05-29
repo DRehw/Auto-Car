@@ -1,19 +1,21 @@
-'''
+"""
 Created on May 11, 2019
 
 @author: Dave
-'''
-from MainGui import MainGui
+"""
 import Controller
-import MqttConnection
+import CurrentData
 import Logic
 import Map
-import CurrentData
+import MqttConnection
+from MainGui import MainGui
+from KeyController2 import start
 
 if __name__ == '__main__':
     CurrentData.CurrentData()
     connection = MqttConnection.MqttConnection()
     logic = Logic.Logic(connection)
-    map = Map.Map()
-    controller = Controller.Controller(connection, logic, map)
+    occupancy_map = Map.Map()
+    controller = Controller.Controller(connection, logic, occupancy_map)
+    start()
     gui = MainGui(controller)
