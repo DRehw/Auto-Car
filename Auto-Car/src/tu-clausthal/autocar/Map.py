@@ -147,7 +147,7 @@ class Map:
         return
 
 
-    def interpolate_by_time(sensors1, sensors2, time_point):
+    def interpolate_by_time(self, sensors1, sensors2, time_point):
         time_interval =  sensors2[0] - sensors1[0]
         #distance = math.sqrt(((sensors2[1][0] - sensors1[1][0])**2 + (sensors2[1][1] - sensors1[1][1])**2))
         if sensors2[1][0] < sensors1[1][0]:
@@ -180,9 +180,9 @@ class Map:
 
 
 
-    def get_interval(sensor_data_list, time_point, lidar_timestamp):
+    def get_interval(self, sensor_data_list, time_point):
         for i in range(len(sensor_data_list)):
-            if sensor_data_list[i][0] >= time_point:
+            if self.sensor_data_list[i][0] >= time_point:
                 return [[i-1],[i]]
 
     def add_lidar_data_to_map(self):
@@ -200,7 +200,7 @@ class Map:
             for i in range(len(lidarData)):
                 if (last_lidar_degree == None) or (last_lidar_degree + 2.5 > lidarData[i][1]):
                     if lidarData[i][1] < 90 or lidarData[i][1] > 270:
-                        interval = self.get_interval(self.sensor_data_list, (lidar_timestamp - 100 + current_time_point))
+                        interval = self.get_interval((lidar_timestamp - 100 + current_time_point))
                         relative_time_point = (lidar_timestamp - 100 + current_time_point) - self.sensor_data_list[interval[0]][0]
                         interpolated_data = self.interpolate_by_time(self.sensor_data_list[interval[0]],self.sensor_data_list[interval[1]], relative_time_point)
                         last_sensor = self.sensor_data_list[interval[1]]
