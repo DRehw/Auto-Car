@@ -51,8 +51,9 @@ class Map:
             for j in range(self.height):
                 if self.grid[i][j] < 5:
                     self.grid[i][j] = 0
+        return
 
-"""
+    """
     def on_data_change(self, changed_data_str):
         if not self.euler_reseted:
             self.calc_constant(CurrentData.get_value_from_tag_from_sensor("euler"))
@@ -64,7 +65,7 @@ class Map:
                 self.reset_poor_map_data()
                 self.lidar_counter = 0
         return
-"""
+    """
 
     def on_data_change(self, changed_data_str):
         if not self.euler_reseted:
@@ -130,7 +131,7 @@ class Map:
         y_coord = (measurement[2] / 10) * math.sin(radians) + (position[0] / 10)
         return int(round(x_coord, 0)), int(round(y_coord, 0))
 
-"""
+    """
     def add_lidar_data_to_map(self):
        
         #Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
@@ -145,7 +146,7 @@ class Map:
                 if (self.width > coord[0] > 0) and (self.height > coord[1] > 0):
                     Map.set_cell(self, coord[0], coord[1], 1)
         return
-"""
+    """
 
     def interpolate_by_time(sensors1, sensors2, time_point):
         time_interval =  sensors2[0] - sensors1[0]
