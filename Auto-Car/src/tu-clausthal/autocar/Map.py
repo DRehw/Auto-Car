@@ -82,7 +82,7 @@ def on_data_change(self, changed_data_str):
 
     def set_cell(self, x, y, val):
         """ Set the value of a cell in the grid.
-
+#
         Arguments:
             x, y  - This is a point in the map coordinate frame.
             val   - This is the value that should be assigned to the
