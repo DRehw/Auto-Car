@@ -131,8 +131,7 @@ class Map:
         y_coord = (measurement[2] / 10) * math.sin(radians) + (position[0] / 10)
         return int(round(x_coord, 0)), int(round(y_coord, 0))
 
-    """
-    def add_lidar_data_to_map(self):
+    def add_lidar_data_to_map_without_interpolation(self):
        
         #Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
         #Should be called on whenever Controller.onMessage() receives lidar data
@@ -146,7 +145,7 @@ class Map:
                 if (self.width > coord[0] > 0) and (self.height > coord[1] > 0):
                     Map.set_cell(self, coord[0], coord[1], 1)
         return
-    """
+
 
     def interpolate_by_time(sensors1, sensors2, time_point):
         time_interval =  sensors2[0] - sensors1[0]
@@ -197,21 +196,24 @@ class Map:
         current_time_point = 0
         last_lidar_degree = None
         last_sensors = None
-        for i in range(len(lidarData)):
-            if (last_lidar_degree == None) or (last_lidar_degree + 2.5 > lidarData[i][1]):
-                if lidarData[i][1] < 90 or lidarData[i][1] > 270:
-                    interval = get_interval(self.sensor_data_list, (lidar_timestamp - 100 + current_time_point))
-                    relative_time_point = (lidar_timestamp - 100 + current_time_point) - self.sensor_data_list[interval[0]][0]
-                    interpolated_data = interpolate_by_time(self.sensor_data_list[interval[0]],self.sensor_data_list[interval[1]], relative_time_point)
-                    last_sensor = self.sensor_data_list[interval[1]]
-                    position = interpolated_data[2]
-                    euler = [interpolated_data[3]]
-                    coord = self.get_lidar_vector(lidarData[i], position, euler)
-                    if (self.width > coord[0] > 0) and (self.height > coord[1] > 0):
-                        Map.set_cell(self, coord[0], coord[1], 1)
-            current_time_point += 100 / 120
-            last_lidar_degree = lidarData[i][1]
-            self.sensor_data_list = [[last_sensor]]
+        try:
+            for i in range(len(lidarData)):
+                if (last_lidar_degree == None) or (last_lidar_degree + 2.5 > lidarData[i][1]):
+                    if lidarData[i][1] < 90 or lidarData[i][1] > 270:
+                        interval = self.get_interval(self.sensor_data_list, (lidar_timestamp - 100 + current_time_point))
+                        relative_time_point = (lidar_timestamp - 100 + current_time_point) - self.sensor_data_list[interval[0]][0]
+                        interpolated_data = self.interpolate_by_time(self.sensor_data_list[interval[0]],self.sensor_data_list[interval[1]], relative_time_point)
+                        last_sensor = self.sensor_data_list[interval[1]]
+                        position = interpolated_data[2]
+                        euler = [interpolated_data[3]]
+                        coord = self.get_lidar_vector(lidarData[i], position, euler)
+                        if (self.width > coord[0] > 0) and (self.height > coord[1] > 0):
+                            Map.set_cell(self, coord[0], coord[1], 1)
+                current_time_point += 100 / 120
+                last_lidar_degree = lidarData[i][1]
+                self.sensor_data_list = [[last_sensor]]
+        except:
+            self.add_lidar_data_to_map_without_interpolation()
         return
 
 
