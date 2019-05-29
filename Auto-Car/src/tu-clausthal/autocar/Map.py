@@ -43,6 +43,7 @@ class Map:
         self.constant = 0  # Used to correct for wrong starting position of euler
         self.euler_reseted = False
         self.lidar_counter = 0
+        self.sensor_data_list = []
 
     def reset_poor_map_data(self):
         for i in range(self.width):
@@ -50,6 +51,7 @@ class Map:
                 if self.grid[i][j] < 5:
                     self.grid[i][j] = 0
 
+"""
     def on_data_change(self, changed_data_str):
         if not self.euler_reseted:
             self.calc_constant(CurrentData.get_value_from_tag_from_sensor("euler"))
@@ -61,6 +63,22 @@ class Map:
                 self.reset_poor_map_data()
                 self.lidar_counter = 0
         return
+"""
+
+def on_data_change(self, changed_data_str):
+    if not self.euler_reseted:
+        self.calc_constant(CurrentData.get_value_from_tag_from_sensor("euler"))
+    if self.euler_reseted and changed_data_str == "lidar":
+        self.add_lidar_data_to_map()
+        if self.lidar_counter < 50:
+            self.lidar_counter += 1
+        else:
+            self.reset_poor_map_data()
+            self.lidar_counter = 0
+
+    if changed_data_str == "sensor":
+       self.add_sensor_data_to_list()
+    return
 
     def set_cell(self, x, y, val):
         """ Set the value of a cell in the grid.
@@ -108,10 +126,12 @@ class Map:
         y_coord = (measurement[2] / 10) * math.sin(radians) + (position[0] / 10)
         return int(round(x_coord, 0)), int(round(y_coord, 0))
 
+"""
     def add_lidar_data_to_map(self):
-        """ Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
-            Should be called on whenever Controller.onMessage() receives lidar data
-        """
+       
+        #Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
+        #Should be called on whenever Controller.onMessage() receives lidar data
+        
         position = CurrentData.get_value_from_tag_from_sensor("position")
         euler = CurrentData.get_value_from_tag_from_sensor("euler")
         lidarData = CurrentData.get_value_from_tag_from_lidar("pcl")
@@ -121,6 +141,74 @@ class Map:
                 if (self.width > coord[0] > 0) and (self.height > coord[1] > 0):
                     Map.set_cell(self, coord[0], coord[1], 1)
         return
+"""
+
+def interpolate_by_time(sensors1, sensors2, time_point):
+    time_interval =  sensors2[0] - sensors1[0]
+    #distance = math.sqrt(((sensors2[1][0] - sensors1[1][0])**2 + (sensors2[1][1] - sensors1[1][1])**2))
+    if sensors2[1][0] < sensors1[1][0]:
+        dif_x = -(sensors1[1][0] - sensors2[1][0])
+        print(dif_x)
+    else:
+        dif_x = sensors2[1][0] - sensors1[1][0]
+    if sensors2[1][1] < sensors1[1][1]:
+        dif_y = -(sensors1[1][1] - sensors2[1][1])
+    else:
+        dif_y = sensors2[1][1] - sensors1[1][1]
+    if sensors2[2] < sensors1[2]:
+        euler_interval = sensors2[2] + 360 - sensors1[2]
+    else:
+        euler_interval = sensors2[2] - sensors1[2]
+    new_x = sensors1[1][0] + dif_x*(time_point/time_interval)
+    new_y = sensors1[1][1] + dif_y*(time_point/time_interval)
+    new_euler = sensors1[2] + euler_interval*(time_point/time_interval)
+    if new_euler > 360:
+        new_euler = new_euler - 360
+    new_timestamp = sensors1[0]+time_point
+    return [new_timestamp,time_point, [new_x,new_y],new_euler]
+
+
+def add_sensor_data_to_list(self):
+    sensor_timestamp = CurrentData.get_value_from_tag_from_sensor("timestamp")
+    sensor_position = [[CurrentData.get_value_from_tag_from_sensor("position")[0]],[CurrentData.get_value_from_tag_from_sensor("position")[1]]]
+    sensor_euler = CurrentData.get_value_from_tag_from_sensor("euler")[0]
+    self.sensor_data_list.append([sensor_timestamp,sensor_position,sensor_euler])
+
+
+
+def get_interval(sensor_data_list, time_point, lidar_timestamp):
+    for i in range(len(sensor_data_list)):
+        if sensor_data_list[i][0] >= time_point:
+            return [[i-1],[i]]
+
+    def add_lidar_data_to_map(self):
+        """ Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
+            Should be called on whenever Controller.onMessage() receives lidar data
+        """
+        position = CurrentData.get_value_from_tag_from_sensor("position")
+        euler = CurrentData.get_value_from_tag_from_sensor("euler")
+        lidarData = CurrentData.get_value_from_tag_from_lidar("pcl")
+        lidar_timestamp = CurrentData.get_value_from_tag_from_lidar("timestamp")
+        current_time_point = 0
+        last_lidar_degree = None
+        last_sensor = None
+        for i in range(len(lidarData)):
+            if (last_lidar_degree == None) or (last_lidar_degree + 2.5 > lidarData[i][1]):
+                if lidarData[i][1] < 90 or lidarData[i][1] > 270:
+                    interval = get_interval(sensor_data_list, (lidar_timestamp - 100 + current_time_point))
+                    relative_time_point = (lidar_timestamp - 100 + current_time_point) - sensor_data_list[interval[0]][0]
+                    interpolated_data = interpolate_by_time(sensor_data_list[interval[0]],sensor_data_list[interval[1]], relative_time_point)
+                    last_sensor = sensor_data_list[interval[1]]
+                    position = interpolated_data[2]
+                    euler = [interpolated_data[3]]
+                    coord = self.get_lidar_vector(lidarData[i], position, euler)
+                    if (self.width > coord[0] > 0) and (self.height > coord[1] > 0):
+                        Map.set_cell(self, coord[0], coord[1], 1)
+            current_time_point += 100 / 120
+            last_lidar_degree = lidarData[i][1]
+            self.sensor_data_list = [[last_sensor]]
+        return
+
 
     def calc_constant(self, euler):
         """ Calculates constant based on aadc/sensor/euler, to be used when car is put in the base position
