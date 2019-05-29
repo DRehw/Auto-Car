@@ -189,20 +189,20 @@ class Map:
         """ Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
             Should be called on whenever Controller.onMessage() receives lidar data
         """
-        position = CurrentData.get_value_from_tag_from_sensor("position")
-        euler = CurrentData.get_value_from_tag_from_sensor("euler")
+        #position = CurrentData.get_value_from_tag_from_sensor("position")
+        #euler = CurrentData.get_value_from_tag_from_sensor("euler")
         lidarData = CurrentData.get_value_from_tag_from_lidar("pcl")
         lidar_timestamp = CurrentData.get_value_from_tag_from_lidar("timestamp")
         current_time_point = 0
         last_lidar_degree = None
-        last_sensor = None
+        last_sensors = None
         for i in range(len(lidarData)):
             if (last_lidar_degree == None) or (last_lidar_degree + 2.5 > lidarData[i][1]):
                 if lidarData[i][1] < 90 or lidarData[i][1] > 270:
-                    interval = get_interval(sensor_data_list, (lidar_timestamp - 100 + current_time_point))
-                    relative_time_point = (lidar_timestamp - 100 + current_time_point) - sensor_data_list[interval[0]][0]
-                    interpolated_data = interpolate_by_time(sensor_data_list[interval[0]],sensor_data_list[interval[1]], relative_time_point)
-                    last_sensor = sensor_data_list[interval[1]]
+                    interval = get_interval(self.sensor_data_list, (lidar_timestamp - 100 + current_time_point))
+                    relative_time_point = (lidar_timestamp - 100 + current_time_point) - self.sensor_data_list[interval[0]][0]
+                    interpolated_data = interpolate_by_time(self.sensor_data_list[interval[0]],self.sensor_data_list[interval[1]], relative_time_point)
+                    last_sensor = self.sensor_data_list[interval[1]]
                     position = interpolated_data[2]
                     euler = [interpolated_data[3]]
                     coord = self.get_lidar_vector(lidarData[i], position, euler)
