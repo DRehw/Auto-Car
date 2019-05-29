@@ -22,10 +22,19 @@ def register_observer_func(key_str, func):
             __key_func_dict[key] = [func]
 
 
+def unregister_observer_func(func):
+    for key_str, func_list in __key_func_dict:
+        if func in func_list:
+            func_list.remove(func)
+
+
 def notify_observer(key_str, if_pressed):
     if __key_func_dict.get(key_str):
         for func in __key_func_dict.get(key_str):
-            func(key_str, if_pressed)
+            try:
+                func(key_str, if_pressed)
+            except(Exception) as e:
+                print("Error {} in function or method: {}".format(str(e), str(func).split(" ")[2]))
 
 
 def is_pressed(key):
