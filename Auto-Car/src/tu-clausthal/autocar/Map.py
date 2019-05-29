@@ -44,6 +44,7 @@ class Map:
         self.euler_reseted = False
         self.lidar_counter = 0
         self.sensor_data_list = []
+        self.waiting_for_final_sensor = False
 
     def reset_poor_map_data(self):
         for i in range(self.width):
@@ -69,7 +70,7 @@ def on_data_change(self, changed_data_str):
     if not self.euler_reseted:
         self.calc_constant(CurrentData.get_value_from_tag_from_sensor("euler"))
     if self.euler_reseted and changed_data_str == "lidar":
-        self.add_lidar_data_to_map()
+        self.waiting_for_final_sensor = True
         if self.lidar_counter < 50:
             self.lidar_counter += 1
         else:
@@ -77,7 +78,10 @@ def on_data_change(self, changed_data_str):
             self.lidar_counter = 0
 
     if changed_data_str == "sensor":
-       self.add_sensor_data_to_list()
+        self.add_sensor_data_to_list()
+        if self.waiting_for_final_sensor == True:
+            self.waiting_for_final_sensor = False
+            self.add_lidar_data_to_map()
     return
 
     def set_cell(self, x, y, val):
