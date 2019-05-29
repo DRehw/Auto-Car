@@ -211,7 +211,7 @@ class Map:
                             Map.set_cell(self, coord[0], coord[1], 1)
                 current_time_point += 100 / 120
                 last_lidar_degree = lidarData[i][1]
-                self.sensor_data_list = [[last_sensor]]
+            self.sensor_data_list = [[last_sensor]]
         except:
             self.add_lidar_data_to_map_without_interpolation()
         return
