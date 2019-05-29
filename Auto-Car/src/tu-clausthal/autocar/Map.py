@@ -121,7 +121,7 @@ class Map:
         return
 
     def get_lidar_vector(self, measurement, position, euler):
-        """ #calculates coordinates based on a lidar measurement, used in addLidarDataToMap
+        """ calculates coordinates based on a lidar measurement, used in addLidarDataToMap
         """
         # print("Position: {}, {}".format(position[0], position[1]))
         radians = math.radians(measurement[1])
