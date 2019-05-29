@@ -195,7 +195,7 @@ class Map:
         lidar_timestamp = CurrentData.get_value_from_tag_from_lidar("timestamp")
         current_time_point = 0
         last_lidar_degree = None
-        last_sensors = None
+        last_sensor = None
         try:
             for i in range(len(lidarData)):
                 if (last_lidar_degree == None) or (last_lidar_degree + 2.5 > lidarData[i][1]):
