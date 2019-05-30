@@ -82,7 +82,7 @@ def on_key_event(key_str, if_pressed):
                 sign = 1
                 if speed_change < 0:
                     sign = -1
-                speed_change - (speed + speed_change - sign * max_speed)
+                speed_change -= (speed + speed_change - sign * max_speed)
             speed = speed_change
             speed_change = 0
 
