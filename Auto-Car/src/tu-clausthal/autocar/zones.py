@@ -62,7 +62,7 @@ def define_yellow_zone_dynamic(current_speed):
 
 def is_object_in_red_zone_us_dynamic(current_speed):
     us_data = CurrentData.get_value_from_tag_from_sensor("us")
-    us_data = us_data[1:3]
+    us_data = us_data[0:3]
     for dist in us_data:
         if 2 < dist < define_red_zone_dynamic(current_speed):
             # print(str(usData) + "True")
@@ -74,7 +74,7 @@ def is_object_in_red_zone_us_dynamic(current_speed):
 
 def is_object_in_yellow_zone_us_dynamic(current_speed):
     us_data = CurrentData.get_value_from_tag_from_sensor("us")
-    us_data = us_data[1:3]
+    us_data = us_data[0:3]
     for dist in us_data:
         if 2 < dist < define_yellow_zone_dynamic(current_speed):
             # print(str(usData) + "True")
