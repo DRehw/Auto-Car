@@ -34,6 +34,10 @@ class Controller:
         self.logic.set_controller(self)
         return
 
+    def on_window_close(self):
+        self.__mqtt_connection.disconnect()
+        return
+
     def subscribe(self, client, userdata, flags, rc):
         self.__mqtt_connection.subscribe("aadc/rc", "aadc/sensor", "aadc/lidar")
         return
