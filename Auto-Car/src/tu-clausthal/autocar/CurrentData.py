@@ -161,7 +161,10 @@ class CurrentData:
         res = None
         for key, value in json_obj.items():
             if key == tag_str:
-                res = literal_eval(str(value))
+                if "str" in str(type(value)):
+                    res = literal_eval(value)
+                else:
+                    res = value
                 # res = value
                 break
         return res
