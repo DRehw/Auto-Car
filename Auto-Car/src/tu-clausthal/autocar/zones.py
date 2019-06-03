@@ -72,6 +72,7 @@ def is_object_in_red_zone_us_dynamic(current_speed):
     # print(str(usData) + "False")
 
 
+
 def is_object_in_yellow_zone_us_dynamic(current_speed):
     us_data = CurrentData.get_value_from_tag_from_sensor("us")
     us_data = us_data[1:3]
@@ -86,7 +87,15 @@ def is_object_in_yellow_zone_us_dynamic(current_speed):
 
 def is_object_in_yellow_zone_lidar():
     for dataset in CurrentData.get_value_from_tag_from_lidar("pcl"):
-        if dataset[0] > 10 and (dataset[1] < 20.0 or dataset[1] > 340.0) and dataset[2]*math.cos(math.radians(dataset[1])) < 1500.0:
+        if dataset[0] > 10 and (dataset[1] < 20.0 or dataset[1] > 340.0) and dataset[2]*math.cos(math.radians(dataset[1])) < 2000.0:
+            # print("{}, {}, {}".format(dataset[0], dataset[1], dataset[2]))
+            return True
+    return False
+
+def is_object_in_side_zone_lidar():
+    for dataset in CurrentData.get_value_from_tag_from_lidar("pcl"):
+
+        if dataset[0] > 10 and (70.0 < dataset[1] < 90.0 or 290.0 > dataset[1] > 270.0) and dataset[2]*math.cos(math.radians(dataset[1])) < 800.0:
             # print("{}, {}, {}".format(dataset[0], dataset[1], dataset[2]))
             return True
     return False

@@ -70,14 +70,14 @@ class Logic:
         self.mqtt_connection.send_car_command(self.__current_speed, self.__current_steer)
 
     def on_data_change(self, changed_data_str):
-        """if changed_data_str == "lidar":
+        '''if changed_data_str == "lidar":
             lidar = CurrentData.get_value_from_tag_from_lidar("pcl")
             max = 0
             for data in lidar:
                 if data[2] > max:
                     max = data[2]
             print(max)
-            print(str(lidar[0][2]) + "\n")"""
+            print(str(lidar[0][2]) + "\n")'''
         if changed_data_str == "lidar" or changed_data_str == "sensor":
             self.main_logic()
         return
@@ -93,12 +93,19 @@ class Logic:
                     if zones.is_object_in_red_zone_us_dynamic(self.__current_speed):
                         self.__current_speed = 90
                         self.send_command_logic()
+                        #print("90")
                     elif zones.is_object_in_yellow_zone_lidar():
                         self.__current_speed = 84
                         self.send_command_logic()
+                        #print("84")
+                    elif zones.is_object_in_side_zone_lidar():
+                        self.__current_speed = 82
+                        self.send_command_logic()
+                        #print("82")
                     else:
                         self.__current_speed = 80
                         self.send_command_logic()
+                        #print("80")
                 else:   # here is room to test autopilot functions with manual control (no button red)
                     if zones.is_object_in_red_zone_us_dynamic(self.__current_speed):
                         self.__current_speed = 90
