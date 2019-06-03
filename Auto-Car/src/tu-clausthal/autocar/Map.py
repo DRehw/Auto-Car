@@ -161,6 +161,9 @@ class Map:
 
     def get_map_as_ppm(self, time_ms):
         print("{} Begin get map as ppm".format(int(round(time() * 1000)) - time_ms))
+        # self.ppm_array = np.copy(self.grid)
+        # self.ppm_array[self.ppm_array < 1] = 255
+        # self.ppm_array[self.ppm_array < 255] = 0
         #for i in range(len(self.grid)): 280ms
         #    for j in range(len(self.grid[i])):
         #        color = self.get_color_from_value(self.grid[i][j])
