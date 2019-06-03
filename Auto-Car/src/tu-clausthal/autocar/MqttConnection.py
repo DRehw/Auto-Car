@@ -67,6 +67,7 @@ class MqttConnection:
             self.client.publish(topic, msg)
 
     def send_car_command(self, speed, steer):
+        # print("Sending command")
         self.publish("aadc/rc", MqttConnection.get_json_cmd(speed, steer))
 
     def disconnect(self):
@@ -92,11 +93,14 @@ class MqttConnection:
 
     def __on_message(self, client, userdata, message):
         for func in self.on_message:
-            func(client, userdata, message)
+            try:
+                func(client, userdata, message)
+            except (Exception) as e:
+                print("Function {} not working!".format(str(func).split(" ")[2]))
         if message.topic == "aadc/lidar":
             CurrentData.set_lidar_json(loads(str(message.payload.decode("utf-8"))))
         elif message.topic == "aadc/sensor":
-            print(str(message.payload.decode("utf-8")))
+            # print(str(message.payload.decode("utf-8")))
             CurrentData.set_sensor_json(loads(str(message.payload.decode("utf-8"))))
         return
 

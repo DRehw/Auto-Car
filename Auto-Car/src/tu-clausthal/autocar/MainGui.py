@@ -276,7 +276,12 @@ class MainGui:
                                        pady=(5, 5))
 
         self.controller.gui_init(self)
+        self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.mainloop()
+
+    def on_closing(self):
+        self.window.destroy()
+        return
 
     def speed_scale_set(self, speed):
         if -15 <= speed <= 15:
@@ -323,7 +328,6 @@ class MainGui:
 
     def get_play_path(self):
         return self.play_path_string_var.get()
-
 
     def set_auto_speed_label_text(self, speed):
         self.__display_speed.set((speed-90)*(-1))
