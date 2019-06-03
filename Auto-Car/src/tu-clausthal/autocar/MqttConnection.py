@@ -94,6 +94,7 @@ class MqttConnection:
         for func in self.on_message:
             func(client, userdata, message)
         if message.topic == "aadc/lidar":
+            # print("Lidar data!")
             CurrentData.set_lidar_json(loads(str(message.payload.decode("utf-8"))))
         elif message.topic == "aadc/sensor":
             print(str(message.payload.decode("utf-8")))

@@ -72,7 +72,7 @@ class Map:
             self.calc_constant(CurrentData.get_value_from_tag_from_sensor("euler"))
         if self.euler_reseted and changed_data_str == "lidar":
             self.waiting_for_final_sensor = True
-            if self.lidar_counter < 50:
+            if self.lidar_counter < 10000:
                 self.lidar_counter += 1
             else:
                 self.reset_poor_map_data()
@@ -80,9 +80,10 @@ class Map:
 
         if changed_data_str == "sensor":
             self.add_sensor_data_to_list()
-            if self.waiting_for_final_sensor == True:
+            if self.waiting_for_final_sensor:
                 self.waiting_for_final_sensor = False
-                self.add_lidar_data_to_map()
+                if self.euler_reseted:
+                    self.add_lidar_data_to_map()
         return
 
     def set_cell(self, x, y, val):
@@ -152,7 +153,6 @@ class Map:
         #distance = math.sqrt(((sensors2[1][0] - sensors1[1][0])**2 + (sensors2[1][1] - sensors1[1][1])**2))
         if sensors2[1][0] < sensors1[1][0]:
             dif_x = -(sensors1[1][0] - sensors2[1][0])
-            print(dif_x)
         else:
             dif_x = sensors2[1][0] - sensors1[1][0]
         if sensors2[1][1] < sensors1[1][1]:
@@ -174,16 +174,16 @@ class Map:
 
     def add_sensor_data_to_list(self):
         sensor_timestamp = CurrentData.get_value_from_tag_from_sensor("timestamp")
-        sensor_position = [[CurrentData.get_value_from_tag_from_sensor("position")[0]],[CurrentData.get_value_from_tag_from_sensor("position")[1]]]
+        sensor_position = [CurrentData.get_value_from_tag_from_sensor("position")[0],CurrentData.get_value_from_tag_from_sensor("position")[1]]
         sensor_euler = CurrentData.get_value_from_tag_from_sensor("euler")[0]
         self.sensor_data_list.append([sensor_timestamp,sensor_position,sensor_euler])
 
 
 
-    def get_interval(self, sensor_data_list, time_point):
-        for i in range(len(sensor_data_list)):
+    def get_interval(self, time_point):
+        for i in range(len(self.sensor_data_list)):
             if self.sensor_data_list[i][0] >= time_point:
-                return [[i-1],[i]]
+                return [i-1,i]
 
     def add_lidar_data_to_map(self):
         """ Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
@@ -212,7 +212,8 @@ class Map:
                 current_time_point += 100 / 120
                 last_lidar_degree = lidarData[i][1]
             self.sensor_data_list = [last_sensor]
-        except:
+        except Exception as InterpolationError:
+            print("Interpolation Failed!\n" + str(InterpolationError))
             self.add_lidar_data_to_map_without_interpolation()
         return
 

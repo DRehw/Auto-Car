@@ -79,6 +79,7 @@ class CurrentData:
                 except(Exception) as e:
                     if method is not None:
                         print("Method {} is not working properly!".format(str(method).split(" ")[2]))
+                        print(e)
         return
 
     """
@@ -161,7 +162,10 @@ class CurrentData:
         res = None
         for key, value in json_obj.items():
             if key == tag_str:
-                res = literal_eval(str(value))
+                if "str" in str(type(value)):
+                    res = literal_eval(str(value))
+                else:
+                    res = value
                 # res = value
                 break
         return res
