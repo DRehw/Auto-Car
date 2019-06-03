@@ -90,6 +90,8 @@ class Logic:
                     put speed control here
                     """
                     # example test:
+                    # self.__current_steer = zones.is_object_close_to_side_us()
+                    self.__current_steer = zones.is_object_close_to_side_lidar()
                     if zones.is_object_in_red_zone_us_dynamic(self.__current_speed):
                         self.__current_speed = 90
                         self.send_command_logic()
