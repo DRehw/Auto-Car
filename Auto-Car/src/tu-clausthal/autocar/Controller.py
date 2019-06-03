@@ -107,7 +107,14 @@ class Controller:
             self.gui.stop_btn_set_color("SystemButtonFace")
 
     def show_map_btn(self):
-        self.occupancy_map.show_map()
+        #image = self.occupancy_map.get_map_as_ppm()
+        #with open('blue_example.ppm', 'wb') as f:
+        #    f.write(image)
+        #    print(f)
+        time_ms = int(round(time.time() * 1000))
+        print("{} Start".format(0))
+        self.gui.update_map(self.occupancy_map.get_map_as_photo_img(time_ms), time_ms)
+        # self.occupancy_map.show_map()
 
     def reset_euler_btn(self):
         euler = CurrentData.get_value_from_tag_from_sensor("euler")

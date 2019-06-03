@@ -8,6 +8,9 @@ Created on 14.05.2019
 import math
 import matplotlib as mpl
 import numpy as np
+from tkinter import PhotoImage
+from time import time
+import array
 from CurrentData import CurrentData
 from matplotlib import pyplot
 
@@ -28,7 +31,8 @@ class Map:
     """
 
     def __init__(self, width=800, height=800):
-        """ Construct an empty occupancy grid.
+        """
+        Construct an empty occupancy grid.
 
         Arguments: width,
                    height    -- The grid will have height rows and width
@@ -37,12 +41,24 @@ class Map:
                                 of the y-dimension.
         """
         CurrentData.register_method_as_observer(self.on_data_change)
-        self.width = width  # x_max
-        self.height = height  # y_max
-        self.grid = np.zeros((width, height))
+        if width > 0:
+            self.width = width  # x_max
+        if height > 0:
+            self.height = height  # y_max
+        self.grid = [[0] * width] * height
         self.constant = 0  # Used to correct for wrong starting position of euler
         self.euler_reseted = False
         self.lidar_counter = 0
+        self.ppm_header = bytes('P5 {} {} 255 '.format(self.width, self.height), 'ascii')
+        # self.ppm_array = array.array('B', [255] * self.width * self.height)
+        self.ppm_array = np.zeros((self.width, self.height), np.uint8)
+        self.ppm_array[self.ppm_array >= 0] = 255
+        self.set_test_cells()
+
+    def set_test_cells(self):
+        for i in range(10):
+            for j in range(10):
+                self.set_cell(100 + i, 100 + j, 1)
 
     def reset_poor_map_data(self):
         for i in range(self.width):
@@ -63,7 +79,8 @@ class Map:
         return
 
     def set_cell(self, x, y, val):
-        """ Set the value of a cell in the grid.
+        """
+        Set the value of a cell in the grid.
 
         Arguments:
             x, y  - This is a point in the map coordinate frame.
@@ -77,8 +94,9 @@ class Map:
         return
 
     def show_map(self):
-        """ Show an image of the Map including the grid and a legend.
-            Later on it is possible to implement different brightness levels for different values
+        """
+        Show an image of the Map including the grid and a legend.
+        Later on it is possible to implement different brightness levels for different values
         """
 
         # make a color map of fixed colors
@@ -98,7 +116,8 @@ class Map:
         return
 
     def get_lidar_vector(self, measurement, position, euler):
-        """ calculates coordinates based on a lidar measurement, used in addLidarDataToMap
+        """
+        calculates coordinates based on a lidar measurement, used in addLidarDataToMap
         """
         # print("Position: {}, {}".format(position[0], position[1]))
         radians = math.radians(measurement[1])
@@ -109,8 +128,9 @@ class Map:
         return int(round(x_coord, 0)), int(round(y_coord, 0))
 
     def add_lidar_data_to_map(self):
-        """ Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
-            Should be called on whenever Controller.onMessage() receives lidar data
+        """
+        Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
+        Should be called on whenever Controller.onMessage() receives lidar data
         """
         position = CurrentData.get_value_from_tag_from_sensor("position")
         euler = CurrentData.get_value_from_tag_from_sensor("euler")
@@ -123,10 +143,37 @@ class Map:
         return
 
     def calc_constant(self, euler):
-        """ Calculates constant based on aadc/sensor/euler, to be used when car is put in the base position
-            is now automatically done when subscribed
+        """
+        Calculates constant based on aadc/sensor/euler, to be used when car is put in the base position
+        is now automatically done when subscribed
         """
 
         self.constant = - euler[0]
         self.euler_reseted = True
         return
+
+    @staticmethod
+    def get_color_from_value(value):
+        if value > 0:
+            return 0
+        else:
+            return 255
+
+    def get_map_as_ppm(self, time_ms):
+        print("{} Begin get map as ppm".format(int(round(time() * 1000)) - time_ms))
+        #for i in range(len(self.grid)): 280ms
+        #    for j in range(len(self.grid[i])):
+        #        color = self.get_color_from_value(self.grid[i][j])
+        #        self.ppm_array[i][j] = color
+        #self.ppm_array[:] = [[Map.get_color_from_value(a) for a in x] for x in self.ppm_array] 780ms
+        #for i, row in enumerate(self.grid): 230ms
+            #for j, ele in enumerate(row):
+                #self.ppm_array[i][j] = Map.get_color_from_value(ele)
+        print("{} After loop before return".format(int(round(time() * 1000)) - time_ms))
+        return self.ppm_header + b' ' + self.ppm_array.tobytes()
+
+    def get_map_as_photo_img(self, time_ms):
+        print("{} Get map photo image".format(int(round(time() * 1000)) - time_ms))
+        img = PhotoImage(width=self.width, height=self.height, data=self.get_map_as_ppm(time_ms), format='PPM')
+        print("{} Get map photo image before returning".format(int(round(time() * 1000)) - time_ms))
+        return img

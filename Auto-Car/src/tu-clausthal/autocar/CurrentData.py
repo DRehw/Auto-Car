@@ -1,4 +1,5 @@
 from ast import literal_eval
+import traceback
 """
 Class CurrentData
 This class is a singleton and is used to give access to the current dataset from the car.
