@@ -150,7 +150,7 @@ class Map:
 
     def interpolate_by_time(self, sensors1, sensors2, time_point):
         time_interval =  sensors2[0] - sensors1[0]
-        #distance = math.sqrt(((sensors2[1][0] - sensors1[1][0])**2 + (sensors2[1][1] - sensors1[1][1])**2))
+        ##distance = math.sqrt(((sensors2[1][0] - sensors1[1][0])**2 + (sensors2[1][1] - sensors1[1][1])**2))
         if sensors2[1][0] < sensors1[1][0]:
             dif_x = -(sensors1[1][0] - sensors2[1][0])
         else:
