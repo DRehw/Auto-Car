@@ -177,6 +177,8 @@ class Map:
         sensor_position = [CurrentData.get_value_from_tag_from_sensor("position")[0],CurrentData.get_value_from_tag_from_sensor("position")[1]]
         sensor_euler = CurrentData.get_value_from_tag_from_sensor("euler")[0]
         self.sensor_data_list.append([sensor_timestamp,sensor_position,sensor_euler])
+        if len(self.sensor_data_list) > 20:
+            del self.sensor_data_list[0]
 
 
 
@@ -195,7 +197,7 @@ class Map:
         lidar_timestamp = CurrentData.get_value_from_tag_from_lidar("timestamp")
         current_time_point = 0
         last_lidar_degree = None
-        last_sensor = None
+        #last_sensor = None
         try:
             for i in range(len(lidarData)):
                 if (last_lidar_degree == None) or (last_lidar_degree + 2.5 > lidarData[i][1]):
@@ -203,7 +205,7 @@ class Map:
                         interval = self.get_interval((lidar_timestamp - 100 + current_time_point))
                         relative_time_point = (lidar_timestamp - 100 + current_time_point) - self.sensor_data_list[interval[0]][0]
                         interpolated_data = self.interpolate_by_time(self.sensor_data_list[interval[0]],self.sensor_data_list[interval[1]], relative_time_point)
-                        last_sensor = self.sensor_data_list[interval[1]]
+                        #last_sensor = self.sensor_data_list[interval[1]]
                         position = interpolated_data[2]
                         euler = [interpolated_data[3]]
                         coord = self.get_lidar_vector(lidarData[i], position, euler)
@@ -211,7 +213,6 @@ class Map:
                             Map.set_cell(self, coord[0], coord[1], 1)
                 current_time_point += 100 / 120
                 last_lidar_degree = lidarData[i][1]
-            self.sensor_data_list = [last_sensor]
         except Exception as InterpolationError:
             print("Interpolation Failed!\n" + str(InterpolationError))
             self.add_lidar_data_to_map_without_interpolation()
