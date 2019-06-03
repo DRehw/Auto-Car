@@ -1,4 +1,5 @@
 from ast import literal_eval
+import traceback
 """
 Class CurrentData
 This class is a singleton and is used to give access to the current dataset from the car.
@@ -161,7 +162,10 @@ class CurrentData:
         res = None
         for key, value in json_obj.items():
             if key == tag_str:
-                res = literal_eval(str(value))
+                if "str" in str(type(value)):
+                    res = literal_eval(value)
+                else:
+                    res = value
                 # res = value
                 break
         return res

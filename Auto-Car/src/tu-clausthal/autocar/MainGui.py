@@ -86,7 +86,7 @@ class MainGui:
         Main Window widgets
         """
 
-        self.map_canvas = tk.Canvas(self.window, width=800, height=800, bg="white")
+        self.map_canvas = tk.Canvas(self.window, width=500, height=500, bg="white")
         self.map_canvas.grid(row=0,
                              column=2,
                              rowspan=2,
