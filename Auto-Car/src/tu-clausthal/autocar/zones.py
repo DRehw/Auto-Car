@@ -30,7 +30,7 @@ def define_red_zone_dynamic(current_speed):
     max_speed = 12
     min_speed = 6
     max_zone = 120
-    min_zone = 40
+    min_zone = 20
     speed = convert_speed(current_speed)
 
     if speed >= max_speed:

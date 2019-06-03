@@ -27,7 +27,7 @@ class MainGui:
         self.window.title("Auto-Car Debug")
         self.window.bind("<KeyRelease>", self.key_release)
         self.window.bind("<KeyPress>", self.key_press)
-        self.window.option_add("*font", "Helvetica 14")
+        self.window.option_add("*font", "Helvetica 9")
         self.record_path_string_var = tk.StringVar()
         self.play_path_string_var = tk.StringVar()
         self.__display_speed = tk.StringVar()
@@ -39,19 +39,19 @@ class MainGui:
         FRAMES
         """
 
-        control_frame = tk.Frame(self.window, bg="red")
+        control_frame = tk.Frame(self.window)
         control_frame.grid(row=0,
                            column=0,
                            sticky=tk.N,
                            padx=(10, 10),
                            pady=(10, 10))
-        button_frame = tk.Frame(self.window, bg="red")
+        button_frame = tk.Frame(self.window)
         button_frame.grid(row=0,
                           column=1,
                           padx=(10, 10),
                           pady=(10, 10),
                           sticky=tk.N)
-        simulator_frame = tk.Frame(self.window, bg="red")
+        simulator_frame = tk.Frame(self.window)
         simulator_frame.grid(row=1,
                              column=0,
                              columnspan=2,
