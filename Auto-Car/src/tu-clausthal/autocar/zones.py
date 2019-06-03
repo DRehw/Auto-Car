@@ -126,15 +126,15 @@ def is_object_close_to_side_us():
 
 def is_object_close_to_side_lidar():
     for dataset in CurrentData.get_value_from_tag_from_lidar("pcl"):
-        if dataset[0] > 10:
-            if 60 < dataset[1] < 80:
-                print(dataset)
-                left_distance = dataset[2] * math.cos(math.radians(dataset[1]))
-                if left_distance < 200:
-                    return 60
-            elif 280 < dataset[1] < 300:
-                print(dataset)
-                right_distance = dataset[2] * math.cos(math.radians(dataset[1]))
-                if right_distance < 200:
-                    return 110
+        if 70 < dataset[1] < 80:
+            print(dataset)
+            left_distance = dataset[2] * math.cos(math.radians(dataset[1]))
+            if left_distance < 200:
+                return 75
+
+        elif 280 < dataset[1] < 300:
+            print(dataset)
+            right_distance = dataset[2] * math.cos(math.radians(dataset[1]))
+            if right_distance < 200:
+                return 110
     return 90
