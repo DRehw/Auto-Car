@@ -43,8 +43,8 @@ class Map:
         self.constant = 0  # Used to correct for wrong starting position of euler
         self.euler_reseted = False
         self.lidar_counter = 0
-        self.sensor_data_list = []
-        self.waiting_for_final_sensor = False
+        self.sensor_data_list = []  #list of sensor data elements of the Form [[timestamp,position[],euler]]
+        self.waiting_for_final_sensor = False   #set true when lidar data arrives and false, when the next sensor data arrive
 
     def reset_poor_map_data(self):
         for i in range(self.width):
@@ -149,6 +149,8 @@ class Map:
 
 
     def interpolate_by_time(self, sensors1, sensors2, time_point):
+        # returns interpolated position for a specified time point between two sensor data elements (positions)
+
         time_interval =  sensors2[0] - sensors1[0]
         ##distance = math.sqrt(((sensors2[1][0] - sensors1[1][0])**2 + (sensors2[1][1] - sensors1[1][1])**2))
         if sensors2[1][0] < sensors1[1][0]:
@@ -173,6 +175,8 @@ class Map:
 
 
     def add_sensor_data_to_list(self):
+        #adds sensor data from CurrentData to self.sensor_data_list
+
         sensor_timestamp = CurrentData.get_value_from_tag_from_sensor("timestamp")
         sensor_position = [CurrentData.get_value_from_tag_from_sensor("position")[0],CurrentData.get_value_from_tag_from_sensor("position")[1]]
         sensor_euler = CurrentData.get_value_from_tag_from_sensor("euler")[0]
@@ -183,6 +187,8 @@ class Map:
 
 
     def get_interval(self, time_point):
+        # returns interval of elements from self.sensor_data_list within a specified time point is located
+
         for i in range(len(self.sensor_data_list)):
             if self.sensor_data_list[i][0] >= time_point:
                 return [i-1,i]
@@ -190,6 +196,7 @@ class Map:
     def add_lidar_data_to_map(self):
         """ Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
             Should be called on whenever Controller.onMessage() receives lidar data
+            Uses interpolation
         """
         #position = CurrentData.get_value_from_tag_from_sensor("position")
         #euler = CurrentData.get_value_from_tag_from_sensor("euler")
