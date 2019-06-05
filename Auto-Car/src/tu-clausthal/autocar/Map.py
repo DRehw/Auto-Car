@@ -49,7 +49,7 @@ class Map:
     def reset_poor_map_data(self):
         for i in range(self.width):
             for j in range(self.height):
-                if self.grid[i][j] < 5:
+                if self.grid[i][j] < 3:
                     self.grid[i][j] = 0
         return
 
@@ -72,7 +72,7 @@ class Map:
             self.calc_constant(CurrentData.get_value_from_tag_from_sensor("euler"))
         if self.euler_reseted and changed_data_str == "lidar":
             self.waiting_for_final_sensor = True
-            if self.lidar_counter < 10000:
+            if self.lidar_counter < 50:
                 self.lidar_counter += 1
             else:
                 self.reset_poor_map_data()
