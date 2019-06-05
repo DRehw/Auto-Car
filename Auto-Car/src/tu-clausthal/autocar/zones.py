@@ -30,7 +30,7 @@ def define_red_zone_dynamic(current_speed):
     max_speed = 12
     min_speed = 6
     max_zone = 120
-    min_zone = 20
+    min_zone = 15
     speed = convert_speed(current_speed)
 
     if speed >= max_speed:
@@ -125,16 +125,47 @@ def is_object_close_to_side_us():
 
 
 def is_object_close_to_side_lidar():
+    """ Makes the car steer away from obstacles located at the sides.
+            - min_steer_distance: from this value to 0 steering is maximized
+            - max_steer_distance: from this value and greater the car will not steer
+            - If the side distance is between these two values,
+              the car will steer more when it comes closer to the obstacle
+              and lesser when it veers away from the obstacle.
+    """
+    min_steer_distance = 60
+    max_steer_distance = 200
+    steer_diff = max_steer_distance - min_steer_distance
+    min_dataset = [0, 50000]     # [{left=0,right=1}, distance]
+    # find smallest distance on left OR right side
     for dataset in CurrentData.get_value_from_tag_from_lidar("pcl"):
-        if 70 < dataset[1] < 80:
-            print(dataset)
-            left_distance = dataset[2] * math.cos(math.radians(dataset[1]))
-            if left_distance < 200:
-                return 75
+        if 50 < dataset[1] < 80:
+            dataset_distance = dataset[2] * math.cos(math.radians(dataset[1]))
+            if dataset_distance < min_dataset[1]:
+                min_dataset = [1, dataset_distance]
+        if 280 < dataset[1] < 310:
+            dataset_distance = dataset[2] * math.cos(math.radians(dataset[1]))
+            if dataset_distance < min_dataset[1]:
+                min_dataset = [0, dataset_distance]
+    # calculate and return steering value
+    print(min_dataset)
+    if min_dataset[0] == 0:
+        if min_dataset[1] < min_steer_distance:
+            print(120)
+            return 120
+        elif min_dataset[1] > max_steer_distance:
+            print(90)
+            return 90
+        else:
+            print(90 - round((30 * (min_dataset[1] - steer_diff)) / steer_diff))
+            return 90 - round((30 * (min_dataset[1] - steer_diff)) / steer_diff)
+    if min_dataset[0] == 1:
+        if min_dataset[1] < min_steer_distance:
+            print(60)
+            return 60
+        elif min_dataset[1] > max_steer_distance:
+            print(90)
+            return 90
+        else:
+            print(90 + round((30 * (min_dataset[1] - steer_diff)) / steer_diff))
+            return 90 + round((30 * (min_dataset[1] - steer_diff)) / steer_diff)
 
-        elif 280 < dataset[1] < 300:
-            print(dataset)
-            right_distance = dataset[2] * math.cos(math.radians(dataset[1]))
-            if right_distance < 200:
-                return 110
-    return 90
