@@ -45,14 +45,12 @@ class Map:
             self.width = width  # x_max
         if height > 0:
             self.height = height  # y_max
-        self.grid = [[0] * width] * height
+        self.grid = np.zeros((self.width, self.height), np.uint8)
         self.constant = 0  # Used to correct for wrong starting position of euler
         self.euler_reseted = False
         self.lidar_counter = 0
         self.ppm_header = bytes('P5 {} {} 255 '.format(self.width, self.height), 'ascii')
-        # self.ppm_array = array.array('B', [255] * self.width * self.height)
         self.ppm_array = np.zeros((self.width, self.height), np.uint8)
-        self.ppm_array[self.ppm_array >= 0] = 255
         self.set_test_cells()
 
     def set_test_cells(self):
@@ -74,7 +72,7 @@ class Map:
             if self.lidar_counter < 50:
                 self.lidar_counter += 1
             else:
-                self.reset_poor_map_data()
+                # self.reset_poor_map_data()
                 self.lidar_counter = 0
         return
 
@@ -161,9 +159,8 @@ class Map:
 
     def get_map_as_ppm(self, time_ms):
         print("{} Begin get map as ppm".format(int(round(time() * 1000)) - time_ms))
-        # self.ppm_array = np.copy(self.grid)
-        # self.ppm_array[self.ppm_array < 1] = 255
-        # self.ppm_array[self.ppm_array < 255] = 0
+        self.ppm_array = np.copy(self.grid)
+        self.ppm_array[self.ppm_array < 1] = 255
         #for i in range(len(self.grid)): 280ms
         #    for j in range(len(self.grid[i])):
         #        color = self.get_color_from_value(self.grid[i][j])
