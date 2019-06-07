@@ -67,9 +67,24 @@ class Map:
         return
     """
 
+    def calculate_constant_automatic(self, sensor1, sensor2):
+        x = np.degrees(math.atan2(sensor2[1][0] - sensor1[1][0], sensor1[1][1] - sensor2[1][1])) - 90
+        if x < 0:
+            x = (360 + x)
+        constant = x + sensor2[2]
+        if constant >= 360:
+            constant = constant - 360
+        self.constant = - constant
+        self.euler_reseted = True
+        return
+
     def on_data_change(self, changed_data_str):
         if not self.euler_reseted:
-            self.calc_constant(CurrentData.get_value_from_tag_from_sensor("euler"))
+            #self.calc_constant(CurrentData.get_value_from_tag_from_sensor("euler"))
+            if len(self.sensor_data_list) >= 20:
+                distance = math.sqrt(((self.sensor_data_list[20][1][0] - self.sensor_data_list[0][1][0]) ** 2 + (self.sensor_data_list[20][1][1] - self.sensor_data_list[0][1][1]) ** 2))
+                if distance >= 120:
+                    self.calculate_constant_automatic(self.sensor_data_list[0], self.sensor_data_list[20])
         if self.euler_reseted and changed_data_str == "lidar":
             self.waiting_for_final_sensor = True
             if self.lidar_counter < 50:
