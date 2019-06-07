@@ -14,6 +14,7 @@ import Simulator
 from CurrentData import CurrentData
 from MqttConnection import MqttConnection
 from KeyController import start_loop
+from RepeatedTimer import RepeatedTimer
 
 
 class Controller:
@@ -32,10 +33,13 @@ class Controller:
         self.__mqtt_connection = mqtt_connection
         self.__mqtt_connection.add_callback_methods(on_connect=self.subscribe)
         self.logic.set_controller(self)
+        self.rep_timer = RepeatedTimer(1000, self.show_map_btn)
         return
 
     def on_window_close(self):
+        print("Window Close")
         self.__mqtt_connection.disconnect()
+        self.rep_timer.stop()
         return
 
     def subscribe(self, client, userdata, flags, rc):

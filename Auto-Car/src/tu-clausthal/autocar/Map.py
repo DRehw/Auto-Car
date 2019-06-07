@@ -51,12 +51,6 @@ class Map:
         self.lidar_counter = 0
         self.ppm_header = bytes('P5 {} {} 255 '.format(self.width, self.height), 'ascii')
         self.ppm_array = np.zeros((self.width, self.height), np.uint8)
-        self.set_test_cells()
-
-    def set_test_cells(self):
-        for i in range(10):
-            for j in range(10):
-                self.set_cell(100 + i, 100 + j, 1)
 
     def reset_poor_map_data(self):
         for i in range(self.width):
@@ -157,7 +151,7 @@ class Map:
         else:
             return 255
 
-    def get_map_as_ppm(self, time_ms):
+    def _get_map_as_ppm(self, time_ms):
         print("{} Begin get map as ppm".format(int(round(time() * 1000)) - time_ms))
         self.ppm_array = np.copy(self.grid)
         self.ppm_array[self.ppm_array < 1] = 255
@@ -174,6 +168,6 @@ class Map:
 
     def get_map_as_photo_img(self, time_ms):
         print("{} Get map photo image".format(int(round(time() * 1000)) - time_ms))
-        img = PhotoImage(width=self.width, height=self.height, data=self.get_map_as_ppm(time_ms), format='PPM')
+        img = PhotoImage(width=self.width, height=self.height, data=self._get_map_as_ppm(time_ms), format='PPM')
         print("{} Get map photo image before returning".format(int(round(time() * 1000)) - time_ms))
         return img

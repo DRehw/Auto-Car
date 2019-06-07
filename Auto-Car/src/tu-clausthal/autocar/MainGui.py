@@ -297,6 +297,7 @@ class MainGui:
         self.window.mainloop()
 
     def on_closing(self):
+        self.controller.on_window_close()
         self.window.destroy()
         return
 
