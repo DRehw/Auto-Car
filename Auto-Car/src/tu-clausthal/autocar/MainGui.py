@@ -322,23 +322,9 @@ class MainGui:
         KeyHandler.on_key_event(event)
         return
 
-    def update_map(self, tk_photo_image, time_ms):
-        print("{} Begin update_map".format(int(round(time() * 1000)) - time_ms))
+    def update_map(self, tk_photo_image):
         self.image = tk_photo_image
-        print("{} Before drawing".format(int(round(time() * 1000)) - time_ms))
         self.map_canvas.create_image(0, 0, image=tk_photo_image, anchor=tk.NW)
-        print("{} Ende".format(int(round(time() * 1000)) - time_ms))
-
-    def speed_scale_set(self, speed):
-        if -15 <= speed <= 15:
-            self.speed_scale.set(speed)
-
-    def steer_scale_set(self, steer):
-        if -30 <= steer <= 30:
-            self.steer_scale.set(steer)
-
-    def speed_scale_mouse_release(self, event):
-        self.speed_scale.set(0)
 
     def manual_control_btn_set_color(self, color):
         self.manual_control_btn.configure(bg=color)

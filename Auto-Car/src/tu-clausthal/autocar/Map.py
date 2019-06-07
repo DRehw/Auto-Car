@@ -151,23 +151,11 @@ class Map:
         else:
             return 255
 
-    def _get_map_as_ppm(self, time_ms):
-        print("{} Begin get map as ppm".format(int(round(time() * 1000)) - time_ms))
+    def _get_map_as_ppm(self):
         self.ppm_array = np.copy(self.grid)
         self.ppm_array[self.ppm_array < 1] = 255
-        #for i in range(len(self.grid)): 280ms
-        #    for j in range(len(self.grid[i])):
-        #        color = self.get_color_from_value(self.grid[i][j])
-        #        self.ppm_array[i][j] = color
-        #self.ppm_array[:] = [[Map.get_color_from_value(a) for a in x] for x in self.ppm_array] 780ms
-        #for i, row in enumerate(self.grid): 230ms
-            #for j, ele in enumerate(row):
-                #self.ppm_array[i][j] = Map.get_color_from_value(ele)
-        print("{} After loop before return".format(int(round(time() * 1000)) - time_ms))
         return self.ppm_header + b' ' + self.ppm_array.tobytes()
 
-    def get_map_as_photo_img(self, time_ms):
-        print("{} Get map photo image".format(int(round(time() * 1000)) - time_ms))
-        img = PhotoImage(width=self.width, height=self.height, data=self._get_map_as_ppm(time_ms), format='PPM')
-        print("{} Get map photo image before returning".format(int(round(time() * 1000)) - time_ms))
+    def get_map_as_photo_img(self):
+        img = PhotoImage(width=self.width, height=self.height, data=self._get_map_as_ppm(), format='PPM')
         return img

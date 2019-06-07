@@ -3,6 +3,7 @@
 """
 from json import loads
 from time import time
+from traceback import print_exc
 
 import paho.mqtt.client as mqtt
 from CurrentData import CurrentData
@@ -115,7 +116,10 @@ class MqttConnection:
             print("No previous subscription attempt ?!")
 
         for func in self.on_subscribe:
-            func(client, userdata, mid, granted_qos)
+            try:
+                func(client, userdata, mid, granted_qos)
+            except Exception:
+                print_exc()
         return
 
     def __on_connect(self, client, userdata, flags, rc):
@@ -130,7 +134,10 @@ class MqttConnection:
 
         if self.__is_connected:
             for func in self.on_connect:
-                func(client, userdata, flags, rc)
+                try:
+                    func(client, userdata, flags, rc)
+                except Exception:
+                    print_exc()
         return
 
     def __on_disconnect(self, client, userdata, rc):

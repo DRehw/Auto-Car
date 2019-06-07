@@ -31,24 +31,33 @@ class Controller:
         self.occupancy_map = occupancy_map
         self.logic = logic
         self.__mqtt_connection = mqtt_connection
-        self.__mqtt_connection.add_callback_methods(on_connect=self.subscribe)
+        self.__mqtt_connection.add_callback_methods(on_connect=self.on_connect, on_subscribe=self.on_subscribe)
         self.logic.set_controller(self)
-        self.rep_timer = RepeatedTimer(1000, self.show_map_btn)
+        self.rep_timer = None
         return
 
     def on_window_close(self):
         print("Window Close")
         self.__mqtt_connection.disconnect()
-        self.rep_timer.stop()
+        if self.rep_timer:
+            self.rep_timer.stop()
         return
 
-    def subscribe(self, client, userdata, flags, rc):
+    def subscribe(self):
         self.__mqtt_connection.subscribe("aadc/rc", "aadc/sensor", "aadc/lidar")
         return
+
+    def on_subscribe(self, client, userdata, mid, granted_qos):
+        self.rep_timer = RepeatedTimer(1000, self.show_map_btn)
 
     def gui_init(self, gui):
         self.gui = gui
         # start_loop(self)
+
+    def on_connect(self, client, userdata, flags, rc):
+        print("On connect du lappen")
+        self.subscribe()
+        return
 
     def start_cmd_mosq_path(self):
         if os.environ.get('MOSQUITTO_DIR'):
@@ -111,14 +120,7 @@ class Controller:
             self.gui.stop_btn_set_color("SystemButtonFace")
 
     def show_map_btn(self):
-        #image = self.occupancy_map.get_map_as_ppm()
-        #with open('blue_example.ppm', 'wb') as f:
-        #    f.write(image)
-        #    print(f)
-        time_ms = int(round(time.time() * 1000))
-        print("{} Start".format(0))
-        self.gui.update_map(self.occupancy_map.get_map_as_photo_img(time_ms), time_ms)
-        # self.occupancy_map.show_map()
+        self.gui.update_map(self.occupancy_map.get_map_as_photo_img())
 
     def reset_euler_btn(self):
         euler = CurrentData.get_value_from_tag_from_sensor("euler")
