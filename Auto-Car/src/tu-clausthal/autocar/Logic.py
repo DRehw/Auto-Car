@@ -92,22 +92,26 @@ class Logic:
                     # example test:
                     # self.__current_steer = zones.is_object_close_to_side_us()
                     self.__current_steer = zones.is_object_close_to_side_lidar()
+                    self.__current_speed = zones.distance_speed_control()
+                    self.send_command_logic()
+                    """
                     if zones.is_object_in_red_zone_us_dynamic(self.__current_speed):
                         self.__current_speed = 90
                         self.send_command_logic()
                         #print("90")
                     elif zones.is_object_in_yellow_zone_lidar():
-                        self.__current_speed = 84
+                        self.__current_speed = 83
                         self.send_command_logic()
                         #print("84")
                     elif zones.is_object_in_side_zone_lidar():
-                        self.__current_speed = 82
+                        self.__current_speed = 81
                         self.send_command_logic()
                         #print("82")
                     else:
-                        self.__current_speed = 80
+                        self.__current_speed = 79
                         self.send_command_logic()
                         #print("80")
+                    """
                 else:   # here is room to test autopilot functions with manual control (no button red)
                     if zones.is_object_in_red_zone_us_dynamic(self.__current_speed):
                         self.__current_speed = 90

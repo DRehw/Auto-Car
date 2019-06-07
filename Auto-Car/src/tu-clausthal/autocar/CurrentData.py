@@ -1,5 +1,5 @@
 from ast import literal_eval
-import traceback
+from traceback import print_exc
 """
 Class CurrentData
 This class is a singleton and is used to give access to the current dataset from the car.
@@ -79,8 +79,7 @@ class CurrentData:
                     method(changed_data_str)
                 except(Exception) as e:
                     if method is not None:
-                        print("Method {} is not working properly!".format(str(method).split(" ")[2]))
-                        print(e)
+                        print_exc()
         return
 
     """

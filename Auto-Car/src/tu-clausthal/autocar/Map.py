@@ -53,10 +53,7 @@ class Map:
         self.ppm_array = np.zeros((self.width, self.height), np.uint8)
 
     def reset_poor_map_data(self):
-        for i in range(self.width):
-            for j in range(self.height):
-                if self.grid[i][j] < 5:
-                    self.grid[i][j] = 0
+        self.grid[self.grid < 3] = 0
 
     def on_data_change(self, changed_data_str):
         if not self.euler_reseted:
@@ -66,7 +63,7 @@ class Map:
             if self.lidar_counter < 50:
                 self.lidar_counter += 1
             else:
-                # self.reset_poor_map_data()
+                self.reset_poor_map_data()
                 self.lidar_counter = 0
         return
 

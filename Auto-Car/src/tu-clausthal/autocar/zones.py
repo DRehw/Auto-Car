@@ -124,6 +124,32 @@ def is_object_close_to_side_us():
         return 90
 
 
+def distance_speed_control():
+    min_speed_distance = 200
+    max_speed_distance = 4000
+    speed_distance_diff = max_speed_distance - min_speed_distance
+    min_distance = math.inf
+    # find smallest distance on left OR right side
+    for dataset in CurrentData.get_value_from_tag_from_lidar("pcl"):
+        if dataset[1] < 50 or dataset[1] > 310:
+            dataset_distance = dataset[2] * math.cos(math.radians(dataset[1]))
+            dataset_side_distance = dataset[2] * math.sin(math.radians(dataset[1]))
+            if dataset_distance < min_distance and abs(dataset_side_distance) <= 150:
+                min_distance = dataset_distance
+    # calculate and return speed value
+    print("Min distance: {}".format(min_distance))
+    if min_distance < min_speed_distance:
+        print(90)
+        return 90
+    elif min_distance > max_speed_distance:
+        print(75)
+        return 75
+    else:
+        # print(90 - round((15 * (min_distance - speed_distance_diff)) / speed_distance_diff))
+        print(90 - round(min_distance - min_speed_distance) // (round(speed_distance_diff / 15)))
+        return min(90 - round(min_distance - min_speed_distance) // (round(speed_distance_diff / 15)), 84)
+
+
 def is_object_close_to_side_lidar():
     """ Makes the car steer away from obstacles located at the sides.
             - min_steer_distance: from this value to 0 steering is maximized
