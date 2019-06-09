@@ -11,9 +11,9 @@ import time
 from tkinter import filedialog
 
 import Simulator
+import KeyController
 from CurrentData import CurrentData
 from MqttConnection import MqttConnection
-from KeyController import start_loop
 from RepeatedTimer import RepeatedTimer
 
 
@@ -49,6 +49,7 @@ class Controller:
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
         self.rep_timer = RepeatedTimer(1000, self.show_map_btn)
+        KeyController.start()
 
     def gui_init(self, gui):
         self.gui = gui

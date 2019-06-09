@@ -1,7 +1,10 @@
 """
 Hallo
 """
+from math import hypot, sin, cos, radians
+
 import zones
+import KeyController
 from CurrentData import CurrentData
 
 
@@ -82,7 +85,37 @@ class Logic:
             self.main_logic()
         return
 
+    def _get_local_coords_from_lidar(self, angle, distance):
+        if angle and distance:
+            x = distance * sin(radians(angle))
+            y = distance * cos(radians(angle))
+            return x, y
+
+    def hindernisse(self):
+        lidar = CurrentData.get_value_from_tag_from_lidar("pcl")
+        last_point = None
+        print("\n")
+        count = 0
+        level = 0
+        for i, point in enumerate(lidar):
+            x, y = self._get_local_coords_from_lidar(point[1], point[2])
+            if last_point:
+                distance_to_last_point = hypot(x - last_point[0], y - last_point[1])
+                supposed_distance = 0.15 * last_point[2]
+                if distance_to_last_point > supposed_distance:
+                    if point[2] > last_point[2]:
+                        level += 1
+                        print("({}) Beginning at pos: {},{}".format(level, x, y))
+                    else:
+                        level -= 1
+                        print("({}) Ending at pos: {},{}".format(level, last_point[0], last_point[1]))
+                    count += 1
+            last_point = [x, y, point[2]]
+        print(str(count) + "\n")
+        return
+
     def main_logic(self):
+        # self.hindernisse()
         if not self.__stop:
             if not self.__manual_control:
                 if self.__autopilot_control:
@@ -120,6 +153,9 @@ class Logic:
                         self.__current_speed = 84
                         self.send_command_logic()"""
                     else:
+                        speed, steer = KeyController.get_cur_speed_and_steer()
+                        self.__current_speed_slider = speed
+                        self.__current_steer_slider = steer
                         self.send_command_manual()
             else:
                 self.send_command_manual()

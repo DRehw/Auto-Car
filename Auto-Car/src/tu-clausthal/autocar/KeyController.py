@@ -1,104 +1,120 @@
-from KeyHandler import is_pressed
-from threading import Thread
-from time import time, sleep
-__controller = None
-__speed_interval = 20
-__steer_interval = 4
-__max_speed = 15
-__max_steer = 30
-__speed = 0
-__steer = 0
-__no_change = False
-__stop = False
+from KeyHandler import register_observer_func, unregister_observer_func, is_pressed
+from time import time
+speed = 0
+steer = 0
+max_speed = 15
+max_steer = 30
+speed_acc = 150
+steer_acc = 50
+round_perc = 0.8
+cur_ms = int(round(time()*1000))
+last_key_press_ms_dict = {"Up": cur_ms, "Down": cur_ms, "Left": cur_ms, "Right": cur_ms, "space": cur_ms}
 
 
-def start_loop(controller):
-    global __stop, __controller
-    __controller = controller
-    proc = Thread(target=loop)
-    proc.start()
+def start():
+    register_observer_func(["Up", "Down", "Left", "Right", "space"], on_key_event)
+    return
 
 
-def loop():
-    global __speed, __steer, __max_speed, __max_steer, __no_change, __stop, \
-        __speed_interval, __steer_interval, __controller
-    speed_mark = int(round(time() * 100))
-    steer_mark, mark, left_mark, right_mark, up_mark, down_mark, brake_mark = [speed_mark] * 7
-    brake = False
-    brake_interval = 200
-    has_changed = False
-    v1 = False
+def stop():
+    unregister_observer_func(on_key_event)
+    return
 
-    while True:
-        current_time = int(round(time() * 100))
-        if v1:
-            if current_time - speed_mark >= __speed_interval:
-                speed_mark = current_time
-                if is_pressed("Up"):
-                    if -__max_speed <= __speed < __max_speed:
-                        __speed += 1
-                        has_changed = True
-                if is_pressed("Down"):
-                    if -__max_speed < __speed <= __max_speed:
-                        __speed -= 1
-                        has_changed = True
-            if current_time - steer_mark >= __steer_interval:
-                steer_mark = current_time
-                if is_pressed("Left"):
-                    if -__max_steer < __steer <= __max_steer:
-                        __steer -= 1
-                        has_changed = True
-                if is_pressed("Right"):
-                    if -__max_steer <= __steer < __max_steer:
-                        __steer += 1
-                        has_changed = True
+
+def get_cur_speed_and_steer():
+    global speed, steer
+    _update(None)
+    return speed, steer
+
+
+def on_key_event(key_str, if_pressed):
+    _update(key_str)
+    # print("Speed: {}, Steer: {}".format(speed, steer))
+    return
+
+
+def _update(pressed_key_str):
+    global last_key_press_ms_dict, speed_acc, steer_acc, speed, steer, max_speed, max_steer
+    d_speed = 0
+    d_steer = 0
+    is_pressed_dict = {"Up": is_pressed("Up"), "Down": is_pressed("Down"), "Left": is_pressed("Left"),
+                       "Right": is_pressed("Right"), "space": is_pressed("space")}
+    cur_ms = int(round(time()*1000))
+    if pressed_key_str is not None:  # Invert the status of key of the event in order to use it properly,
+        # because it it will be already inversed when this is called
+        # e.g.: when key "Right" is pressed, is_pressed returns already true, but when the event happens, you need to
+        # only consider the change in the past where it was false
+        is_pressed_dict[pressed_key_str] = not is_pressed_dict[pressed_key_str]
+        last_key_press_ms_dict[pressed_key_str] = cur_ms
+        if pressed_key_str == "space":
+            print("Breaking!")
+
+    # Calculate the change depending on the current status of each key
+    if is_pressed_dict["space"]:
+        d_speed = -speed
+    else:
+        if is_pressed_dict["Up"]:
+            max_change = _get_change(cur_ms - last_key_press_ms_dict["Up"], speed_acc)
+            if max_change > 0:
+                d_speed += max_change
+                last_key_press_ms_dict["Up"] += max_change * speed_acc
+        if is_pressed_dict["Down"]:
+            max_change = _get_change(cur_ms - last_key_press_ms_dict["Down"], speed_acc)
+            if max_change > 0:
+                d_speed -= max_change
+                last_key_press_ms_dict["Down"] += max_change * speed_acc
+
+    if is_pressed_dict["Left"]:
+        max_change = _get_change(cur_ms - last_key_press_ms_dict["Left"], steer_acc)
+        if max_change > 0:
+            d_steer += max_change
+            last_key_press_ms_dict["Left"] += max_change * steer_acc
+    if is_pressed_dict["Right"]:
+        max_change = _get_change(cur_ms - last_key_press_ms_dict["Right"], speed_acc)
+        if max_change > 0:
+            d_steer -= max_change
+            last_key_press_ms_dict["Right"] += max_change * steer_acc
+    # Mechanism for steer to converge to 0 when both left and right are not pressed
+    if not is_pressed_dict["Right"] and not is_pressed_dict["Left"] and steer != 0:
+        last_press_ms = max(last_key_press_ms_dict["Right"], last_key_press_ms_dict["Left"])
+        max_change = _get_change(cur_ms - last_press_ms, speed_acc)
+        if max_change > 0:
+            last_key_press_ms_dict["Right"] += max_change * steer_acc
+            last_key_press_ms_dict["Left"] += max_change * steer_acc
+            if abs(max_change) > abs(steer):
+                d_steer = steer * -1
+            else:
+                if steer > 0:
+                    d_steer -= max_change
+                else:
+                    d_steer += max_change
+    # apply the changes to speed and steer
+    if d_speed != 0:
+        if abs(speed + d_speed) > max_speed:
+            if speed + d_speed > 0:
+                speed = max_speed
+            else:
+                speed = -max_speed
         else:
-            if current_time - mark >= 1:
-                mark = current_time
-                if is_pressed("Up") and not brake:
-                    if current_time - up_mark >= __speed_interval:
-                        up_mark = current_time
-                        if -__max_speed <= __speed < __max_speed:
-                            __speed += 1
-                            has_changed = True
-                if is_pressed("Down") and not brake:
-                    if current_time - down_mark >= __speed_interval:
-                        down_mark = current_time
-                        if -__max_speed < __speed <= __max_speed:
-                            __speed -= 1
-                            has_changed = True
-                if is_pressed("Right") and not brake:
-                    if current_time - right_mark >= __steer_interval:
-                        right_mark = current_time
-                        if -__max_steer <= __steer < __max_steer:
-                            __steer += 1
-                            has_changed = True
-                if is_pressed("Left") and not brake:
-                    if current_time - left_mark >= __steer_interval:
-                        left_mark = current_time
-                        if -__max_steer < __steer <= __max_steer:
-                            __steer -= 1
-                            has_changed = True
-                if is_pressed("space") and not brake:
-                    print("Brake")
-                    brake = True
-                    __speed = 0
-                    brake_mark = current_time
-                    has_changed = True
-                if brake and current_time - brake_mark >= brake_interval:
-                    print("Turn off brake")
-                    brake = False
-
-        if has_changed:
-            __controller.set_speed(__speed)
-            __controller.set_steer(__steer)
-            has_changed = False
-        if __stop:
-            break
-    __stop = False
-    sleep(0.04)
+            speed += d_speed
+        # print("Speed: {}".format(speed))
+    if d_steer != 0:
+        if abs(steer + d_steer) > max_steer:
+            if steer + d_steer > 0:
+                steer = max_steer
+            else:
+                steer = -max_steer
+        else:
+            steer += d_steer
+        # print("Steer: {}".format(steer))
 
 
-def stop_proc():
-    global __stop
-    __stop = True
+def _round(value):
+    if value % 1 >= round_perc:
+        return int(value) + 1
+    else:
+        return int(value)
+
+
+def _get_change(time_dif, time_per_step):
+    return _round(time_dif / time_per_step)

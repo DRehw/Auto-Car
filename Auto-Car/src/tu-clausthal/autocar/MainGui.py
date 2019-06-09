@@ -8,6 +8,7 @@ import tkinter as tk
 from time import time
 
 import Map
+import KeyController
 import KeyHandler
 
 
