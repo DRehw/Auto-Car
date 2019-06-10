@@ -60,6 +60,45 @@ def define_yellow_zone_dynamic(current_speed):
     return red_zone
 
 
+def is_object_in_red_zone_steering_dynamic(current_steering, current_speed):
+    pos = (0, 0)
+    back_axle_offset = (0, 0)
+    fron_axle_offset = (0, 0)
+    wheel_side_offset = 0
+    lidar_offset = (0, 0)
+    axle_dif_len = 30
+    rel_x_coord_circ_center_right_wheel = math.tan(math.radians(current_steering)) / axle_dif_len
+    steering_circle_center = (pos[0] + back_axle_offset[0] + wheel_side_offset + rel_x_coord_circ_center_right_wheel,
+                              pos[1] + back_axle_offset[1])
+    outer_circle_radius = math.hypot(abs(steering_circle_center[0]) + wheel_side_offset, axle_dif_len)
+    inner_circle_radius = math.hypot(abs(steering_circle_center[0]) - wheel_side_offset, axle_dif_len)
+    middle_radius = (outer_circle_radius + inner_circle_radius) / 2
+    red_zone_dist = define_red_zone_dynamic(current_speed)
+    # Transposing the equation for the arc of a circle (Gleichung für die Länge eines Kreibogens) to get the angle
+    look_angle = (red_zone_dist * 180) / (math.pi * middle_radius)
+    x_offset_form_circ_center = middle_radius * math.sin(math.radians(look_angle))
+    y_offset_form_circ_center = middle_radius * math.cos(math.radians(look_angle))
+    if x_offset_form_circ_center != 0:
+        incline = y_offset_form_circ_center / x_offset_form_circ_center
+    else:
+        incline = math.inf
+    if incline != math.inf:
+        abs_term = steering_circle_center[1] - incline * steering_circle_center[0]
+
+    for scan in CurrentData.get_value_from_tag_from_lidar("pcl"):
+        local_x = scan[2] * math.sin(math.radians(scan[1])) + lidar_offset[0]
+        local_y = scan[2] * math.cos(math.radians(scan[1])) + lidar_offset[1]
+        if incline != math.inf:
+            f = local_x * incline + abs_term
+        if (incline != math.inf and ((incline < 0 and f <= local_y) or (incline >= 0 and f >= local_y))) \
+                or (incline == math.inf and local_x >= steering_circle_center[0]):
+            distance_to_circle_center = math.hypot(steering_circle_center[0] - local_x, steering_circle_center[1] - local_y)
+            if inner_circle_radius <= distance_to_circle_center <= outer_circle_radius:
+                return True
+
+    return False
+
+
 def is_object_in_red_zone_us_dynamic(current_speed):
     us_data = CurrentData.get_value_from_tag_from_sensor("us")
     us_data = us_data[2]
