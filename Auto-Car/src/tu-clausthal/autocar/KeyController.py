@@ -4,8 +4,8 @@ speed = 0
 steer = 0
 max_speed = 15
 max_steer = 30
-speed_acc = 150
-steer_acc = 50
+speed_acc = 100
+steer_acc = 10
 round_perc = 0.8
 cur_ms = int(round(time()*1000))
 last_key_press_ms_dict = {"Up": cur_ms, "Down": cur_ms, "Left": cur_ms, "Right": cur_ms, "space": cur_ms}
@@ -34,6 +34,7 @@ def on_key_event(key_str, if_pressed):
 
 
 def _update(pressed_key_str):
+    print("Update")
     global last_key_press_ms_dict, speed_acc, steer_acc, speed, steer, max_speed, max_steer
     d_speed = 0
     d_steer = 0

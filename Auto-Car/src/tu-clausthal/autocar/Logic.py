@@ -67,6 +67,7 @@ class Logic:
 
     def send_command_manual(self):
         self.mqtt_connection.send_car_command(self.__current_speed_slider, self.__current_steer_slider)
+        # print("{}, {}\n".format(self.__current_speed_slider, self.__current_steer_slider))
 
     def send_command_logic(self):
         self.controller.show_autopilot_speed_steer(self.__current_speed, self.__current_steer)
@@ -154,8 +155,8 @@ class Logic:
                         self.send_command_logic()"""
                     else:
                         speed, steer = KeyController.get_cur_speed_and_steer()
-                        self.__current_speed_slider = speed
-                        self.__current_steer_slider = steer
+                        self.__current_speed_slider = 90 - speed
+                        self.__current_steer_slider = 90 - steer
                         self.send_command_manual()
             else:
                 self.send_command_manual()
