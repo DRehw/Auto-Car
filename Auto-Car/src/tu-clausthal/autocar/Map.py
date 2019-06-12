@@ -82,9 +82,9 @@ class Map:
         if not self.euler_reseted:
             #self.calc_constant(CurrentData.get_value_from_tag_from_sensor("euler"))
             if len(self.sensor_data_list) >= 20:
-                distance = math.sqrt(((self.sensor_data_list[20][1][0] - self.sensor_data_list[0][1][0]) ** 2 + (self.sensor_data_list[20][1][1] - self.sensor_data_list[0][1][1]) ** 2))
+                distance = math.sqrt(((self.sensor_data_list[19][1][0] - self.sensor_data_list[0][1][0]) ** 2 + (self.sensor_data_list[19][1][1] - self.sensor_data_list[0][1][1]) ** 2))
                 if distance >= 120:
-                    self.calculate_constant_automatic(self.sensor_data_list[0], self.sensor_data_list[20])
+                    self.calculate_constant_automatic(self.sensor_data_list[0], self.sensor_data_list[19])
         if self.euler_reseted and changed_data_str == "lidar":
             self.waiting_for_final_sensor = True
             if self.lidar_counter < 50:
@@ -198,6 +198,8 @@ class Map:
         self.sensor_data_list.append([sensor_timestamp,sensor_position,sensor_euler])
         if len(self.sensor_data_list) > 20:
             del self.sensor_data_list[0]
+        print(CurrentData.get_value_from_tag_from_sensor("euler")[0] - self.constant)
+        print(self.constant)
 
 
 
