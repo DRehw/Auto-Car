@@ -35,7 +35,7 @@ class Map:
         Construct an empty occupancy grid.
 
         Arguments: width,
-                   height    -- The grid will have height rows and width
+                   height    - The grid will have height rows and width
                                 columns cells.  width is the size of
                                 the x-dimension and height is the size
                                 of the y-dimension.
