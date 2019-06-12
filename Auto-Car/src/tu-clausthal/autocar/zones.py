@@ -61,15 +61,14 @@ def define_yellow_zone_dynamic(current_speed):
 
 
 def is_object_in_red_zone_steering_dynamic(current_steering, current_speed):
-    pos = (0, 0)
-    back_axle_offset = (0, 0)
-    fron_axle_offset = (0, 0)
-    wheel_side_offset = 0
+    back_axle_offset = (-32, 0)
+    fron_axle_offset = (4, 0)
+    wheel_side_offset = 15
     lidar_offset = (0, 0)
     axle_dif_len = 30
     rel_x_coord_circ_center_right_wheel = math.tan(math.radians(current_steering)) / axle_dif_len
-    steering_circle_center = (pos[0] + back_axle_offset[0] + wheel_side_offset + rel_x_coord_circ_center_right_wheel,
-                              pos[1] + back_axle_offset[1])
+    steering_circle_center = (back_axle_offset[0] + wheel_side_offset + rel_x_coord_circ_center_right_wheel,
+                              back_axle_offset[1])
     outer_circle_radius = math.hypot(abs(steering_circle_center[0]) + wheel_side_offset, axle_dif_len)
     inner_circle_radius = math.hypot(abs(steering_circle_center[0]) - wheel_side_offset, axle_dif_len)
     middle_radius = (outer_circle_radius + inner_circle_radius) / 2
@@ -110,7 +109,7 @@ def is_object_in_red_zone_us_dynamic(current_speed):
             return False
     """
     if us_data < define_red_zone_dynamic(current_speed):
-        # print(str(usData) + "True")
+        print("{} < {}".format(us_data, define_red_zone_dynamic(current_speed)))
         return True
     else:
         return False
