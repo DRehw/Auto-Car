@@ -99,6 +99,7 @@ class MqttConnection:
             except (Exception) as e:
                 print("Function {} not working!".format(str(func).split(" ")[2]))
         if message.topic == "aadc/lidar":
+            print("Lidar data!")
             CurrentData.set_lidar_json(loads(str(message.payload.decode("utf-8"))))
         elif message.topic == "aadc/sensor":
             # print(str(message.payload.decode("utf-8")))
