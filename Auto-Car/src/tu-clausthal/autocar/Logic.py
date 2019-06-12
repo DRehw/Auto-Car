@@ -21,6 +21,7 @@ class Logic:
         self.__current_speed_slider = 90
         self.__current_steer = 90
         self.__current_steer_slider = 90
+        self.__drive_backwards = False
         return
 
     def set_controller(self, controller):
@@ -116,17 +117,31 @@ class Logic:
         return
 
     def main_logic(self):
-        # self.hindernisse()
         if not self.__stop:
             if not self.__manual_control:
                 if self.__autopilot_control:
+
                     """
                     put speed control here
                     """
                     # example test:
                     # self.__current_steer = zones.is_object_close_to_side_us()
-                    self.__current_steer = zones.is_object_close_to_side_lidar()
-                    self.__current_speed = zones.distance_speed_control()
+                    if not self.__drive_backwards:
+
+                        self.__current_steer = zones.is_object_close_to_side_lidar()
+                        self.__current_speed = zones.distance_speed_control()
+                        if (self.__current_steer > 105 or self.__current_steer < 65) and self.__current_speed == 90:
+                            self.__drive_backwards = True
+                    if self.__drive_backwards:
+                        if self.get_currrent_steer() > 90:
+                            self.__current_steer = 60
+                        if self.get_currrent_steer() < 90:
+                            self.__current_steer = 120
+                        self.__current_speed = 97
+                        if zones.is_object_in_backside_red_zone_us():
+                            self.__drive_backwards = False
+                            self.__current_steer = 90
+                            self.__current_speed = 90
                     self.send_command_logic()
                     """
                     if zones.is_object_in_red_zone_us_dynamic(self.__current_speed):

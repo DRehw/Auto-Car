@@ -26,6 +26,17 @@ def is_object_in_red_zone_us():
     return False
 
 
+def is_object_in_backside_red_zone_us():
+    us_data = CurrentData.get_value_from_tag_from_sensor("us")
+    us_data = us_data[6:9]
+    for dist in us_data:
+        if 2 < dist < 10:
+        # print(str(usData) + "True")
+            return True
+    # print(str(usData) + "False")
+    return False
+
+
 def define_red_zone_dynamic(current_speed):
     max_speed = 12
     min_speed = 6
@@ -175,17 +186,17 @@ def distance_speed_control():
             if dataset_distance < min_distance and abs(dataset_side_distance) <= 150:
                 min_distance = dataset_distance
     # calculate and return speed value
-    print("Min distance: {}".format(min_distance))
+    # print("Min distance: {}".format(min_distance))
     if min_distance < min_speed_distance:
-        print(90)
+        # print(90)
         return 90
     elif min_distance > max_speed_distance:
-        print(75)
-        return 75
+        # print(75)
+        return 80
     else:
         # print(90 - round((15 * (min_distance - speed_distance_diff)) / speed_distance_diff))
-        print(90 - round(min_distance - min_speed_distance) // (round(speed_distance_diff / 15)))
-        return min(90 - round(min_distance - min_speed_distance) // (round(speed_distance_diff / 15)), 84)
+        # print(90 - round(min_distance - min_speed_distance) // (round(speed_distance_diff / 10)))
+        return min(90 - round(min_distance - min_speed_distance) // (round(speed_distance_diff / 10)), 84)
 
 
 def is_object_close_to_side_lidar():
@@ -196,40 +207,61 @@ def is_object_close_to_side_lidar():
               the car will steer more when it comes closer to the obstacle
               and lesser when it veers away from the obstacle.
     """
-    min_steer_distance = 60
+    min_steer_distance = 50
     max_steer_distance = 200
-    steer_diff = max_steer_distance - min_steer_distance
-    min_dataset = [0, 50000]     # [{left=0,right=1}, distance]
+    steer_change_interval_len = max_steer_distance - min_steer_distance
+    left_side_minimal = False
+    right_side_minimal = False
+    cur_min_distance_to_objects = 50000     # [{left=0,right=1}, distance]
     # find smallest distance on left OR right side
     for dataset in CurrentData.get_value_from_tag_from_lidar("pcl"):
         if 50 < dataset[1] < 80:
             dataset_distance = dataset[2] * math.cos(math.radians(dataset[1]))
-            if dataset_distance < min_dataset[1]:
-                min_dataset = [1, dataset_distance]
+            if dataset_distance < cur_min_distance_to_objects:
+                cur_min_distance_to_objects = dataset_distance
+                right_side_minimal = True
+                left_side_minimal = False
         if 280 < dataset[1] < 310:
             dataset_distance = dataset[2] * math.cos(math.radians(dataset[1]))
-            if dataset_distance < min_dataset[1]:
-                min_dataset = [0, dataset_distance]
+            if dataset_distance < cur_min_distance_to_objects:
+                cur_min_distance_to_objects = dataset_distance
+                right_side_minimal = False
+                left_side_minimal = True
     # calculate and return steering value
-    print(min_dataset)
-    if min_dataset[0] == 0:
-        if min_dataset[1] < min_steer_distance:
-            print(120)
+    if left_side_minimal:
+        print("obstacle left ")
+        print("  " + str(cur_min_distance_to_objects))
+        if cur_min_distance_to_objects < min_steer_distance:
+            # print(120)
             return 120
-        elif min_dataset[1] > max_steer_distance:
-            print(90)
+        elif cur_min_distance_to_objects > max_steer_distance:
+            # print(90)
             return 90
         else:
-            print(90 - round((30 * (min_dataset[1] - steer_diff)) / steer_diff))
-            return 90 - round((30 * (min_dataset[1] - steer_diff)) / steer_diff)
-    if min_dataset[0] == 1:
-        if min_dataset[1] < min_steer_distance:
-            print(60)
+            # print(90 + (30 - round(cur_min_distance_to_objects - min_steer_distance)) // (round(steer_change_interval_len / 30)))
+            a = 90 + round((1 - ((cur_min_distance_to_objects - min_steer_distance) / steer_change_interval_len)) * 30)
+            # print(a)
+            return a
+            # return 90 + (30 - round(cur_min_distance_to_objects - min_steer_distance)) // (round(steer_change_interval_len / 30))
+            # print(90 - round((30 * (min_distance - steer_diff)) / steer_diff))
+            # return 90 - round((30 * (min_distance - steer_diff)) / steer_diff)
+
+    if right_side_minimal:
+        print("obstacle right ")
+        print("  " + str(cur_min_distance_to_objects))
+        if cur_min_distance_to_objects < min_steer_distance:
+            # print(60)
             return 60
-        elif min_dataset[1] > max_steer_distance:
-            print(90)
+        elif cur_min_distance_to_objects > max_steer_distance:
+            # print(90)
             return 90
         else:
-            print(90 + round((30 * (min_dataset[1] - steer_diff)) / steer_diff))
-            return 90 + round((30 * (min_dataset[1] - steer_diff)) / steer_diff)
+            a = 90 - round((1 - (cur_min_distance_to_objects / steer_change_interval_len)) * 30)
+            # print(90 - (30 - round(cur_min_distance_to_objects - min_steer_distance)) // (round(steer_change_interval_len / 30)))
+            # print(a)
+            return a
+            # return 90 - (30 - round(cur_min_distance_to_objects - min_steer_distance)) // (round(steer_change_interval_len / 30))
+
+            # print(90 + round((30 * (min_distance - steer_diff)) / steer_diff))
+            # return 90 + round((30 * (min_distance - steer_diff)) / steer_diff)
 
