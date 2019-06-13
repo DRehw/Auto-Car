@@ -1,7 +1,7 @@
 """
 Hallo
 """
-from math import hypot, sin, cos, radians
+from math import hypot, sin, cos, radians, copysign
 
 import zones
 import KeyController
@@ -115,6 +115,48 @@ class Logic:
             last_point = [x, y, point[2]]
         print(str(count) + "\n")
         return
+
+    def get_steer_dir_obstacle_evasion(self, lidar):
+        lidar
+        changes = []
+        last_point = None
+        for i, point in enumerate(lidar):
+            point = lidar[i]
+            x, y = self._get_local_coords_from_lidar(point[1], point[2])
+            if last_point is None:
+                last_point_lidar = lidar[len(lidar)][2]
+                x, y = self._get_local_coords_from_lidar(last_point_lidar[1], last_point_lidar[2])
+                last_point = [x, y, last_point_lidar[2]]
+            distance_to_last_point = hypot(x - last_point[0], y - last_point[1])
+            supposed_distance = 0.15 * last_point[2]
+            if distance_to_last_point > supposed_distance:
+                if i == 0:
+                    index = len(lidar)
+                else:
+                    index = i
+                if point[2] > last_point[2]:
+                    changes.append([index, 1])
+                else:
+                    changes.append([index, -1])
+            last_point = [x, y, point[2]]
+        if len(changes) >= 2:
+            if changes[0][0] > len(lidar) - changes[len(changes)][0]:
+                return "left"
+            else:
+                return "right"
+
+    def get_steer_obstacle_evasion(self):
+        look_forward_dist_mm = 1000
+        lidar = CurrentData.get_value_from_tag_from_lidar("pcl")
+        score = 0
+        for point in lidar:
+            x, y = self._get_local_coords_from_lidar(point[1], point[2])
+            if abs(x) <= 30 and y <= look_forward_dist_mm:
+                score += copysign(look_forward_dist_mm / y, x)
+        if score >= 0:
+            return 120
+        else:
+            return 60
 
     def main_logic(self):
         if not self.__stop:
