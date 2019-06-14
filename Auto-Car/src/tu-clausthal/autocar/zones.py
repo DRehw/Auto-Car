@@ -19,7 +19,7 @@ def is_object_in_red_zone_us():
     us_data = CurrentData.get_value_from_tag_from_sensor("us")
     us_data = us_data[1:3]
     for dist in us_data:
-        if 2 < dist < 100:
+        if 2 < dist < 150:
             # print(str(usData) + "True")
             return True
     # print(str(usData) + "False")
@@ -120,7 +120,7 @@ def is_object_in_red_zone_us_dynamic(current_speed):
             return False
     """
     if us_data < define_red_zone_dynamic(current_speed):
-        print("{} < {}".format(us_data, define_red_zone_dynamic(current_speed)))
+        # print("{} < {}".format(us_data, define_red_zone_dynamic(current_speed)))
         return True
     else:
         return False
@@ -174,7 +174,7 @@ def is_object_close_to_side_us():
 
 
 def distance_speed_control():
-    min_speed_distance = 200
+    min_speed_distance = 300
     max_speed_distance = 4000
     speed_distance_diff = max_speed_distance - min_speed_distance
     min_distance = math.inf
@@ -189,6 +189,7 @@ def distance_speed_control():
     # print("Min distance: {}".format(min_distance))
     if min_distance < min_speed_distance:
         # print(90)
+        print("Stoooop")
         return 90
     elif min_distance > max_speed_distance:
         # print(75)
@@ -196,7 +197,7 @@ def distance_speed_control():
     else:
         # print(90 - round((15 * (min_distance - speed_distance_diff)) / speed_distance_diff))
         # print(90 - round(min_distance - min_speed_distance) // (round(speed_distance_diff / 10)))
-        return min(90 - round(min_distance - min_speed_distance) // (round(speed_distance_diff / 10)), 84)
+        return min(90 - round(min_distance - min_speed_distance) // (round(speed_distance_diff / 10)), 83)
 
 
 def is_object_close_to_side_lidar():
@@ -229,8 +230,8 @@ def is_object_close_to_side_lidar():
                 left_side_minimal = True
     # calculate and return steering value
     if left_side_minimal:
-        print("obstacle left ")
-        print("  " + str(cur_min_distance_to_objects))
+        # print("obstacle left ")
+        # print("  " + str(cur_min_distance_to_objects))
         if cur_min_distance_to_objects < min_steer_distance:
             # print(120)
             return 120
@@ -247,8 +248,8 @@ def is_object_close_to_side_lidar():
             # return 90 - round((30 * (min_distance - steer_diff)) / steer_diff)
 
     if right_side_minimal:
-        print("obstacle right ")
-        print("  " + str(cur_min_distance_to_objects))
+        # print("obstacle right ")
+        # print("  " + str(cur_min_distance_to_objects))
         if cur_min_distance_to_objects < min_steer_distance:
             # print(60)
             return 60

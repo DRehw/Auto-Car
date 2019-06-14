@@ -55,7 +55,7 @@ class Map:
         self.waiting_for_final_sensor = False  # set true when lidar data arrives and false, when the next sensor data arrive
 
     def reset_poor_map_data(self):
-        self.grid[self.grid < 3] = 0
+        self.grid[self.grid < 2] = 0
 
     """
     def on_data_change(self, changed_data_str):
