@@ -37,7 +37,13 @@ class CurrentData:
             return self.__lidar_json
 
         def set_sensor_json(self, sensor_json):
+            parsed_euler_data = CurrentData.get_value_from_tag_from_json(sensor_json, "euler")
+
+            corrected_euler_data = parsed_euler_data
+            corrected_euler_data[0] += 180
+            sensor_json["euler"] = str(corrected_euler_data)
             self.__sensor_json = sensor_json
+            print("set_senor_json worked")
 
         def get_sensor_json(self):
             return self.__sensor_json

@@ -30,7 +30,7 @@ def is_object_in_backside_red_zone_us():
     us_data = CurrentData.get_value_from_tag_from_sensor("us")
     us_data = us_data[6:9]
     for dist in us_data:
-        if 2 < dist < 10:
+        if 2 < dist < 15:
         # print(str(usData) + "True")
             return True
     # print(str(usData) + "False")

@@ -205,8 +205,7 @@ class Map:
         self.sensor_data_list.append([sensor_timestamp,sensor_position,sensor_euler])
         if len(self.sensor_data_list) > 20:
             del self.sensor_data_list[0]
-        print(CurrentData.get_value_from_tag_from_sensor("euler")[0] - self.constant)
-        print(self.constant)
+        print(CurrentData.get_value_from_tag_from_sensor("euler")[0])
 
 
 
