@@ -118,7 +118,6 @@ class Logic:
         return
 
     def get_steer_dir_obstacle_evasion(self, lidar):
-        lidar
         changes = []
         last_point = None
         for i, point in enumerate(lidar):

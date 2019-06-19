@@ -30,7 +30,7 @@ class CurrentData:
             parsed_lidar_data = CurrentData.get_value_from_tag_from_json(lidar_json, "pcl")
 
             filtered_lidar_data = [data for data in parsed_lidar_data if not (data[0] <= 10)]  # and data[2] < 1920.5
-            lidar_json["pcl"] = str(filtered_lidar_data)
+            lidar_json["pcl"] = filtered_lidar_data
             self.__lidar_json = lidar_json
 
         def get_lidar_json(self):
@@ -41,9 +41,9 @@ class CurrentData:
 
             corrected_euler_data = parsed_euler_data
             corrected_euler_data[0] += 180
-            sensor_json["euler"] = str(corrected_euler_data)
+            sensor_json["euler"] = corrected_euler_data
             self.__sensor_json = sensor_json
-            print("set_senor_json worked")
+            # print("set_senor_json worked")
 
         def get_sensor_json(self):
             return self.__sensor_json
@@ -78,6 +78,9 @@ class CurrentData:
     @staticmethod
     def __on_data_change(changed_data_str):
         # print("new data")
+        pos = CurrentData.get_value_from_tag_from_sensor("position")
+        euler = CurrentData.get_value_from_tag_from_sensor("euler")
+        print("Pos: [{}, {}], Euler: {}".format(int(round(pos[0] / 10)), int(round(pos[1] / 10)), euler[0]))
         if CurrentData.instance:
             for method in CurrentData.instance.get_observer_methods():
                 # print("method to run: " + str(method))

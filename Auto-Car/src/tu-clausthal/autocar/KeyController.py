@@ -34,7 +34,7 @@ def on_key_event(key_str, if_pressed):
 
 
 def _update(pressed_key_str):
-    print("Update")
+    # print("Update")
     global last_key_press_ms_dict, speed_acc, steer_acc, speed, steer, max_speed, max_steer
     d_speed = 0
     d_steer = 0

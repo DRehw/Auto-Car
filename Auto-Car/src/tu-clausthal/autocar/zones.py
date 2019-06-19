@@ -164,7 +164,7 @@ def convert_speed(speed):
 def is_object_close_to_side_us():
     us_data = CurrentData.get_value_from_tag_from_sensor("us")
     us_data = us_data[4:6]
-    print("{}, {}".format(us_data[0], us_data[1]))
+    # print("{}, {}".format(us_data[0], us_data[1]))
     if us_data[0] < 40:
         return 110
     elif us_data[1] < 40:

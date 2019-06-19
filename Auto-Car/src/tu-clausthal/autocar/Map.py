@@ -148,8 +148,8 @@ class Map:
         """
         # print("Position: {}, {}".format(position[0], position[1]))
         radians = math.radians(measurement[1])
-        radians = radians + math.radians(euler[0])
-        radians = radians + math.radians(self.constant)
+        radians += math.radians(euler[0])
+        radians -= math.radians(self.constant)
         x_coord = (measurement[2] / 10) * math.cos(radians) + (position[1] / 10)
         y_coord = (measurement[2] / 10) * math.sin(radians) + (position[0] / 10)
         return int(round(x_coord, 0)), int(round(y_coord, 0))
@@ -205,7 +205,7 @@ class Map:
         self.sensor_data_list.append([sensor_timestamp,sensor_position,sensor_euler])
         if len(self.sensor_data_list) > 20:
             del self.sensor_data_list[0]
-        print(CurrentData.get_value_from_tag_from_sensor("euler")[0])
+        # print(CurrentData.get_value_from_tag_from_sensor("euler")[0])
 
 
 
@@ -214,7 +214,7 @@ class Map:
 
         for i in range(len(self.sensor_data_list)):
             if self.sensor_data_list[i][0] >= time_point:
-                return [i-1,i]
+                return [i-1, i]
 
     def add_lidar_data_to_map(self):
         """ Implements getLidarVector() to addLidarData to the map, uses aadc/lidar/pcl, aadc/sensor/position, aadc/sensor/euler as lidarData,position,euler
