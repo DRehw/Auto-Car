@@ -160,8 +160,8 @@ class Controller:
             self.gui.autopilot_control_btn_set_color("SystemButtonFace")
 
     def connect_to_car_btn(self):
-        if "Mobilitaetslabor" in str(subprocess.check_output("netsh wlan show interfaces")):
-            self.__mqtt_connection.connect("192.168.50.141")
+        if "Mobility-Labor" in str(subprocess.check_output("netsh wlan show interfaces")):
+            self.__mqtt_connection.connect("139.174.28.188")
         else:
             print("Not connected to the right Wifi!")
         return
