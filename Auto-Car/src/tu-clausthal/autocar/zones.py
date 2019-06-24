@@ -13,7 +13,7 @@ def is_object_in_red_zone_lidar(lidar_data):
             # print("{}, {}, {}".format(dataset[0], dataset[1], dataset[2]))
             return True
     return False
-"""
+
 def isObjectInYellowZoneLidar():
     for dataset in CurrentData.get_value_from_tag_from_lidar("pcl"):
         if dataset[0] > 10 and (dataset[1] < 20.0 or dataset[1] > 340.0) and dataset[2]*math.cos(math.radians(dataset[1])) < 1500.0:

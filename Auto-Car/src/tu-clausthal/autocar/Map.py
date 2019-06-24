@@ -55,7 +55,7 @@ class Map:
         self.waiting_for_final_sensor = False  # set true when lidar data arrives and false, when the next sensor data arrive
 
     def reset_poor_map_data(self):
-        self.grid[self.grid < 2] = 0
+        self.grid[self.grid < 30] = 0
 
     """
     def on_data_change(self, changed_data_str):
@@ -120,6 +120,33 @@ class Map:
             self.grid[x][y] += val
         return
 
+    def set_cells(self, x,y):
+        self.set_cell(x-2,y-2, 1)
+        self.set_cell(x-2,y-1, 2)
+        self.set_cell(x-2,y, 3)
+        self.set_cell(x-2,y+1, 2)
+        self.set_cell(x-2,y+2, 1)
+        self.set_cell(x-1,y-2, 2)
+        self.set_cell(x-1,y-1, 4)
+        self.set_cell(x-1,y, 4)
+        self.set_cell(x-1,y+1, 4)
+        self.set_cell(x-1,y+2, 2)
+        self.set_cell(x,y-2, 3)
+        self.set_cell(x,y-1, 4)
+        self.set_cell(x,y, 5)
+        self.set_cell(x,y+1, 4)
+        self.set_cell(x,y+2, 3)
+        self.set_cell(x+1,y-2, 2)
+        self.set_cell(x+1,y-1, 4)
+        self.set_cell(x+1,y, 4)
+        self.set_cell(x+1,y+1, 4)
+        self.set_cell(x+1,y+2, 2)
+        self.set_cell(x+2,y-2, 1)
+        self.set_cell(x+2,y-1, 2)
+        self.set_cell(x+2,y, 3)
+        self.set_cell(x+2,y+1, 2)
+        self.set_cell(x+2,y+2, 1)
+
     def show_map(self):
         """
         Show an image of the Map including the grid and a legend.
@@ -166,7 +193,8 @@ class Map:
             if lidarData[i][1] < 90 or lidarData[i][1] > 270:
                 coord = self.get_lidar_vector(lidarData[i], position, euler)
                 if (self.width > coord[0] > 0) and (self.height > coord[1] > 0):
-                    Map.set_cell(self, coord[0], coord[1], 1)
+                    # Map.set_cell(self, coord[0], coord[1], 1)
+                    Map.set_cells(self, coord[0], coord[1])
         return
 
 
@@ -240,7 +268,8 @@ class Map:
                         euler = [interpolated_data[3]]
                         coord = self.get_lidar_vector(lidarData[i], position, euler)
                         if (self.width > coord[0] > 0) and (self.height > coord[1] > 0):
-                            Map.set_cell(self, coord[0], coord[1], 1)
+                            #Map.set_cell(self, coord[0], coord[1], 1)
+                            Map.set_cells(self, coord[0], coord[1])
                 current_time_point += 100 / 120
                 last_lidar_degree = lidarData[i][1]
         except Exception as InterpolationError:
