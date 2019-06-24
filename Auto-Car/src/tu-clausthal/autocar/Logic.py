@@ -179,7 +179,14 @@ class Logic:
                 if self.__autopilot_control:
 
                     """
-                    put speed control here
+                    if zones.speed_control():
+                        print("84")
+                        self.__current_speed = 84
+                        self.send_command_logic()
+                    else:
+                        print("80")
+                        self.__current_speed = 80
+                        self.send_command_logic()
                     """
                     # example test:
                     # self.__current_steer = zones.is_object_close_to_side_us()

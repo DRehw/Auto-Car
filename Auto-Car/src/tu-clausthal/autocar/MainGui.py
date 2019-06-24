@@ -356,7 +356,7 @@ class MainGui:
         self.__display_speed.set((speed-90)*(-1))
 
     def set_auto_steer_label_text(self, steer):
-        self.__display_steer.set(steer-90)
+        self.__display_steer.set((steer-90)*(-1))
 
     def send_mqtt(self):
         return
