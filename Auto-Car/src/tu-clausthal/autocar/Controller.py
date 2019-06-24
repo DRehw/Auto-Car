@@ -161,7 +161,7 @@ class Controller:
 
     def connect_to_car_btn(self):
         if "Mobility-Labor" in str(subprocess.check_output("netsh wlan show interfaces")):
-            self.__mqtt_connection.connect("139.174.28.188")
+            self.__mqtt_connection.connect("139.174.25.17")
         else:
             print("Not connected to the right Wifi!")
         return

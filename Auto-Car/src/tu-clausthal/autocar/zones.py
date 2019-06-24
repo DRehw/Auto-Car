@@ -216,13 +216,13 @@ def is_object_close_to_side_lidar():
     cur_min_distance_to_objects = 50000     # [{left=0,right=1}, distance]
     # find smallest distance on left OR right side
     for dataset in CurrentData.get_value_from_tag_from_lidar("pcl"):
-        if 50 < dataset[1] < 80:
+        if 60 < dataset[1] < 80:
             dataset_distance = dataset[2] * math.cos(math.radians(dataset[1]))
             if dataset_distance < cur_min_distance_to_objects:
                 cur_min_distance_to_objects = dataset_distance
                 right_side_minimal = True
                 left_side_minimal = False
-        if 280 < dataset[1] < 310:
+        if 280 < dataset[1] < 300:
             dataset_distance = dataset[2] * math.cos(math.radians(dataset[1]))
             if dataset_distance < cur_min_distance_to_objects:
                 cur_min_distance_to_objects = dataset_distance

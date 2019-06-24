@@ -155,13 +155,23 @@ class Logic:
                 if abs(x) <= 200 and y <= look_forward_dist_mm:
                     # print("x: {}, y: {}".format(x, y))
                     score += copysign(look_forward_dist_mm / y, x)
-        print("         score: " + str(score))
+        # print("         score: " + str(score))
         if score > 0:
             return 60
         elif score < 0:
             return 120
         else:
             return 90
+
+    def get_front_dist_lidar(self):
+        min_dist = 50000
+        for lidar in CurrentData.get_value_from_tag_from_lidar("pcl"):
+            if lidar[1] < 10 or lidar[1] > 350:
+                dist = lidar[2] * cos(radians(lidar[1]))
+                side_dist = lidar[2] * sin(radians(lidar[1]))
+                if dist < min_dist and abs(side_dist) <= 150:
+                    min_dist = dist
+        return min_dist
 
     def main_logic(self):
         if not self.__stop:
@@ -176,23 +186,25 @@ class Logic:
                     if not self.__drive_backwards:
                         object_evasion_steering = self.get_steer_obstacle_evasion()
                         if object_evasion_steering != 90:
-                            print("Using object evasion steering: {}".format(object_evasion_steering))
+                            # print("Using object evasion steering: {}".format(object_evasion_steering))
                             self.__current_steer = object_evasion_steering
                         else:
                             self.__current_steer = zones.is_object_close_to_side_lidar()
                         self.__current_speed = zones.distance_speed_control()
-                        if (self.__current_steer > 95 or self.__current_steer < 85) and self.__current_speed == 90:
+                        if self.__current_speed == 90:
+                        # (self.__current_steer > 95 or self.__current_steer < 85) and
                             self.__drive_backwards = True
                             self.__temp_steer = self.__current_steer
                     if self.__drive_backwards:
-                        if self.__temp_steer > 90:
+                        if self.__temp_steer >= 90:
                             self.__current_steer = 60
                         elif self.__temp_steer < 90:
                             self.__current_steer = 120
                         else:
                             self.__current_steer = 90
                         self.__current_speed = 97
-                        if zones.is_object_in_backside_red_zone_us():
+
+                        if self.get_front_dist_lidar() > 1250 or zones.is_object_in_backside_red_zone_us():
                             self.__drive_backwards = False
                             self.__current_steer = 90
                             self.__current_speed = 90
