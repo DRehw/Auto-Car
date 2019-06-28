@@ -103,6 +103,8 @@ class Map:
                 self.waiting_for_final_sensor = False
                 if self.euler_reseted:
                     self.add_lidar_data_to_map()
+        else:
+            return
         return
 
     def set_cell(self, x, y, val):

@@ -50,13 +50,15 @@ class CurrentData:
             return self.__lidar_json
 
         def set_sensor_json(self, sensor_json):
+            print("Adding sensor json: {}".format(sensor_json))
             parsed_euler_data = CurrentData.get_value_from_tag_from_json(sensor_json, "euler")
             parsed_position_data = CurrentData.get_value_from_tag_from_json(sensor_json, "position")
 
-            for i in range(parsed_position_data):
+            for i in range(len(parsed_position_data)):
                 if parsed_position_data[i] == -1:
                     parsed_position_data[i] == self.sensor_data_list[len(self.sensor_data_list) -1 ][1][i]
 
+            print("Hallo")
             corrected_euler_data = parsed_euler_data
             corrected_euler_data[0] += 180
             sensor_json["position"] = parsed_position_data
@@ -64,8 +66,8 @@ class CurrentData:
             self.__sensor_json = sensor_json
             # print("set_senor_json worked")
 
-            self.add_sensor_data_to_list(CurrentData.get_value_from_tag_from_json(sensor_json, "timestamp"), CurrentData.get_value_from_tag_from_json(sensor_json, "position"), CurrentData.get_value_from_tag_from_json(sensor_json, "euler"))
-
+            self.add_sensor_data_to_list()
+            print("hi")
         def get_sensor_json(self):
             return self.__sensor_json
 
