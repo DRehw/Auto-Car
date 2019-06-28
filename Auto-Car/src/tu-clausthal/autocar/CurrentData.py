@@ -25,7 +25,7 @@ class CurrentData:
             self.__lidar_json = None
             self.__sensor_json = None
             self.__observer_methods = []
-            self.sensor_data_list = []  # list of sensor data elements of the Form [[timestamp,position[],euler]]
+            self.sensor_data_list = []  # history of sensor data elements of the Form [[timestamp,position[],euler]]
 
         def add_sensor_data_to_list(self):
             # adds sensor data from CurrentData to self.sensor_data_list
