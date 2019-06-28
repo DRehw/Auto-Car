@@ -149,6 +149,7 @@ class Map:
 
     def show_map(self):
         """
+
         Show an image of the Map including the grid and a legend.
         Later on it is possible to implement different brightness levels for different values
         """
