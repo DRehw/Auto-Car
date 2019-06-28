@@ -59,6 +59,7 @@ class CurrentData:
 
             corrected_euler_data = parsed_euler_data
             corrected_euler_data[0] += 180
+            sensor_json["position"] = parsed_position_data
             sensor_json["euler"] = corrected_euler_data
             self.__sensor_json = sensor_json
             # print("set_senor_json worked")
