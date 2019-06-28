@@ -4,6 +4,7 @@ Created on May 12, 2019
 
 import math
 from CurrentData import CurrentData
+import test_papa_pytest
 
 
 def is_object_in_red_zone_lidar(lidar_data):
@@ -181,7 +182,7 @@ def is_object_close_to_side_us():
 
 
 def distance_speed_control():
-    min_speed_distance = 300
+    min_speed_distance = 320
     max_speed_distance = 4000
     speed_distance_diff = max_speed_distance - min_speed_distance
     min_distance = math.inf
@@ -194,6 +195,7 @@ def distance_speed_control():
                 min_distance = dataset_distance
     # calculate and return speed value
     # print("Min distance: {}".format(min_distance))
+    test_papa_pytest.current_min_dist_front_lidar = min_distance
     if min_distance < min_speed_distance:
         # print(90)
         print("Stoooop")
@@ -236,6 +238,7 @@ def is_object_close_to_side_lidar():
                 right_side_minimal = False
                 left_side_minimal = True
     # calculate and return steering value
+    test_papa_pytest.current_side_dist_lidar = cur_min_distance_to_objects
     if left_side_minimal:
         # print("obstacle left ")
         # print("  " + str(cur_min_distance_to_objects))

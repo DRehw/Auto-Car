@@ -6,6 +6,7 @@ from math import hypot, sin, cos, radians, copysign
 import zones
 import KeyController
 from CurrentData import CurrentData
+import test_papa_pytest
 
 
 class Logic:
@@ -174,22 +175,25 @@ class Logic:
         return min_dist
 
     def main_logic(self):
+        test_papa_pytest.current_speed = self.get_current_speed()
+        test_papa_pytest.current_steer = self.get_currrent_steer()
         if not self.__stop:
             if not self.__manual_control:
                 if self.__autopilot_control:
+                    """
+                        testmodus
+                    """
+                    self.__current_steer = zones.is_object_close_to_side_lidar()
+                    self.__current_speed = zones.distance_speed_control()
+                    self.send_command_logic()
+                    #test_papa_pytest.test_emergencybrake()
+                    test_papa_pytest.test_right_side_distance()
+                    #test_papa_pytest.test_left_side_distance()
 
                     """
-                    if zones.speed_control():
-                        print("84")
-                        self.__current_speed = 84
-                        self.send_command_logic()
-                    else:
-                        print("80")
-                        self.__current_speed = 80
-                        self.send_command_logic()
+                        normal mode
                     """
-                    # example test:
-                    # self.__current_steer = zones.is_object_close_to_side_us()
+                    """
                     if not self.__drive_backwards:
                         object_evasion_steering = self.get_steer_obstacle_evasion()
                         if object_evasion_steering != 90:
@@ -217,23 +221,7 @@ class Logic:
                             self.__current_speed = 90
                     self.send_command_logic()
                     """
-                    if zones.is_object_in_red_zone_us_dynamic(self.__current_speed):
-                        self.__current_speed = 90
-                        self.send_command_logic()
-                        #print("90")
-                    elif zones.is_object_in_yellow_zone_lidar():
-                        self.__current_speed = 83
-                        self.send_command_logic()
-                        #print("84")
-                    elif zones.is_object_in_side_zone_lidar():
-                        self.__current_speed = 81
-                        self.send_command_logic()
-                        #print("82")
-                    else:
-                        self.__current_speed = 79
-                        self.send_command_logic()
-                        #print("80")
-                    """
+
                 else:   # here is room to test autopilot functions with manual control (no button red)
                     if zones.is_object_in_red_zone_us_dynamic(self.__current_speed):
                         self.__current_speed = 90
