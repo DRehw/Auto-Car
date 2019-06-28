@@ -25,6 +25,19 @@ class CurrentData:
             self.__lidar_json = None
             self.__sensor_json = None
             self.__observer_methods = []
+            self.sensor_data_list = []  # list of sensor data elements of the Form [[timestamp,position[],euler]]
+
+        def add_sensor_data_to_list(self):
+            # adds sensor data from CurrentData to self.sensor_data_list
+
+            sensor_timestamp = CurrentData.get_value_from_tag_from_sensor("timestamp")
+            sensor_position = [CurrentData.get_value_from_tag_from_sensor("position")[0],
+                               CurrentData.get_value_from_tag_from_sensor("position")[1]]
+            sensor_euler = CurrentData.get_value_from_tag_from_sensor("euler")[0]
+            self.sensor_data_list.append([sensor_timestamp, sensor_position, sensor_euler])
+            if len(self.sensor_data_list) > 20:
+                del self.sensor_data_list[0]
+            # print(CurrentData.get_value_from_tag_from_sensor("euler")[0])
 
         def set_lidar_json(self, lidar_json):
             parsed_lidar_data = CurrentData.get_value_from_tag_from_json(lidar_json, "pcl")
@@ -38,12 +51,19 @@ class CurrentData:
 
         def set_sensor_json(self, sensor_json):
             parsed_euler_data = CurrentData.get_value_from_tag_from_json(sensor_json, "euler")
+            parsed_position_data = CurrentData.get_value_from_tag_from_json(sensor_json, "position")
+
+            for i in range(parsed_position_data):
+                if parsed_position_data[i] == -1:
+                    parsed_position_data[i] == self.sensor_data_list[len(self.sensor_data_list) -1 ][1][i]
 
             corrected_euler_data = parsed_euler_data
             corrected_euler_data[0] += 180
             sensor_json["euler"] = corrected_euler_data
             self.__sensor_json = sensor_json
             # print("set_senor_json worked")
+
+            self.add_sensor_data_to_list(CurrentData.get_value_from_tag_from_json(sensor_json, "timestamp"), CurrentData.get_value_from_tag_from_json(sensor_json, "position"), CurrentData.get_value_from_tag_from_json(sensor_json, "euler"))
 
         def get_sensor_json(self):
             return self.__sensor_json
