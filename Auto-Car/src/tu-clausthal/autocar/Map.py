@@ -116,7 +116,7 @@ class Map:
                     grid cell that contains (x,y).
                     There is no defined value range yet and therefore no checking for val
         """
-        if 0 <= x < self.width and 0 <= y < self.height:
+        if 0 <= x < self.width and 0 <= y < self.height and self.grid[x][y] < 254:
             # self.grid[x][y] = val
             self.grid[x][y] += val
         return
@@ -336,6 +336,7 @@ class Map:
     def _get_map_as_ppm(self):
         self.ppm_array = np.copy(self.grid)
         self.ppm_array[self.ppm_array < 1] = 255
+        self.ppm_array[self.ppm_array < 255] = 0
         return self.ppm_header + b' ' + self.ppm_array.tobytes()
 
     def get_map_as_photo_img(self):
