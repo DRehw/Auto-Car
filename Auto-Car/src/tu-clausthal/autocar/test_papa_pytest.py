@@ -46,41 +46,53 @@ def test_emergencybrake():
     # global _logic
     # current_speed = _logic.get_current_speed()
 
-    print("===================Start emergency test==================\n")
-    print("    current speed: " + str(current_speed))
-    print("    current distance: " + str(current_min_dist_front_lidar))
+    # print("===================Start emergency test==================\n")
+    # print("    current speed: " + str(current_speed))
+    # print("    current distance: " + str(current_min_dist_front_lidar))
 
     # Controller.toggle_autopilot_button
     min_front_distance = current_min_dist_front_lidar
+    if not min_front_distance >= 5: print("====Test failed====\n    front distance too low")
+    assert min_front_distance >= 5
     if min_front_distance >= 320:
-        if current_speed >= 90:
-            print("ghgh: {}".format(min_front_distance))
+        # if current_speed >= 90:
+            # print("ghgh: {}".format(min_front_distance))
+        if not current_speed < 90: print("====Test failed====\n    speed is too low")
         assert current_speed < 90
     elif min_front_distance < 320:
-        if current_speed != 90:
-            print("ghgh: {}".format(min_front_distance))
+        # if current_speed != 90:
+            # print("ghgh: {}".format(min_front_distance))
+        if not current_speed == 90: print("====Test failed====\n    speed should be 0")
         assert current_speed == 90
 
 
 def test_right_side_distance():
-    print("====================Start right side distance test=======================\n")
-    print("    current steer: " + str(current_steer))
-    print("    current side distance: " + str(current_side_dist_lidar))
+    # print("====================Start right side distance test=======================\n")
+    # print("    current steer: " + str(current_steer))
+    # print("    current side distance: " + str(current_side_dist_lidar))
     # min_side_distance = get_min_side_dist_lidar()
     min_side_distance = current_side_dist_lidar
+    if not min_side_distance >= 5: print("====Test failed====\n    side distance too low")
+    assert min_side_distance >= 5
     if min_side_distance >= 200:
+        if not current_steer == 90: print("====Test failed====\n    steering should be 0")
         assert current_steer == 90
     elif min_side_distance < 200:
+        if not current_steer < 90: print("====Test failed====\n    should steer to left")
         assert current_steer < 90
 
 
 def test_left_side_distance():
-    print("=========================Start left side distance test==========================\n")
-    print("    current steer: " + str(current_steer))
-    print("    current side distance: " + str(current_side_dist_lidar))
+    # print("=========================Start left side distance test==========================\n")
+    # print("    current steer: " + str(current_steer))
+    # print("    current side distance: " + str(current_side_dist_lidar))
     # min_side_distance = get_min_side_dist_lidar()
     min_side_distance = current_side_dist_lidar
+    if not min_side_distance >= 5: print("====Test failed====\n    side distance too low")
+    assert min_side_distance >= 5
     if min_side_distance >= 200:
+        if not current_steer == 90: print("====Test failed====\n    steering should be 0")
         assert current_steer == 90
     elif min_side_distance < 200:
+        if not current_steer > 90: print("====Test failed====\n    should steer to right")
         assert current_steer > 90
