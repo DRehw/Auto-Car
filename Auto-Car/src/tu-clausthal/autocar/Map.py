@@ -115,7 +115,7 @@ class Map:
                     grid cell that contains (x,y).
                     There is no defined value range yet and therefore no checking for val
         """
-        if 0 <= x <= self.width and 0 <= y <= self.height:
+        if 0 <= x < self.width and 0 <= y < self.height:
             # self.grid[x][y] = val
             self.grid[x][y] += val
         return

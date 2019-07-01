@@ -182,7 +182,7 @@ def is_object_close_to_side_us():
 
 
 def distance_speed_control():
-    min_speed_distance = 320
+    min_speed_distance = 350
     max_speed_distance = 4000
     speed_distance_diff = max_speed_distance - min_speed_distance
     min_distance = math.inf

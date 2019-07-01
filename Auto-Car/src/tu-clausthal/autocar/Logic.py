@@ -187,8 +187,8 @@ class Logic:
                     self.__current_speed = zones.distance_speed_control()
                     self.send_command_logic()
                     test_papa_pytest.test_emergencybrake()
-                    # test_papa_pytest.test_right_side_distance()
-                    #test_papa_pytest.test_left_side_distance()
+                    test_papa_pytest.test_right_side_distance()
+                    test_papa_pytest.test_left_side_distance()
 
                     """
                         normal mode

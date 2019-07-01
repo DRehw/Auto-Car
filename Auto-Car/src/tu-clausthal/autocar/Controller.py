@@ -15,6 +15,7 @@ import KeyController
 from CurrentData import CurrentData
 from MqttConnection import MqttConnection
 from RepeatedTimer import RepeatedTimer
+import test_papa_pytest
 
 
 class Controller:
@@ -37,6 +38,13 @@ class Controller:
         return
 
     def on_window_close(self):
+        # testkrams
+        if test_papa_pytest.emergencybrake_test_failed == False:
+            print("====Emergency brake test successfully passed====")
+        if test_papa_pytest.right_side_distance_test_failed == False:
+            print("====Right side distance test successfully passed====")
+        if test_papa_pytest.left_side_distance_test_failed == False:
+            print("====Left side distance test successfully passed====")
         print("Window Close")
         self.__mqtt_connection.disconnect()
         if self.rep_timer:

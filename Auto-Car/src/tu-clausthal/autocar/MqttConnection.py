@@ -28,6 +28,7 @@ class MqttConnection:
         self.client.on_subscribe = self.__on_subscribe
         self.client.on_connect = self.__on_connect
         self.client.on_disconnect = self.__on_disconnect
+        self.last_message_ts_ms = int(round(time() * 1000))
 
     @staticmethod
     def get_json_cmd(speed, steer):
@@ -76,6 +77,7 @@ class MqttConnection:
 
     def subscribe(self, *topics):
         if ~self.__is_connecting and self.__is_connected:
+            self.last_message_ts_ms = int(round(time() * 1000))
             topics = list(topics)
             for i in range(len(topics)):
                 topics[i] = (topics[i], 0)
@@ -93,6 +95,11 @@ class MqttConnection:
         return self.host
 
     def __on_message(self, client, userdata, message):
+        # time_dif_betw_last_2_msgs = int(round(time() * 1000)) - self.last_message_ts_ms
+        # print("Dif to last msg: {} ms".format(time_dif_betw_last_2_msgs))
+        # if time_dif_betw_last_2_msgs >= 100:
+          #   print("Warning: The time difference between the last two messages is: {}ms".format(time_dif_betw_last_2_msgs))
+        self.last_message_ts_ms = int(round(time() * 1000))
         for func in self.on_message:
             try:
                 func(client, userdata, message)
