@@ -21,7 +21,7 @@ class MapTest:
     def get_global_coords_from_lidar_scan(car_pos, car_heading, lidar_scan_angle, lidar_scan_dist):
         global_angle_rad = math.radians(car_heading + lidar_scan_angle + 180)
         global_x = int(round(lidar_scan_dist/10 * math.sin(global_angle_rad) + car_pos[0]/10))
-        global_y = int(round(lidar_scan_dist/10 * math.cos(global_angle_rad) + car_pos[1]/10))
+        global_y = int(round(-lidar_scan_dist/10 * math.cos(global_angle_rad) + car_pos[1]/10))
         return global_x, global_y
 
     def on_data_change(self, changed_data_str):
@@ -29,6 +29,7 @@ class MapTest:
             lidar_values = CurrentData.get_value_from_tag_from_lidar("pcl")
             car_pos = CurrentData.get_value_from_tag_from_sensor("position")
             car_heading = CurrentData.get_value_from_tag_from_sensor("euler")[0]
+            car_heading = 360 - car_heading
             self.lidar_counter += 1
             for scan in lidar_values:
                 if 0 <= scan[1] <= 120 or 240 <= scan[1] <= 360:
@@ -54,13 +55,14 @@ class MapTest:
     def _get_map_as_ppm(self):
         self.ppm_array = np.copy(self.grid)
         car_pos = CurrentData.get_value_from_tag_from_sensor("position")
-        car_x = int(round(car_pos[0]/10))
-        car_y = int(round(car_pos[1]/10))
         self.ppm_array[self.ppm_array < 1] = 255
         self.ppm_array[self.ppm_array < 255] = 0
-        for i in range(-2, 3):
-            for j in range(-2, 3):
-                self.ppm_array[car_x + i][car_y + j] = 127
+        if car_pos is not None:
+            car_x = int(round(car_pos[0]/10))
+            car_y = int(round(car_pos[1]/10))
+            for i in range(-2, 3):
+                for j in range(-2, 3):
+                    self.ppm_array[car_x + i][car_y + j] = 127
         return self.ppm_header + b' ' + self.ppm_array.tobytes()
 
     def get_map_as_photo_img(self):

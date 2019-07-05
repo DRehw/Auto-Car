@@ -38,10 +38,10 @@ class Controller:
         return
 
     def on_window_close(self):
-        print("Window Close")
-        self.__mqtt_connection.disconnect()
+        # self.__mqtt_connection.disconnect() # client.disconnect seems to
         if self.rep_timer:
             self.rep_timer.stop()
+        Simulator.stop()
         return
 
     def subscribe(self):
@@ -129,10 +129,7 @@ class Controller:
             self.gui.stop_btn_set_color("SystemButtonFace")
 
     def show_map(self):
-        try:
-            self.gui.update_map(self.occupancy_map.get_map_as_photo_img())
-        except Exception:
-            print_exc()
+        self.gui.update_map(self.occupancy_map.get_map_as_photo_img())
 
     def reset_map_btn(self):
         self.occupancy_map.reset_map()

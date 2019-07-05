@@ -15,6 +15,14 @@ __stop_thread = False
 __thread = None
 
 
+def stop():
+    global __is_playing, __is_recording, __stop_thread
+    if __is_recording:
+        stop_recording()
+    if __is_playing:
+        __stop_thread = True
+
+
 def start_recording(location):
     global __sim_file_loc, __is_recording
     # __sim_file = open(location, "w+")
@@ -71,7 +79,7 @@ def write_buffer_to_file():
     if len(__sim_file_loc) > 4:
         try:
             file = open(__sim_file_loc, "a")
-        except (OSError, IOError) as e:
+        except (OSError, IOError):
             print("Could not open file: '{}'".format(__sim_file_loc))
             return
         for entry in __sim_buffer:
@@ -91,20 +99,19 @@ def start_playback(location, mqtt_connection):
     else:
         global __thread, __stop_thread
         __stop_thread = False
-        __thread = Thread(target=playback_thread, args=[location, mqtt_connection, __stop_thread])
+        __thread = Thread(target=playback_thread, args=[location, mqtt_connection])
         __thread.start()
     return
 
 
 def stop_playback():
-    global __thread, __stop_thread, __is_playing
+    global __stop_thread, __is_playing
     if __is_playing:
-        print("stopping playback")
         __stop_thread = True
     return
 
 
-def playback_thread(location, mqtt_connection, __stop_thread):
+def playback_thread(location, mqtt_connection):
 
     def get_n_next_lines(file, n):
         lines = []
@@ -127,7 +134,7 @@ def playback_thread(location, mqtt_connection, __stop_thread):
             lines.append(line)
         return lines, reached_eof
 
-    global __is_playing
+    global __is_playing, __stop_thread
     if location and len(location) > 4 and mqtt_connection:
         __is_playing = True
         last_timestamp = 0
@@ -145,7 +152,7 @@ def playback_thread(location, mqtt_connection, __stop_thread):
                     index = 0
                     while not reached_eof:
                         if __stop_thread:
-                            print("Stopped successful")
+                            print("Stopped thread successfully")
                             return
                         current_ms = int(round(time() * 1000))
                         if last_timestamp == 0 or current_ms >= target_os_time:

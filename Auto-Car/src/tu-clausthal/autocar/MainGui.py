@@ -6,6 +6,7 @@ Created on May 11, 2019
 
 import tkinter as tk
 from time import time
+from traceback import print_exc
 
 import Map
 
@@ -313,6 +314,7 @@ class MainGui:
 
     def on_closing(self):
         self.controller.on_window_close()
+        print("After on window close (destroying now)")
         self.window.destroy()
         return
 
@@ -374,7 +376,10 @@ class MainGui:
         return
     
     def stop(self):
-        self.controller.stop_cmd_btn()
+        try:
+            self.controller.stop_cmd_btn()
+        except Exception:
+            print_exc()
         return
     
     def connect_to_local_broker(self):

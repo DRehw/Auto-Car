@@ -35,12 +35,13 @@ class MqttConnection:
     @staticmethod
     def get_json_cmd(speed, steer):
         millis = int(round(time() * 1000))
-        if speed < 60 or speed > 120:
+        if speed < 75 or speed > 105:
             speed = 90
         if steer < 60 or steer > 120:
             steer = 90
-        return "{{\"vehicle\": \"AADC2016\", \"type\": \"actuator\", \"drive\": {}, \"steering\": {}, \"brakelight\": 0,\"turnsignalright\": 0,\"turnsignalleft\": 0,\"dimlight\": 0,\"reverselight\": 0,\"timestamp\": {}}}".format(
-            speed, steer, millis)
+        return "{{\"vehicle\": \"AADC2016\", \"type\": \"actuator\", \"drive\": {}, \"steering\": {}," \
+               " \"brakelight\": 0,\"turnsignalright\": 0,\"turnsignalleft\": 0,\"dimlight\": 0,\"reverselight\": 0," \
+               "\"timestamp\": {}}}".format(speed, steer, millis)
 
     def add_callback_methods(self, on_message=None, on_subscribe=None, on_connect=None, on_disconnect=None):
         if on_message is not None:
