@@ -179,19 +179,20 @@ def is_object_in_red_zone_steering_dynamic(current_steering):
 
 def is_object_in_red_zone_us_dynamic(current_speed):
     us_data = CurrentData.get_value_from_tag_from_sensor("us")
-    us_data = us_data[2]
-    """for dist in us_data:
-        if 2 < dist < define_red_zone_dynamic(current_speed):
-            # print(str(usData) + "True")
+    if us_data is not None:
+        us_data = us_data[2]
+        """for dist in us_data:
+            if 2 < dist < define_red_zone_dynamic(current_speed):
+                # print(str(usData) + "True")
+                return True
+            else:
+                return False
+        """
+        if us_data < define_red_zone_dynamic(current_speed):
+            # print("{} < {}".format(us_data, define_red_zone_dynamic(current_speed)))
             return True
         else:
             return False
-    """
-    if us_data < define_red_zone_dynamic(current_speed):
-        # print("{} < {}".format(us_data, define_red_zone_dynamic(current_speed)))
-        return True
-    else:
-        return False
     # print(str(usData) + "False")
 
 
@@ -205,7 +206,7 @@ def distance_speed_control(current_steer):
     max_speed_distance = 4000
     speed_distance_diff = max_speed_distance - min_speed_distance
     min_distance = is_object_in_red_zone_steering_dynamic(current_steer)
-    print(min_distance)
+    # print(min_distance)
     # find smallest distance on left OR right side
     # calculate and return speed value
     # print("Min distance: {}".format(min_distance))

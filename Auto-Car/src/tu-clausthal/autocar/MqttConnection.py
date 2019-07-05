@@ -28,8 +28,9 @@ class MqttConnection:
         self.client.on_subscribe = self.__on_subscribe
         self.client.on_connect = self.__on_connect
         self.client.on_disconnect = self.__on_disconnect
-        self.show_msg_time = True
+        self.show_msg_time = False
         self.last_msg_ts = None
+        self.last_ts_msg = None
 
     @staticmethod
     def get_json_cmd(speed, steer):
@@ -95,13 +96,15 @@ class MqttConnection:
         return self.host
 
     def __on_message(self, client, userdata, message):
-        try:
+        if message.topic == "aadc/sensor" and self.show_msg_time:
             cur_ts = int(round(time()*1000))
-            if self.show_msg_time and self.last_msg_ts:
-                print("Time since last message: {}".format(cur_ts-self.last_msg_ts))
+            cur_ts_msg = CurrentData.get_value_from_tag_from_sensor("timestamp")
+            if self.last_msg_ts and self.last_ts_msg:
+                act_d = cur_ts-self.last_msg_ts
+                sup_d = cur_ts_msg-self.last_ts_msg
+                print("{} {}".format(act_d, sup_d))
             self.last_msg_ts = cur_ts
-        except Exception:
-            print_exc()
+            self.last_ts_msg = cur_ts_msg
         for func in self.on_message:
             try:
                 func(client, userdata, message)

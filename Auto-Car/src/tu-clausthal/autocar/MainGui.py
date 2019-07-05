@@ -10,7 +10,7 @@ from time import time
 import Map
 
 
-small_map = True
+small_map = False
 
 
 class MainGui:

@@ -200,7 +200,7 @@ class Logic:
                             self.__current_steer = object_evasion_steering
                         else:
                             self.__current_steer = zones.is_object_close_to_side_lidar()
-                        self.__current_speed = zones.distance_speed_control()
+                        self.__current_speed = zones.distance_speed_control(self.__current_steer)
                         if self.__current_speed == 90:
                         # (self.__current_steer > 95 or self.__current_steer < 85) and
                             self.__drive_backwards = True

@@ -54,7 +54,6 @@ class Controller:
         # start_loop(self)
 
     def on_connect(self, client, userdata, flags, rc):
-        print("On connect du lappen")
         self.subscribe()
         return
 
@@ -109,7 +108,7 @@ class Controller:
 
     def on_steer_change_scale(self, val):
         self.logic.set_steer_slider(90+int(val))
-        print("Logic set steer")
+        # print("Logic set steer")
         return
 
     def stop_cmd_btn(self):
