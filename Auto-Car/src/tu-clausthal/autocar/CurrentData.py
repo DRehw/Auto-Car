@@ -80,7 +80,7 @@ class CurrentData:
         # print("new data")
         pos = CurrentData.get_value_from_tag_from_sensor("position")
         euler = CurrentData.get_value_from_tag_from_sensor("euler")
-        print("Pos: [{}, {}], Euler: {}".format(int(round(pos[0] / 10)), int(round(pos[1] / 10)), euler[0]))
+        # print("Pos: [{}, {}], Euler: {}".format(int(round(pos[0] / 10)), int(round(pos[1] / 10)), euler[0]))
         if CurrentData.instance:
             for method in CurrentData.instance.get_observer_methods():
                 # print("method to run: " + str(method))

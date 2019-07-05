@@ -2,9 +2,9 @@
 Hallo
 """
 from math import hypot, sin, cos, radians, copysign
+from traceback import print_exc
 
 import zones
-import KeyController
 from CurrentData import CurrentData
 
 
@@ -66,6 +66,7 @@ class Logic:
 
     def set_steer_slider(self, val):
         self.__current_steer_slider = val
+        print(self.__current_steer_slider)
 
     def send_command_manual(self):
         self.mqtt_connection.send_car_command(self.__current_speed_slider, self.__current_steer_slider)
@@ -108,13 +109,13 @@ class Logic:
                 if distance_to_last_point > supposed_distance:
                     if point[2] > last_point[2]:
                         level += 1
-                        print("({}) Beginning at pos: {},{}".format(level, x, y))
+                        # print("({}) Beginning at pos: {},{}".format(level, x, y))
                     else:
                         level -= 1
-                        print("({}) Ending at pos: {},{}".format(level, last_point[0], last_point[1]))
+                        # print("({}) Ending at pos: {},{}".format(level, last_point[0], last_point[1]))
                     count += 1
             last_point = [x, y, point[2]]
-        print(str(count) + "\n")
+        # print(str(count) + "\n")
         return
 
     def get_steer_dir_obstacle_evasion(self, lidar):
@@ -151,11 +152,13 @@ class Logic:
         score = 0
         for point in lidar:
             if 0 <= point[1] <= 60 or 300 <= point[1] <= 360:
-                x, y = self._get_local_coords_from_lidar(point[1], point[2])
-                if abs(x) <= 200 and y <= look_forward_dist_mm:
-                    # print("x: {}, y: {}".format(x, y))
-                    score += copysign(look_forward_dist_mm / y, x)
-        print("         score: " + str(score))
+                local_coords = self._get_local_coords_from_lidar(point[1], point[2])
+                if local_coords is not None:
+                    x, y = local_coords
+                    if abs(x) <= 200 and y <= look_forward_dist_mm:
+                        # print("x: {}, y: {}".format(x, y))
+                        score += copysign(look_forward_dist_mm / y, x)
+        # print("         score: " + str(score))
         if score > 0:
             return 60
         elif score < 0:
@@ -175,12 +178,13 @@ class Logic:
                     # self.__current_steer = zones.is_object_close_to_side_us()
                     if not self.__drive_backwards:
                         object_evasion_steering = self.get_steer_obstacle_evasion()
+
                         if object_evasion_steering != 90:
-                            print("Using object evasion steering: {}".format(object_evasion_steering))
+                            # print("Using object evasion steering: {}".format(object_evasion_steering))
                             self.__current_steer = object_evasion_steering
                         else:
                             self.__current_steer = zones.is_object_close_to_side_lidar()
-                        self.__current_speed = zones.distance_speed_control()
+                        self.__current_speed = zones.distance_speed_control(self.__current_steer)
                         if (self.__current_steer > 95 or self.__current_steer < 85) and self.__current_speed == 90:
                             self.__drive_backwards = True
                             self.__temp_steer = self.__current_steer
@@ -222,11 +226,6 @@ class Logic:
                         """elif zones.isObjectInYellowZoneUSDynamic(self.__current_speed):
                         self.__current_speed = 84
                         self.send_command_logic()"""
-                    else:
-                        speed, steer = KeyController.get_cur_speed_and_steer()
-                        self.__current_speed_slider = 90 - speed
-                        self.__current_steer_slider = 90 - steer
-                        self.send_command_manual()
             else:
                 self.send_command_manual()
         else:

@@ -11,7 +11,6 @@ import time
 from tkinter import filedialog
 
 import Simulator
-import KeyController
 from CurrentData import CurrentData
 from MqttConnection import MqttConnection
 from RepeatedTimer import RepeatedTimer
@@ -49,7 +48,6 @@ class Controller:
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
         self.rep_timer = RepeatedTimer(1000, self.show_map_btn)
-        KeyController.start()
 
     def gui_init(self, gui):
         self.gui = gui
@@ -111,6 +109,7 @@ class Controller:
 
     def on_steer_change_scale(self, val):
         self.logic.set_steer_slider(90+int(val))
+        print("Logic set steer")
         return
 
     def stop_cmd_btn(self):
@@ -161,7 +160,7 @@ class Controller:
 
     def connect_to_car_btn(self):
         if "Mobility-Labor" in str(subprocess.check_output("netsh wlan show interfaces")):
-            self.__mqtt_connection.connect("139.174.28.188")
+            self.__mqtt_connection.connect("139.174.25.1")
         else:
             print("Not connected to the right Wifi!")
         return

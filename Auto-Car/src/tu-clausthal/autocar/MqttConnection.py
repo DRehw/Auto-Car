@@ -28,6 +28,8 @@ class MqttConnection:
         self.client.on_subscribe = self.__on_subscribe
         self.client.on_connect = self.__on_connect
         self.client.on_disconnect = self.__on_disconnect
+        self.show_msg_time = True
+        self.last_msg_ts = None
 
     @staticmethod
     def get_json_cmd(speed, steer):
@@ -93,6 +95,13 @@ class MqttConnection:
         return self.host
 
     def __on_message(self, client, userdata, message):
+        try:
+            cur_ts = int(round(time()*1000))
+            if self.show_msg_time and self.last_msg_ts:
+                print("Time since last message: {}".format(cur_ts-self.last_msg_ts))
+            self.last_msg_ts = cur_ts
+        except Exception:
+            print_exc()
         for func in self.on_message:
             try:
                 func(client, userdata, message)
