@@ -93,7 +93,7 @@ def test_right_side_distance():
             print("====right side distance test failed====\n    steering should be 0\n    side distance: " + str(min_side_distance) + "\n    steering: " + str(current_steer))
             right_side_distance_test_failed = True
         assert current_steer == 90
-    elif min_side_distance < 200:
+    elif min_side_distance < 197:
         if not current_steer < 90:
             print("====right side distance test failed====\n    should steer to left\n    side distance: " + str(min_side_distance) + "\n    steering: " + str(current_steer))
             right_side_distance_test_failed = True
@@ -116,7 +116,7 @@ def test_left_side_distance():
             print("====left side distance test failed====\n    steering should be 0\n    side distance: " + str(min_side_distance) + "\n    steering: " + str(current_steer))
             left_side_distance_test_failed = True
         assert current_steer == 90
-    elif min_side_distance < 200:
+    elif min_side_distance < 197:
         if not current_steer > 90:
             print("====left side distance test failed====\n    should steer to right\n    side distance: " + str(min_side_distance) + "\n    steering: " + str(current_steer))
             left_side_distance_test_failed = True

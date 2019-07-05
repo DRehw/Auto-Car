@@ -176,7 +176,7 @@ class Logic:
 
     def main_logic(self):
         test_papa_pytest.current_speed = self.get_current_speed()
-        test_papa_pytest.current_steer = self.get_currrent_steer()
+        # test_papa_pytest.current_steer = self.get_currrent_steer()
         if not self.__stop:
             if not self.__manual_control:
                 if self.__autopilot_control:
@@ -186,8 +186,8 @@ class Logic:
                     self.__current_steer = zones.is_object_close_to_side_lidar()
                     self.__current_speed = zones.distance_speed_control()
                     self.send_command_logic()
-                    test_papa_pytest.test_emergencybrake()
-                    test_papa_pytest.test_right_side_distance()
+                    # test_papa_pytest.test_emergencybrake()
+                    # test_papa_pytest.test_right_side_distance()
                     test_papa_pytest.test_left_side_distance()
 
                     """

@@ -238,7 +238,7 @@ def is_object_close_to_side_lidar():
                 right_side_minimal = False
                 left_side_minimal = True
     # calculate and return steering value
-    test_papa_pytest.current_side_dist_lidar = cur_min_distance_to_objects
+    # test_papa_pytest.current_side_dist_lidar = cur_min_distance_to_objects
     if left_side_minimal:
         # print("obstacle left ")
         # print("  " + str(cur_min_distance_to_objects))
@@ -252,6 +252,8 @@ def is_object_close_to_side_lidar():
             # print(90 + (30 - round(cur_min_distance_to_objects - min_steer_distance)) // (round(steer_change_interval_len / 30)))
             a = 90 + round((1 - ((cur_min_distance_to_objects - min_steer_distance) / steer_change_interval_len)) * 30)
             # print(a)
+            test_papa_pytest.current_steer = a
+            test_papa_pytest.current_side_dist_lidar = cur_min_distance_to_objects
             return a
             # return 90 + (30 - round(cur_min_distance_to_objects - min_steer_distance)) // (round(steer_change_interval_len / 30))
             # print(90 - round((30 * (min_distance - steer_diff)) / steer_diff))
@@ -267,10 +269,13 @@ def is_object_close_to_side_lidar():
             # print(90)
             return 90
         else:
-            a = 90 - round((1 - (cur_min_distance_to_objects / steer_change_interval_len)) * 30)
+            a = 90 - round((1 - ((cur_min_distance_to_objects - min_steer_distance) / steer_change_interval_len)) * 30)
             # print(90 - (30 - round(cur_min_distance_to_objects - min_steer_distance)) // (round(steer_change_interval_len / 30)))
             # print(a)
+            # test_papa_pytest.current_side_dist_lidar = cur_min_distance_to_objects
+            # test_papa_pytest.current_steer = a
             return a
+
             # return 90 - (30 - round(cur_min_distance_to_objects - min_steer_distance)) // (round(steer_change_interval_len / 30))
 
             # print(90 + round((30 * (min_distance - steer_diff)) / steer_diff))
