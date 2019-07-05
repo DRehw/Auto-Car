@@ -14,6 +14,7 @@ import Simulator
 from CurrentData import CurrentData
 from MqttConnection import MqttConnection
 from RepeatedTimer import RepeatedTimer
+from traceback import print_exc
 
 
 class Controller:
@@ -31,6 +32,7 @@ class Controller:
         self.logic = logic
         self.__mqtt_connection = mqtt_connection
         self.__mqtt_connection.add_callback_methods(on_connect=self.on_connect, on_subscribe=self.on_subscribe)
+        CurrentData.register_method_as_observer(self.on_data_change)
         self.logic.set_controller(self)
         self.rep_timer = None
         return
@@ -47,7 +49,7 @@ class Controller:
         return
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
-        self.rep_timer = RepeatedTimer(1000, self.show_map_btn)
+        self.rep_timer = RepeatedTimer(1000, self.show_map)
 
     def gui_init(self, gui):
         self.gui = gui
@@ -56,6 +58,14 @@ class Controller:
     def on_connect(self, client, userdata, flags, rc):
         self.subscribe()
         return
+
+    def on_data_change(self, data_cahnged_str):
+        if data_cahnged_str == "sensor":
+            car_pos = CurrentData.get_value_from_tag_from_sensor("position")
+            car_heading = CurrentData.get_value_from_tag_from_sensor("euler")
+            if car_pos and car_heading:
+                self.gui.update_car_pos_label(car_pos)
+                self.gui.update_car_heading_label(car_heading[0])
 
     def start_cmd_mosq_path(self):
         if os.environ.get('MOSQUITTO_DIR'):
@@ -118,12 +128,18 @@ class Controller:
         else:
             self.gui.stop_btn_set_color("SystemButtonFace")
 
-    def show_map_btn(self):
-        self.gui.update_map(self.occupancy_map.get_map_as_photo_img())
+    def show_map(self):
+        try:
+            self.gui.update_map(self.occupancy_map.get_map_as_photo_img())
+        except Exception:
+            print_exc()
+
+    def reset_map_btn(self):
+        self.occupancy_map.reset_map()
 
     def reset_euler_btn(self):
         euler = CurrentData.get_value_from_tag_from_sensor("euler")
-        self.occupancy_map.calc_constant(euler)
+        # self.occupancy_map.calc_constant(euler)
         self.euler_reseted = True
 
     def toggle_manual_control_button(self):

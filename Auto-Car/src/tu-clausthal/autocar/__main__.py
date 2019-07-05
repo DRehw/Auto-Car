@@ -6,7 +6,8 @@ Created on May 11, 2019
 import Controller
 import CurrentData
 import Logic
-import Map
+from MapTest import MapTest
+from Map import Map
 import MqttConnection
 from MainGui import MainGui
 
@@ -14,6 +15,6 @@ if __name__ == '__main__':
     CurrentData.CurrentData()
     connection = MqttConnection.MqttConnection()
     logic = Logic.Logic(connection)
-    occupancy_map = Map.Map()
+    occupancy_map = Map()
     controller = Controller.Controller(connection, logic, occupancy_map)
     gui = MainGui(controller)

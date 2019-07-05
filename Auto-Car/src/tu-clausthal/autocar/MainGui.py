@@ -29,13 +29,13 @@ class MainGui:
         self.Map = Map
         self.window = tk.Tk()
         self.window.title("Auto-Car Debug")
-        self.window.bind("<KeyRelease>", self.key_release)
-        self.window.bind("<KeyPress>", self.key_press)
         self.window.option_add("*font", "Helvetica 9")
         self.record_path_string_var = tk.StringVar()
         self.play_path_string_var = tk.StringVar()
         self.__display_speed = tk.StringVar()
         self.__display_steer = tk.StringVar()
+        self.__display_pos = tk.StringVar()
+        self.__display_heading = tk.StringVar()
         self.image = None
         self.draw_map_press_ms = int(round(time() * 1000))
 
@@ -192,15 +192,25 @@ class MainGui:
                               column=0,
                               sticky=tk.W + tk.E + tk.N,
                               pady=(5, 5))
+        self.pos_label = tk.Label(button_frame, textvariable=self.__display_pos)
+        self.pos_label.grid(row=7,
+                            column=0,
+                            sticky=tk.W + tk.E + tk.N,
+                            pady=(5, 5))
+        self.heading_label = tk.Label(button_frame, textvariable=self.__display_heading)
+        self.heading_label.grid(row=7,
+                                column=1,
+                                sticky=tk.W + tk.E + tk.N,
+                                pady=(5, 5))
         tk.Button(button_frame,
-                  text="Show Map",
-                  command=self.controller.show_map_btn).grid(row=7,
-                                                             column=0,
-                                                             sticky=tk.W + tk.E + tk.N,
-                                                             pady=(5, 5))
+                  text="Reset Map",
+                  command=self.controller.reset_map_btn).grid(row=8,
+                                                              column=0,
+                                                              sticky=tk.W + tk.E + tk.N,
+                                                              pady=(5, 5))
         tk.Button(button_frame,
                   text="Reset Euler",
-                  command=self.controller.reset_euler_btn).grid(row=7,
+                  command=self.controller.reset_euler_btn).grid(row=8,
                                                                 column=1,
                                                                 sticky=tk.W + tk.E + tk.N,
                                                                 pady=(5, 5))
@@ -317,16 +327,6 @@ class MainGui:
     def speed_scale_mouse_release(self, event):
         self.speed_scale.set(0)
 
-    @staticmethod
-    def key_press(event):
-        KeyHandler.on_key_event(event)
-        return
-
-    @staticmethod
-    def key_release(event):
-        KeyHandler.on_key_event(event)
-        return
-
     def update_map(self, tk_photo_image):
         self.image = tk_photo_image
         self.map_canvas.create_image(0, 0, image=tk_photo_image, anchor=tk.NW)
@@ -361,6 +361,14 @@ class MainGui:
 
     def set_auto_steer_label_text(self, steer):
         self.__display_steer.set((steer-90)*(-1))
+
+    def update_car_pos_label(self, car_pos):
+        x = car_pos[0]/10
+        y = car_pos[1]/10
+        self.__display_pos.set("{:6.1f} | {:6.1f}".format(x, y))
+
+    def update_car_heading_label(self, heading):
+        self.__display_heading.set("{:4.1f}".format(heading))
 
     def send_mqtt(self):
         return
