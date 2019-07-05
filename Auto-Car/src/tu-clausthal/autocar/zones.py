@@ -280,7 +280,7 @@ def is_object_close_to_side_lidar():
             # print(90)
             return 90
         else:
-            a = 90 - round((1 - (cur_min_distance_to_objects / steer_change_interval_len)) * 30)
+            a = 90 - round((1 - ((cur_min_distance_to_objects - min_steer_distance) / steer_change_interval_len)) * 30)
             # print(90 - (30 - round(cur_min_distance_to_objects - min_steer_distance)) // (round(steer_change_interval_len / 30)))
             # print(a)
             return a

@@ -1,7 +1,7 @@
 """
 Hallo
 """
-from math import hypot, sin, cos, radians, copysign
+from math import hypot, sin, cos, radians, copysign, inf
 from traceback import print_exc
 
 import zones
@@ -166,9 +166,9 @@ class Logic:
             return 90
 
     def get_front_dist_lidar(self):
-        min_dist = 50000
+        min_dist = inf
         for lidar in CurrentData.get_value_from_tag_from_lidar("pcl"):
-            if lidar[1] < 10 or lidar[1] > 350:
+            if lidar[1] < 45 or lidar[1] > 315:
                 dist = lidar[2] * cos(radians(lidar[1]))
                 side_dist = lidar[2] * sin(radians(lidar[1]))
                 if dist < min_dist and abs(side_dist) <= 150:

@@ -15,6 +15,6 @@ if __name__ == '__main__':
     CurrentData.CurrentData()
     connection = MqttConnection.MqttConnection()
     logic = Logic.Logic(connection)
-    occupancy_map = Map()
+    occupancy_map = MapTest()
     controller = Controller.Controller(connection, logic, occupancy_map)
     gui = MainGui(controller)
