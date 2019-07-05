@@ -11,7 +11,6 @@ import time
 from tkinter import filedialog
 
 import Simulator
-import KeyController
 from CurrentData import CurrentData
 from MqttConnection import MqttConnection
 from RepeatedTimer import RepeatedTimer
@@ -49,7 +48,6 @@ class Controller:
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
         self.rep_timer = RepeatedTimer(1000, self.show_map_btn)
-        KeyController.start()
 
     def gui_init(self, gui):
         self.gui = gui
@@ -111,6 +109,7 @@ class Controller:
 
     def on_steer_change_scale(self, val):
         self.logic.set_steer_slider(90+int(val))
+        print("Logic set steer")
         return
 
     def stop_cmd_btn(self):

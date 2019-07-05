@@ -8,8 +8,9 @@ import tkinter as tk
 from time import time
 
 import Map
-import KeyController
-import KeyHandler
+
+
+small_map = True
 
 
 class MainGui:
@@ -18,6 +19,8 @@ class MainGui:
     """
 
     def __init__(self, controller):
+        global small_map
+        map_edge = 800
         """
         Constructor
         """
@@ -86,8 +89,9 @@ class MainGui:
         """
         Main Window widgets
         """
-
-        self.map_canvas = tk.Canvas(self.window, width=800, height=800, bg="white")
+        if small_map:
+            map_edge /= 2
+        self.map_canvas = tk.Canvas(self.window, width=map_edge, height=map_edge, bg="white")
         self.map_canvas.grid(row=0,
                              column=2,
                              rowspan=2,
