@@ -10,8 +10,16 @@ from MapTest import MapTest
 from Map import Map
 import MqttConnection
 from MainGui import MainGui
+from Decorator import *
+
+
+@debug_only
+def debug_print():
+    print("==========DEBUG MODE==========")
+
 
 if __name__ == '__main__':
+    debug_print()
     CurrentData.CurrentData()
     connection = MqttConnection.MqttConnection()
     logic = Logic.Logic(connection)

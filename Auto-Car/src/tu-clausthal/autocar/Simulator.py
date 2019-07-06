@@ -8,7 +8,8 @@ from CurrentData import CurrentData
 __is_recording = False
 __is_playing = False
 __buffer_size = -1  # -1 would use system default buffer size
-__sim_buffer_size = 20  # number of messages before a write operation
+__sim_w_buffer_size = 20 # number of messages before a write operation
+__sim_r_buffer_size = 20
 __sim_buffer = []
 __sim_file_loc = ""
 __stop_thread = False
@@ -54,7 +55,7 @@ def stop_recording():
 
 def on_new_data(new_data_str):
     # print("On new data")
-    global __sim_buffer, __sim_buffer_size
+    global __sim_buffer, __sim_w_buffer_size
     msg = None
     if new_data_str == "lidar":
         msg = ("aadc/lidar", CurrentData.get_lidar_json())
@@ -69,7 +70,7 @@ def on_new_data(new_data_str):
                 break
         __sim_buffer.insert(i+1, (timestamp, msg))
         # print("Insert to buffer")
-        if len(__sim_buffer) >= __sim_buffer_size:
+        if len(__sim_buffer) >= __sim_w_buffer_size:
             # print("Write buffer to file")
             write_buffer_to_file()
 
@@ -113,63 +114,61 @@ def stop_playback():
 
 def playback_thread(location, mqtt_connection):
 
-    def get_n_next_lines(file, n):
+    global __sim_r_buffer_size, __is_playing, __stop_thread
+
+    def get_next_lines(file):
         lines = []
-        reached_eof = False
-        for i in range(n):
+        for i in range(__sim_r_buffer_size):
             line = file.readline()
             if line == "":
-                reached_eof = True
-                return lines, reached_eof
+                return lines
             line = line.split(",", 1)
             if len(line) != 2:
                 print("Wrong format of data in line: '{}' in file: '{}'".format(line, location))
-                return [], reached_eof
+                return []
             try:
                 line[1] = line[1].replace("'", '"')
                 loads(line[1])
             except ValueError as e:
                 print("Could not parse line: '{}' of file: '{}'".format(line, location))
-                return [], reached_eof
+                return []
             lines.append(line)
-        return lines, reached_eof
+        return lines
 
-    global __is_playing, __stop_thread
+    last_timestamp = 0
+    target_os_time = 0
+
     if location and len(location) > 4 and mqtt_connection:
         __is_playing = True
-        last_timestamp = 0
-        target_os_time = 0
         try:
             file = open(location, "r")
-        except (OSError, IOError) as e:
+        except (OSError, IOError):
             print("Could not open file: ".format(location))
             return
         if file:
-            reached_eof = False
-            while not reached_eof:
-                lines, reached_eof = get_n_next_lines(file, 20)
-                if len(lines) > 0:
-                    index = 0
-                    while not reached_eof:
-                        if __stop_thread:
-                            print("Stopped thread successfully")
+            eof = False
+            while not eof:
+                next_lines = get_next_lines(file)
+                # Playback next_lines
+                index = 0
+                while not eof and index < len(next_lines):
+                    if __stop_thread:
+                        print("Stopped the message playback successfully.")
+                        return
+                    current_ms = int(round(time() * 1000))
+                    if last_timestamp == 0 or current_ms >= target_os_time:
+                        last_timestamp = loads(next_lines[index][1]).get("timestamp")
+                        if last_timestamp is None:
+                            print("Could not get Timestamp!")
                             return
-                        current_ms = int(round(time() * 1000))
-                        if last_timestamp == 0 or current_ms >= target_os_time:
-                            last_timestamp = loads(lines[index][1]).get("timestamp")
-                            if last_timestamp is None:
-                                print("Could not get Timestamp!")
-                                return
-                            mqtt_connection.publish(lines[index][0], lines[index][1])
-                            if index+1 >= len(lines):
-                                if reached_eof:
-                                    print("Played back all data.")
-                                    return
-                                break
-                            target_os_time = current_ms + (loads(lines[index + 1][1]).get("timestamp") - last_timestamp)
-                            index += 1
-                        else:
-                            sleep(0.03)
-                else:
-                    print("Played back all data.")
-                    return
+                        mqtt_connection.publish(next_lines[index][0], next_lines[index][1])
+                        if index < len(next_lines)-1:
+                            target_os_time = current_ms + (
+                                    loads(next_lines[index + 1][1]).get("timestamp") - last_timestamp)
+                        elif len(next_lines) != __sim_r_buffer_size:
+                            eof = True
+                        index += 1
+                    else:
+                        sleep(0.03)
+            print("Played back all data.")
+            return

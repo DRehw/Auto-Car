@@ -38,6 +38,7 @@ class MainGui:
         self.__display_pos = tk.StringVar()
         self.__display_heading = tk.StringVar()
         self.image = None
+        self.image_on_canvas = None
         self.draw_map_press_ms = int(round(time() * 1000))
 
         """
@@ -98,6 +99,7 @@ class MainGui:
                              rowspan=2,
                              padx=(5, 5),
                              pady=(5, 5))
+        self.image_on_canvas = self.map_canvas.create_image(0, 0, image=tk.PhotoImage(), anchor=tk.NW)
 
         """
         Control Frame Widgets
@@ -331,7 +333,8 @@ class MainGui:
 
     def update_map(self, tk_photo_image):
         self.image = tk_photo_image
-        self.map_canvas.create_image(0, 0, image=tk_photo_image, anchor=tk.NW)
+        self.map_canvas.itemconfig(self.image_on_canvas, image=self.image)
+        # self.map_canvas.create_image(0, 0, image=tk_photo_image, anchor=tk.NW)
 
     def manual_control_btn_set_color(self, color):
         self.manual_control_btn.configure(bg=color)
