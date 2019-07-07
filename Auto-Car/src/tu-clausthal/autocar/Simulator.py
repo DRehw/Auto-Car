@@ -99,9 +99,12 @@ def start_playback(location, mqtt_connection):
         print("No text file selected!")
     else:
         global __thread, __stop_thread
-        __stop_thread = False
-        __thread = Thread(target=playback_thread, args=[location, mqtt_connection])
-        __thread.start()
+        if mqtt_connection.is_connected():
+            __stop_thread = False
+            __thread = Thread(target=playback_thread, args=[location, mqtt_connection])
+            __thread.start()
+        else:
+            print("Can't start playback, because there is currently no connection.")
     return
 
 
@@ -149,9 +152,11 @@ def playback_thread(location, mqtt_connection):
             eof = False
             while not eof:
                 next_lines = get_next_lines(file)
+                print("First loop")
                 # Playback next_lines
                 index = 0
                 while not eof and index < len(next_lines):
+                    print("Second Loopü")
                     if __stop_thread:
                         print("Stopped the message playback successfully.")
                         return
@@ -170,5 +175,6 @@ def playback_thread(location, mqtt_connection):
                         index += 1
                     else:
                         sleep(0.03)
+                print("After second loop")
             print("Played back all data.")
             return

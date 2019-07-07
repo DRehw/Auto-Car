@@ -2,6 +2,7 @@ from CurrentData import CurrentData
 from tkinter import PhotoImage
 import numpy as np
 import math
+from History import History
 
 
 class MapTest:
@@ -16,6 +17,11 @@ class MapTest:
         self.lidar_counter = 0
         self.ppm_header = bytes('P5 {} {} 255 '.format(self.width, self.height), 'ascii')
         self.ppm_array = np.zeros((self.width, self.height), np.uint8)
+        self.pos_euler_history = History(10)
+        self.last_lidar_set = []
+        self.last_lidar_set_ts = 0
+        self.wait_for_next_sensor_data = False
+        self.use_interpolation = True
 
     @staticmethod
     def get_global_coords_from_lidar_scan(car_pos, car_heading, lidar_scan_angle, lidar_scan_dist):
@@ -26,15 +32,74 @@ class MapTest:
 
     def on_data_change(self, changed_data_str):
         if changed_data_str == "lidar":
-            lidar_values = CurrentData.get_value_from_tag_from_lidar("pcl")
-            car_pos = CurrentData.get_value_from_tag_from_sensor("position")
-            car_heading = CurrentData.get_value_from_tag_from_sensor("euler")[0]
-            car_heading = 360 - car_heading
-            self.lidar_counter += 1
-            for scan in lidar_values:
-                if 0 <= scan[1] <= 120 or 240 <= scan[1] <= 360:
-                    global_x, global_y = MapTest.get_global_coords_from_lidar_scan(car_pos, car_heading, scan[1], scan[2])
-                    self.add_point_to_map(global_x, global_y)
+            self.last_lidar_set = CurrentData.get_value_from_tag_from_lidar("pcl")
+            self.last_lidar_set_ts = CurrentData.get_value_from_tag_from_lidar("timestamp")
+            if self.use_interpolation:
+                self.wait_for_next_sensor_data = True
+            else:
+                self.add_last_lidar_set_to_map()
+        elif changed_data_str == "sensor":
+            pos = CurrentData.get_value_from_tag_from_sensor("position")[:-1]
+            euler = 360 - CurrentData.get_value_from_tag_from_sensor("euler")[0]
+            timestamp = CurrentData.get_value_from_tag_from_sensor("timestamp")
+            self.pos_euler_history.append([timestamp, pos, euler])
+            if self.wait_for_next_sensor_data and self.use_interpolation:
+                self.add_last_lidar_set_to_map()
+                self.wait_for_next_sensor_data = False
+
+    def get_interpolated_pos_and_euler(self, timestamp):
+        pos_euler_history_len = len(self.pos_euler_history)
+        if pos_euler_history_len > 0:
+            first_entry = self.pos_euler_history.get(0)
+            last_entry = self.pos_euler_history.get(pos_euler_history_len - 1)
+            if first_entry[0] <= timestamp <= last_entry[0]:
+                for i in range(pos_euler_history_len):
+                    cur = self.pos_euler_history.get(i)
+                    if timestamp < cur[0]:
+                        if 0 < i <= pos_euler_history_len-1:
+                            prev = self.pos_euler_history.get(i-1)
+                            lin_interpol_factor = (timestamp-prev[0]) / (cur[0]-prev[0])
+                            interpol_pos = []
+                            for j, val in enumerate(prev[1]):
+                                interpol_pos.append(val + lin_interpol_factor * (cur[1][j]-val))
+                            interpol_euler = prev[2]
+                            normal_dist = cur[2] - prev[2]
+                            distance_over_360 = min(360 - prev[2] + cur[2], 360 - cur[2] + prev[2])
+                            if distance_over_360 < normal_dist:
+                                if prev[2] < cur[2]:
+                                    distance_over_360 = -distance_over_360
+                                euler_offset = lin_interpol_factor * distance_over_360
+                            else:
+                                euler_offset = lin_interpol_factor * normal_dist
+                            interpol_euler = prev[2] + euler_offset
+                            if interpol_euler < 0:
+                                interpol_euler = 360 + interpol_euler
+                            elif interpol_euler > 360:
+                                interpol_euler = interpol_euler % 360
+                            return interpol_pos, interpol_euler
+                        elif i == 0:
+                            return cur[1], cur[2]
+                    else:
+                        if i == pos_euler_history_len:
+                            return cur[1], cur[2]
+
+            elif timestamp < first_entry[0]:
+                return first_entry[1], first_entry[2]
+            else:
+                return last_entry[1], last_entry[2]
+
+    def add_last_lidar_set_to_map(self):
+        for i, scan in enumerate(self.last_lidar_set):
+            if 0 <= scan[1] <= 120 or 240 <= scan[1] <= 360:
+                if self.use_interpolation:
+                    current_ts = self.last_lidar_set_ts - 100 + int(round((i / len(self.last_lidar_set) * 100)))
+                    car_pos, car_heading = self.get_interpolated_pos_and_euler(current_ts)
+                else:
+                    last_history_element = self.pos_euler_history.get(len(self.pos_euler_history)-1)
+                    car_pos = last_history_element[1]
+                    car_heading = last_history_element[2]
+                global_x, global_y = MapTest.get_global_coords_from_lidar_scan(car_pos, car_heading, scan[1], scan[2])
+                self.add_point_to_map(global_x, global_y)
 
     def add_point_to_map(self, x, y):
         # print("{} {}".format(x, y))
