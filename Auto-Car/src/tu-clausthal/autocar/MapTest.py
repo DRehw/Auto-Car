@@ -7,6 +7,19 @@ from History import History
 
 class MapTest:
 
+    use_interpolation = True
+    front_left_corner_offset_to_pozyx = (-15, 10)
+    front_left_corner_distance_to_pozyx = math.hypot(front_left_corner_offset_to_pozyx[0],
+                                                     front_left_corner_offset_to_pozyx[1])
+    front_left_corner_angle_to_pozyx = math.asin(front_left_corner_offset_to_pozyx[1] /
+                                                 front_left_corner_distance_to_pozyx)
+
+    back_right_corner_offset_to_pozyx = (15, 30)
+    back_right_corner_distance_to_pozyx = math.hypot(back_right_corner_offset_to_pozyx[0],
+                                                     back_right_corner_offset_to_pozyx[1])
+    back_right_corner_angle_to_pozyx = math.asin(back_right_corner_offset_to_pozyx[1] /
+                                                 back_right_corner_distance_to_pozyx)
+
     def __init__(self, width=800, height=800):
         CurrentData.register_method_as_observer(self.on_data_change)
         if width > 0:
@@ -21,7 +34,11 @@ class MapTest:
         self.last_lidar_set = []
         self.last_lidar_set_ts = 0
         self.wait_for_next_sensor_data = False
-        self.use_interpolation = True
+        self.euler_offset = 45
+        self.gui = None
+
+    def gui_init(self, gui):
+        self.gui = gui
 
     @staticmethod
     def get_global_coords_from_lidar_scan(car_pos, car_heading, lidar_scan_angle, lidar_scan_dist):
@@ -34,7 +51,7 @@ class MapTest:
         if changed_data_str == "lidar":
             self.last_lidar_set = CurrentData.get_value_from_tag_from_lidar("pcl")
             self.last_lidar_set_ts = CurrentData.get_value_from_tag_from_lidar("timestamp")
-            if self.use_interpolation:
+            if MapTest.use_interpolation:
                 self.wait_for_next_sensor_data = True
             else:
                 self.add_last_lidar_set_to_map()
@@ -43,7 +60,8 @@ class MapTest:
             euler = 360 - CurrentData.get_value_from_tag_from_sensor("euler")[0]
             timestamp = CurrentData.get_value_from_tag_from_sensor("timestamp")
             self.pos_euler_history.append([timestamp, pos, euler])
-            if self.wait_for_next_sensor_data and self.use_interpolation:
+            self.update_car_rect_on_canvas()
+            if self.wait_for_next_sensor_data and MapTest.use_interpolation:
                 self.add_last_lidar_set_to_map()
                 self.wait_for_next_sensor_data = False
 
@@ -91,7 +109,7 @@ class MapTest:
     def add_last_lidar_set_to_map(self):
         for i, scan in enumerate(self.last_lidar_set):
             if 0 <= scan[1] <= 120 or 240 <= scan[1] <= 360:
-                if self.use_interpolation:
+                if MapTest.use_interpolation:
                     current_ts = self.last_lidar_set_ts - 100 + int(round((i / len(self.last_lidar_set) * 100)))
                     car_pos, car_heading = self.get_interpolated_pos_and_euler(current_ts)
                 else:
@@ -100,6 +118,21 @@ class MapTest:
                     car_heading = last_history_element[2]
                 global_x, global_y = MapTest.get_global_coords_from_lidar_scan(car_pos, car_heading, scan[1], scan[2])
                 self.add_point_to_map(global_x, global_y)
+
+    def update_car_rect_on_canvas(self):
+        if len(self.pos_euler_history) > 0:
+            last_sensor_entry = self.pos_euler_history.get(len(self.pos_euler_history)-1)
+            pos = last_sensor_entry[1]
+            for axis in pos:
+                axis = round(axis/10, 2)
+            euler = last_sensor_entry[2]
+            global_front_angle = euler + self.euler_offset - 90 + MapTest.front_left_corner_angle_to_pozyx
+            front_left_corner_global_offset = (MapTest.front_left_corner_distance_to_pozyx * math.sin(global_front_angle),
+                                               MapTest.front_left_corner_distance_to_pozyx * math.cos(global_front_angle))
+            global_back_angle = euler + self.euler_offset + 180 + MapTest.back_right_corner_angle_to_pozyx
+            back_right_corner_global_offset = (MapTest.back_right_corner_distance_to_pozyx * math.sin(global_back_angle),
+                                               MapTest.back_right_corner_distance_to_pozyx * math.cos(global_back_angle))
+            self.gui.update_car_rect()
 
     def add_point_to_map(self, x, y):
         # print("{} {}".format(x, y))

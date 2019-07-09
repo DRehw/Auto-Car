@@ -19,7 +19,7 @@ class MainGui:
     classdocs
     """
 
-    def __init__(self, controller):
+    def __init__(self, controller, oc_map):
         global small_map
         map_edge = 800
         """
@@ -27,7 +27,8 @@ class MainGui:
         """
         self.controller = controller
         self.controller.gui_init(self)
-        self.Map = Map
+        self.map = oc_map
+        self.map.gui_init(self)
         self.window = tk.Tk()
         self.window.title("Auto-Car Debug")
         self.window.option_add("*font", "Helvetica 9")
@@ -100,6 +101,7 @@ class MainGui:
                              padx=(5, 5),
                              pady=(5, 5))
         self.image_on_canvas = self.map_canvas.create_image(0, 0, image=tk.PhotoImage(), anchor=tk.NW)
+        self.car_rect = self.map_canvas.create_rectangle(0, 0, 1, 1, fill='red')
 
         """
         Control Frame Widgets
@@ -374,6 +376,9 @@ class MainGui:
 
     def update_car_heading_label(self, heading):
         self.__display_heading.set("{:4.1f}".format(heading))
+
+    def update_car_rect(self, x1, y1, x2, y2):
+        self.map_canvas.itemconfig(self.car_rect, bbox=[x1, y1, x2, y2])
 
     def send_mqtt(self):
         return

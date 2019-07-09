@@ -25,4 +25,4 @@ if __name__ == '__main__':
     logic = Logic.Logic(connection)
     occupancy_map = MapTest()
     controller = Controller.Controller(connection, logic, occupancy_map)
-    gui = MainGui(controller)
+    gui = MainGui(controller, occupancy_map)
