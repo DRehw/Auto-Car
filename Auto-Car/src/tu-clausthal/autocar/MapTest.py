@@ -60,7 +60,7 @@ class MapTest:
             euler = 360 - CurrentData.get_value_from_tag_from_sensor("euler")[0]
             timestamp = CurrentData.get_value_from_tag_from_sensor("timestamp")
             self.pos_euler_history.append([timestamp, pos, euler])
-            self.update_car_rect_on_canvas()
+            # self.update_car_rect_on_canvas()
             if self.wait_for_next_sensor_data and MapTest.use_interpolation:
                 self.add_last_lidar_set_to_map()
                 self.wait_for_next_sensor_data = False
