@@ -57,6 +57,7 @@ class Controller:
 
     def on_connect(self, client, userdata, flags, rc):
         self.subscribe()
+        self.gui.connect_to_car_btn_set_color("green")
         return
 
     def on_data_change(self, data_cahnged_str):

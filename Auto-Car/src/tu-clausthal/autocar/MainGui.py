@@ -54,11 +54,10 @@ class MainGui:
                         column=2,
                         padx=(5, 5),
                         pady=(5, 5),
-                        sticky=tk.N)
-        main_frame.columnconfigure(0, weight=10, pad=100)
-        main_frame.columnconfigure(1, weight=10, pad=100)
-        main_frame.columnconfigure(2, weight=10, pad=100)
-        # main_frame.rowconfigure(0)
+                        sticky=tk.N + tk.S + tk.E + tk.W)
+        main_frame.columnconfigure(0, weight=1)
+        main_frame.columnconfigure(1, weight=1)
+        main_frame.columnconfigure(2, weight=1)
 
         if self.debug_gui:
             control_frame = tk.Frame(self.window)
@@ -125,47 +124,54 @@ class MainGui:
 
         """
         gruen machen bei connect
+        bei subscriben grün, wiedeer farblos bei disconnect
         """
-        tk.Button(main_frame,
-                  text="Connect to Car Broker",
-                  command=self.connect_to_car).grid(row=0,
-                                                    column=0,
-                                                    columnspan=1,
-                                                    sticky=tk.W + tk.E,
-                                                    pady=(5, 5))
+
+        self.connect_to_car_btn = tk.Button(main_frame,
+                                            text="Connect to Car Broker",
+                                            command=self.connect_to_car)
+        self.connect_to_car_btn.grid(row=0,
+                                     column=1,
+                                     rowspan=2,
+                                     padx=(1, 1),
+                                     pady=(1, 1),
+                                     sticky=tk.E + tk.W + tk.N + tk.S)
+
         self.stop_btn = tk.Button(main_frame,
                                   text="Stop",
                                   command=self.stop)
-        self.stop_btn.grid(row=0,
-                           column=2,
-                           columnspan=2,
-                           rowspan=2,
-                           padx=(0, 0),
-                           sticky=tk.W + tk.E)
+        self.stop_btn.grid(row=1,
+                           column=0,
+                           padx=(1, 1),
+                           pady=(1, 1),
+                           sticky=tk.E + tk.W + tk.N + tk.S)
 
         tk.Button(main_frame,
                   text="Reset Map",
-                  command=self.controller.reset_map_btn).grid(row=1,
-                                                              column=0,
+                  command=self.controller.reset_map_btn).grid(row=0,
+                                                              column=2,
                                                               columnspan=1,
-                                                              sticky=tk.W + tk.E + tk.N,
-                                                              pady=(5, 5))
+                                                              sticky=tk.E + tk.W + tk.N + tk.S,
+                                                              padx=(1, 1),
+                                                              pady=(1, 1))
         tk.Button(main_frame,
                   text="Reset Euler",
                   command=self.controller.reset_euler_btn).grid(row=1,
-                                                                column=1,
+                                                                column=2,
                                                                 columnspan=1,
-                                                                sticky=tk.W + tk.E + tk.N,
-                                                                pady=(5, 5))
+                                                                sticky=tk.E + tk.W + tk.N + tk.S,
+                                                                padx=(1, 1),
+                                                                pady=(1, 1))
         self.autopilot_control_btn = tk.Button(main_frame,
                                                text="Enable Autopilot",
                                                command=self.controller.toggle_autopilot_button)
 
         self.autopilot_control_btn.grid(row=0,
-                                        column=1,
+                                        column=0,
                                         columnspan=1,
-                                        sticky=tk.W + tk.E + tk.N,
-                                        pady=(5, 5))
+                                        sticky=tk.E + tk.W + tk.N + tk.S,
+                                        padx=(1, 1),
+                                        pady=(1, 1))
 
         """
         Control Frame Widgets
@@ -363,6 +369,9 @@ class MainGui:
         self.image = tk_photo_image
         self.map_canvas.itemconfig(self.image_on_canvas, image=self.image)
         # self.map_canvas.create_image(0, 0, image=tk_photo_image, anchor=tk.NW)
+
+    def connect_to_car_btn_set_color(self, color):
+        self.connect_to_car_btn.configure(bg=color)
 
     def manual_control_btn_set_color(self, color):
         self.manual_control_btn.configure(bg=color)
