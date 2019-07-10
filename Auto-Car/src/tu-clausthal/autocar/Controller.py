@@ -57,6 +57,7 @@ class Controller:
 
     def on_connect(self, client, userdata, flags, rc):
         self.subscribe()
+        self.gui.connect_to_car_btn_set_color("green")
         return
 
     def on_data_change(self, data_cahnged_str):
@@ -171,10 +172,10 @@ class Controller:
             self.gui.autopilot_control_btn_set_color("SystemButtonFace")
 
     def connect_to_car_btn(self):
-        if "Mobility-Labor" in str(subprocess.check_output("netsh wlan show interfaces")):
-            self.__mqtt_connection.connect("139.174.25.1")
-        else:
-            print("Not connected to the right Wifi!")
+        # if "Mobility-Labor" in str(subprocess.check_output("netsh wlan show interfaces")):
+        self.__mqtt_connection.connect("139.174.25.1")
+        #else:
+        #    print("Not connected to the right Wifi!")
         return
     
     def connect_to_mosquitto(self):
