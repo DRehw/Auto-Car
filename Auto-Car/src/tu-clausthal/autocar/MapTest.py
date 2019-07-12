@@ -28,15 +28,14 @@ class MapTest:
         self.last_lidar_set = []
         self.last_lidar_set_ts = 0
         self.wait_for_next_sensor_data = False
-        self.euler_offset = 45
+        self.euler_offset = 0
         self.gui = None
 
     def gui_init(self, gui):
         self.gui = gui
 
-    @staticmethod
-    def get_global_coords_from_lidar_scan(car_pos, car_heading, lidar_scan_angle, lidar_scan_dist):
-        global_angle_rad = math.radians(car_heading + lidar_scan_angle + 180)
+    def get_global_coords_from_lidar_scan(self, car_pos, car_heading, lidar_scan_angle, lidar_scan_dist):
+        global_angle_rad = math.radians(car_heading + lidar_scan_angle + self.euler_offset)
         global_x = int(round(lidar_scan_dist/10 * math.sin(global_angle_rad) + car_pos[0]/10))
         global_y = int(round(-lidar_scan_dist/10 * math.cos(global_angle_rad) + car_pos[1]/10))
         return global_x, global_y
@@ -57,6 +56,11 @@ class MapTest:
             if self.wait_for_next_sensor_data and MapTest.use_interpolation:
                 self.add_last_lidar_set_to_map()
                 self.wait_for_next_sensor_data = False
+
+    #to be calculated when car is in "default position"
+    def calculate_euler_offset(self):
+        self.euler_offset = CurrentData.get_value_from_tag_from_sensor("euler")[0] - 90
+        print(self.euler_offset)
 
     def get_interpolated_pos_and_euler(self, timestamp):
         pos_euler_history_len = len(self.pos_euler_history)
@@ -110,7 +114,7 @@ class MapTest:
                     last_history_element = self.pos_euler_history.get(len(self.pos_euler_history)-1)
                     car_pos = last_history_element[1]
                     car_heading = last_history_element[2]
-                global_x, global_y = MapTest.get_global_coords_from_lidar_scan(car_pos, car_heading, scan[1], scan[2])
+                global_x, global_y = MapTest.get_global_coords_from_lidar_scan(self, car_pos, car_heading, scan[1], scan[2])
                 self.add_point_to_map(global_x, global_y)
         if self.lidar_counter >= 30:
             self.lidar_counter = 0
@@ -163,6 +167,7 @@ class MapTest:
                         dist = math.hypot(i, j)
                         if dist <= MapTest.car_heading_point_radius:
                             self.ppm_array[heading_x + i][heading_y + j] = 255
+        self.ppm_array = np.fliplr(self.ppm_array)
         return self.ppm_header + b' ' + self.ppm_array.tobytes()
 
     def get_map_as_photo_img(self):

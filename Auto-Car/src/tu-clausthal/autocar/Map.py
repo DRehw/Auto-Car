@@ -6,11 +6,9 @@ Created on 14.05.2019
 # cmd: pip install matplotlib
 
 import math
-import matplotlib as mpl
 import numpy as np
 from tkinter import PhotoImage
 from CurrentData import CurrentData
-from matplotlib import pyplot
 
 
 class Map:

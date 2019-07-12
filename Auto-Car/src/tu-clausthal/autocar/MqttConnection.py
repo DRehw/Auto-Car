@@ -162,7 +162,11 @@ class MqttConnection:
             self.client.loop_stop()
 
         self.__is_connected = False
-
+        print("For loop")
         for func in self.on_disconnect:
-            func(client, userdata, rc)
+            try:
+                print(func)
+                func(client, userdata, rc)
+            except Exception:
+                print_exc()
         return
