@@ -95,7 +95,7 @@ class Logic:
             return x, y
 
     def get_steer_obstacle_evasion(self):
-        look_forward_dist_mm = 1000
+        look_forward_dist_mm = 1200
         lidar = CurrentData.get_value_from_tag_from_lidar("pcl")
         score = 0
         for point in lidar:

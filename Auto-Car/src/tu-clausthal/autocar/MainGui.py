@@ -347,7 +347,6 @@ class MainGui:
 
     def on_closing(self):
         self.controller.on_window_close()
-        print("After on window close (destroying now)")
         self.window.destroy()
         return
 

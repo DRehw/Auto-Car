@@ -162,7 +162,6 @@ class MqttConnection:
             self.client.loop_stop()
 
         self.__is_connected = False
-        print("For loop")
         for func in self.on_disconnect:
             try:
                 print(func)
