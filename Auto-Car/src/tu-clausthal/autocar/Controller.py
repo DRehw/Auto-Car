@@ -141,6 +141,7 @@ class Controller:
     def reset_euler_btn(self):
         euler = CurrentData.get_value_from_tag_from_sensor("euler")
         # self.occupancy_map.calc_constant(euler)
+        self.occupancy_map.calculate_euler_offset()
         self.euler_reseted = True
 
     def toggle_manual_control_button(self):

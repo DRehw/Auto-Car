@@ -54,9 +54,9 @@ class CurrentData:
             parsed_euler_data = CurrentData.get_value_from_tag_from_json(sensor_json, "euler")
             parsed_position_data = CurrentData.get_value_from_tag_from_json(sensor_json, "position")
 
-            for i in range(len(parsed_position_data)):
-                if parsed_position_data[i] == -1:
-                    parsed_position_data[i] == self.sensor_data_list[len(self.sensor_data_list) -1 ][1][i]
+            #for i in range(len(parsed_position_data)):
+                #if parsed_position_data[i] == -1:
+                    #parsed_position_data[i] = self.sensor_data_list[len(self.sensor_data_list) -1 ][1][i]
 
             corrected_euler_data = parsed_euler_data
             corrected_euler_data[0] += 180
