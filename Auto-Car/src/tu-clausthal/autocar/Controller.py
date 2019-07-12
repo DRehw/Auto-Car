@@ -31,7 +31,7 @@ class Controller:
         self.occupancy_map = occupancy_map
         self.logic = logic
         self.__mqtt_connection = mqtt_connection
-        self.__mqtt_connection.add_callback_methods(on_connect=self.on_connect, on_subscribe=self.on_subscribe)
+        self.__mqtt_connection.add_callback_methods(on_connect=self.on_connect, on_subscribe=self.on_subscribe, on_disconnect=self.on_disconnect)
         CurrentData.register_method_as_observer(self.on_data_change)
         self.logic.set_controller(self)
         self.rep_timer = None
@@ -59,6 +59,9 @@ class Controller:
         self.subscribe()
         self.gui.connect_to_car_btn_set_color("green")
         return
+
+    def on_disconnect(self, client, userdata, rc):
+        self.gui.connect_to_car_btn_set_color("SystemButtonFace")
 
     def on_data_change(self, data_cahnged_str):
         if data_cahnged_str == "sensor":
@@ -172,10 +175,10 @@ class Controller:
             self.gui.autopilot_control_btn_set_color("SystemButtonFace")
 
     def connect_to_car_btn(self):
-        # if "Mobility-Labor" in str(subprocess.check_output("netsh wlan show interfaces")):
-        self.__mqtt_connection.connect("139.174.25.1")
-        #else:
-        #    print("Not connected to the right Wifi!")
+        if "Mobility-Labor" in str(subprocess.check_output("netsh wlan show interfaces")):
+            self.__mqtt_connection.connect("139.174.25.1")
+        else:
+            print("Not connected to the right Wifi!")
         return
     
     def connect_to_mosquitto(self):
