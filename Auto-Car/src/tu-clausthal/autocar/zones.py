@@ -101,14 +101,18 @@ def is_object_in_red_zone_steering_dynamic(current_steering):
         wheel_side_offset = 150
         lidar_offset = (0, -70)
         axle_dif_len = 360
+        if current_steering < 0:
+            current_steering += 5
+        elif current_steering > 0:
+            current_steering -= 3
         current_steering *= 0.8
         dist_back_ax_to_front_bumper = 450
         rel_x_coord_circ_center_to_wheel = axle_dif_len / math.sin(math.radians(current_steering)) \
                                               * math.sin(math.radians(90-current_steering))
         steering_circle_center = (back_axle_offset[0] + rel_x_coord_circ_center_to_wheel,
                                   back_axle_offset[1])
-        outer_circle_radius = math.hypot(abs(steering_circle_center[0]) + wheel_side_offset, axle_dif_len)
-        inner_circle_radius = math.hypot(abs(steering_circle_center[0]) - wheel_side_offset, axle_dif_len)
+        outer_circle_radius = math.hypot(abs(steering_circle_center[0]) + wheel_side_offset, axle_dif_len) + 50
+        inner_circle_radius = math.hypot(abs(steering_circle_center[0]) - wheel_side_offset, axle_dif_len) - 50
         middle_circle_radius = (outer_circle_radius + inner_circle_radius) / 2
         # Transposing the equation for the arc of a circle (Gleichung für die Länge eines Kreibogens) to get the angle
         # look_angle = (100 * 180) / (math.pi * middle_circle_radius)
@@ -202,10 +206,11 @@ def convert_speed(speed):
 
 
 def distance_speed_control(current_steer):
-    min_speed_distance = 300
+    min_speed_distance = 350
     max_speed_distance = 4000
     speed_distance_diff = max_speed_distance - min_speed_distance
     min_distance = is_object_in_red_zone_steering_dynamic(current_steer)
+    print("    {:2}cm".format(min_distance))
     # print(min_distance)
     # find smallest distance on left OR right side
     # calculate and return speed value

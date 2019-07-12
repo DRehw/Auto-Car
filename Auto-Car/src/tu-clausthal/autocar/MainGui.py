@@ -7,12 +7,10 @@ Created on May 11, 2019
 import tkinter as tk
 from time import time
 from traceback import print_exc
-from Decorator import debug_only
-
-import Map
+from sys import gettrace
 
 
-small_map = True
+small_map = False
 
 
 class MainGui:
@@ -42,9 +40,8 @@ class MainGui:
         self.image = None
         self.image_on_canvas = None
         self.draw_map_press_ms = int(round(time() * 1000))
-        self.debug_gui = False
+        self.debug_gui = gettrace()
 
-        self.set_debug_gui()
         """
         FRAMES
         """
@@ -440,8 +437,3 @@ class MainGui:
     def cmd_send(self):
         self.controller.start_cmd_mosq_path()
         return
-
-    @debug_only
-    def set_debug_gui(self):
-        self.debug_gui = True
-        print("Debug GUI activated")
