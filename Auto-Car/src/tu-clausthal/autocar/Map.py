@@ -9,8 +9,6 @@ import math
 import matplotlib as mpl
 import numpy as np
 from tkinter import PhotoImage
-from time import time
-import array
 from CurrentData import CurrentData
 from matplotlib import pyplot
 

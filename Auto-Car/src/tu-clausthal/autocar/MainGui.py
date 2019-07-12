@@ -377,9 +377,6 @@ class MainGui:
     def update_car_heading_label(self, heading):
         self.__display_heading.set("{:4.1f}".format(heading))
 
-    def update_car_rect(self, x1, y1, x2, y2):
-        self.map_canvas.itemconfig(self.car_rect, bbox=[x1, y1, x2, y2])
-
     def send_mqtt(self):
         return
     

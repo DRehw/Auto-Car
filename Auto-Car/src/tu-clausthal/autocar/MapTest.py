@@ -8,17 +8,11 @@ from History import History
 class MapTest:
 
     use_interpolation = True
-    front_left_corner_offset_to_pozyx = (-15, 10)
-    front_left_corner_distance_to_pozyx = math.hypot(front_left_corner_offset_to_pozyx[0],
-                                                     front_left_corner_offset_to_pozyx[1])
-    front_left_corner_angle_to_pozyx = math.asin(front_left_corner_offset_to_pozyx[1] /
-                                                 front_left_corner_distance_to_pozyx)
 
-    back_right_corner_offset_to_pozyx = (15, 30)
-    back_right_corner_distance_to_pozyx = math.hypot(back_right_corner_offset_to_pozyx[0],
-                                                     back_right_corner_offset_to_pozyx[1])
-    back_right_corner_angle_to_pozyx = math.asin(back_right_corner_offset_to_pozyx[1] /
-                                                 back_right_corner_distance_to_pozyx)
+    car_point_radius = 14
+    car_point_range = range(-car_point_radius, car_point_radius + 1)
+    car_heading_point_radius = int(car_point_radius / 3)
+    car_heading_point_range = range(-car_heading_point_radius, car_heading_point_radius + 1)
 
     def __init__(self, width=800, height=800):
         CurrentData.register_method_as_observer(self.on_data_change)
@@ -60,7 +54,6 @@ class MapTest:
             euler = 360 - CurrentData.get_value_from_tag_from_sensor("euler")[0]
             timestamp = CurrentData.get_value_from_tag_from_sensor("timestamp")
             self.pos_euler_history.append([timestamp, pos, euler])
-            # self.update_car_rect_on_canvas()
             if self.wait_for_next_sensor_data and MapTest.use_interpolation:
                 self.add_last_lidar_set_to_map()
                 self.wait_for_next_sensor_data = False
@@ -107,6 +100,7 @@ class MapTest:
                 return last_entry[1], last_entry[2]
 
     def add_last_lidar_set_to_map(self):
+        self.lidar_counter += 1
         for i, scan in enumerate(self.last_lidar_set):
             if 0 <= scan[1] <= 120 or 240 <= scan[1] <= 360:
                 if MapTest.use_interpolation:
@@ -118,21 +112,9 @@ class MapTest:
                     car_heading = last_history_element[2]
                 global_x, global_y = MapTest.get_global_coords_from_lidar_scan(car_pos, car_heading, scan[1], scan[2])
                 self.add_point_to_map(global_x, global_y)
-
-    def update_car_rect_on_canvas(self):
-        if len(self.pos_euler_history) > 0:
-            last_sensor_entry = self.pos_euler_history.get(len(self.pos_euler_history)-1)
-            pos = last_sensor_entry[1]
-            for axis in pos:
-                axis = round(axis/10, 2)
-            euler = last_sensor_entry[2]
-            global_front_angle = euler + self.euler_offset - 90 + MapTest.front_left_corner_angle_to_pozyx
-            front_left_corner_global_offset = (MapTest.front_left_corner_distance_to_pozyx * math.sin(global_front_angle),
-                                               MapTest.front_left_corner_distance_to_pozyx * math.cos(global_front_angle))
-            global_back_angle = euler + self.euler_offset + 180 + MapTest.back_right_corner_angle_to_pozyx
-            back_right_corner_global_offset = (MapTest.back_right_corner_distance_to_pozyx * math.sin(global_back_angle),
-                                               MapTest.back_right_corner_distance_to_pozyx * math.cos(global_back_angle))
-            self.gui.update_car_rect()
+        if self.lidar_counter >= 30:
+            self.lidar_counter = 0
+            self.reset_poor_map_data()
 
     def add_point_to_map(self, x, y):
         # print("{} {}".format(x, y))
@@ -150,17 +132,37 @@ class MapTest:
     def reset_map(self):
         self.grid = np.zeros((self.width, self.height), np.uint8)
 
+    def reset_poor_map_data(self):
+        self.grid[self.grid < 2] = 0
+
     def _get_map_as_ppm(self):
         self.ppm_array = np.copy(self.grid)
         car_pos = CurrentData.get_value_from_tag_from_sensor("position")
+        car_heading = CurrentData.get_value_from_tag_from_sensor("euler")
         self.ppm_array[self.ppm_array < 1] = 255
         self.ppm_array[self.ppm_array < 255] = 0
-        if car_pos is not None:
+        if car_pos is not None and car_heading is not None:
             car_x = int(round(car_pos[0]/10))
             car_y = int(round(car_pos[1]/10))
-            for i in range(-2, 3):
-                for j in range(-2, 3):
-                    self.ppm_array[car_x + i][car_y + j] = 127
+            for i in MapTest.car_point_range:
+                for j in MapTest.car_point_range:
+                    if 0 <= car_x + i < self.width and 0 <= car_y + j < self.height:
+                        dist = math.hypot(i, j)
+                        if dist <= MapTest.car_point_radius:
+                            grey_val = 50 + (dist / MapTest.car_point_radius) * 50
+                            self.ppm_array[car_x + i][car_y + j] = grey_val
+            heading_x = int(car_x + MapTest.car_point_radius * math.sin(math.radians(self.euler_offset + car_heading[0])))
+            heading_y = int(car_y + MapTest.car_point_radius * math.cos(math.radians(self.euler_offset + car_heading[0])))
+            # print("{}, {}".format(MapTest.car_point_radius * math.sin(self.euler_offset + car_heading[0]),
+            #                      MapTest.car_point_radius * math.cos(self.euler_offset + car_heading[0])))
+            # print("{}".format(self.euler_offset + car_heading[0]))
+
+            for i in MapTest.car_heading_point_range:
+                for j in MapTest.car_heading_point_range:
+                    if 0 <= heading_x + i < self.width and 0 <= heading_y + j < self.height:
+                        dist = math.hypot(i, j)
+                        if dist <= MapTest.car_heading_point_radius:
+                            self.ppm_array[heading_x + i][heading_y + j] = 255
         return self.ppm_header + b' ' + self.ppm_array.tobytes()
 
     def get_map_as_photo_img(self):
