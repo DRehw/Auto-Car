@@ -94,59 +94,8 @@ class Logic:
             y = distance * cos(radians(angle))
             return x, y
 
-    def hindernisse(self):
-        lidar = CurrentData.get_value_from_tag_from_lidar("pcl")
-        last_point = None
-        print("\n")
-        count = 0
-        level = 0
-        for i, point in enumerate(lidar):
-            x, y = self._get_local_coords_from_lidar(point[1], point[2])
-            if last_point:
-                distance_to_last_point = hypot(x - last_point[0], y - last_point[1])
-                supposed_distance = 0.15 * last_point[2]
-                if distance_to_last_point > supposed_distance:
-                    if point[2] > last_point[2]:
-                        level += 1
-                        # print("({}) Beginning at pos: {},{}".format(level, x, y))
-                    else:
-                        level -= 1
-                        # print("({}) Ending at pos: {},{}".format(level, last_point[0], last_point[1]))
-                    count += 1
-            last_point = [x, y, point[2]]
-        # print(str(count) + "\n")
-        return
-
-    def get_steer_dir_obstacle_evasion(self, lidar):
-        changes = []
-        last_point = None
-        for i, point in enumerate(lidar):
-            point = lidar[i]
-            x, y = self._get_local_coords_from_lidar(point[1], point[2])
-            if last_point is None:
-                last_point_lidar = lidar[len(lidar)][2]
-                x, y = self._get_local_coords_from_lidar(last_point_lidar[1], last_point_lidar[2])
-                last_point = [x, y, last_point_lidar[2]]
-            distance_to_last_point = hypot(x - last_point[0], y - last_point[1])
-            supposed_distance = 0.15 * last_point[2]
-            if distance_to_last_point > supposed_distance:
-                if i == 0:
-                    index = len(lidar)
-                else:
-                    index = i
-                if point[2] > last_point[2]:
-                    changes.append([index, 1])
-                else:
-                    changes.append([index, -1])
-            last_point = [x, y, point[2]]
-        if len(changes) >= 2:
-            if changes[0][0] > len(lidar) - changes[len(changes)][0]:
-                return "left"
-            else:
-                return "right"
-
     def get_steer_obstacle_evasion(self):
-        look_forward_dist_mm = 1000
+        look_forward_dist_mm = 1200
         lidar = CurrentData.get_value_from_tag_from_lidar("pcl")
         score = 0
         for point in lidar:
@@ -202,7 +151,6 @@ class Logic:
                             self.__current_steer = zones.is_object_close_to_side_lidar()
                         self.__current_speed = zones.distance_speed_control(self.__current_steer)
                         if self.__current_speed == 90:
-                        # (self.__current_steer > 95 or self.__current_steer < 85) and
                             self.__drive_backwards = True
                             self.__temp_steer = self.__current_steer
                     if self.__drive_backwards:
@@ -214,7 +162,8 @@ class Logic:
                             self.__current_steer = 90
                         self.__current_speed = 97
 
-                        if self.get_front_dist_lidar() > 1250 or zones.is_object_in_backside_red_zone_us():
+                        if zones.is_object_in_red_zone_steering_dynamic(self.__current_steer) > 1250 \
+                                or zones.is_object_in_backside_red_zone_us():
                             self.__drive_backwards = False
                             self.__current_steer = 90
                             self.__current_speed = 90

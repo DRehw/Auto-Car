@@ -8,8 +8,6 @@ Created on 14.05.2019
 import math
 import numpy as np
 from tkinter import PhotoImage
-from time import time
-import array
 from CurrentData import CurrentData
 
 
