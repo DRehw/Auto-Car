@@ -12,7 +12,7 @@ from Decorator import debug_only
 import Map
 
 
-small_map = True
+small_map = False
 
 
 class MainGui:
