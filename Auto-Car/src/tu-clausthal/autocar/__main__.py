@@ -7,7 +7,6 @@ import Controller
 import CurrentData
 import Logic
 from MapTest import MapTest
-from Map import Map
 import MqttConnection
 from MainGui import MainGui
 from Decorator import *
