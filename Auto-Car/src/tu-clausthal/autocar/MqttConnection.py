@@ -11,7 +11,8 @@ from CurrentData import CurrentData
 
 class MqttConnection:
     """
-    Doc
+    This class handles the connection and communication with the MQTT broker, which provides the sensor/lidar data from
+    the car and receives the steering data for the car.
     """
 
     def __init__(self):
@@ -34,7 +35,7 @@ class MqttConnection:
 
     @staticmethod
     def get_json_cmd(speed, steer):
-        '''Returns the json string relating to a specific speed and steer command, which is to be sent to the car.'''
+        """Returns the json string relating to a specific speed and steer command, which is to be sent to the car."""
         millis = int(round(time() * 1000))
         if speed < 75 or speed > 105:
             speed = 90
@@ -59,7 +60,7 @@ class MqttConnection:
             self.on_disconnect.append(on_disconnect)
 
     def connect(self, host="localhost"):
-        '''Connects local mqtt-client to mqtt-broker'''
+        """Connects local mqtt-client to mqtt-broker"""
         if ~self.__is_connecting and ~self.__is_connected:
             print("Trying to connect")
             self.__is_connecting = True
@@ -74,21 +75,21 @@ class MqttConnection:
         return self.__is_connecting
 
     def publish(self, topic, msg):
-        '''Helper method for publishing data via MQTT'''
+        """Helper method for publishing data via MQTT"""
         if ~self.__is_connecting and self.__is_connected:
             self.client.publish(topic, msg)
 
     def send_car_command(self, speed, steer):
-        '''Sends/publishes a specific speed and steer command to the car'''
+        """Sends/publishes a specific speed and steer command to the car"""
         # print("Sending command")
         self.publish("aadc/rc", MqttConnection.get_json_cmd(speed, steer))
 
     def disconnect(self):
-        '''Disonnects local mqtt-client to mqtt-broker'''
+        """Disonnects local mqtt-client to mqtt-broker"""
         self.client.disconnect()
 
     def subscribe(self, *topics):
-        '''Helper method for subscribing to topics'''
+        """Helper method for subscribing to topics"""
         if ~self.__is_connecting and self.__is_connected:
             topics = list(topics)
             for i in range(len(topics)):
@@ -106,7 +107,12 @@ class MqttConnection:
     def get_host(self):
         return self.host
 
+
+
     def __on_message(self, client, userdata, message):
+        """
+        Called whenever a new message is received, notifying every registered method (see add_callback_methods)
+        """
         if message.topic == "aadc/sensor" and self.show_msg_time:
             cur_ts = int(round(time()*1000))
             cur_ts_msg = CurrentData.get_value_from_tag_from_sensor("timestamp")
@@ -129,7 +135,12 @@ class MqttConnection:
             CurrentData.set_sensor_json(loads(str(message.payload.decode("utf-8"))))
         return
 
+
     def __on_subscribe(self, client, userdata, mid, granted_qos):
+        """
+        Called whenever the response to a subscription attempt is received, notifying every registered method
+        (see add_callback_methods)
+        """
         if self._last_sub_mid_list is not None:
             if mid in self._last_sub_mid_list:
                 self._last_sub_mid_list.remove(mid)
@@ -146,7 +157,12 @@ class MqttConnection:
                 print_exc()
         return
 
+
     def __on_connect(self, client, userdata, flags, rc):
+        """
+        Called whenever the response to a connection attempt is received, or if no response has occurred (rc == 0),
+        notifying every registered method (see add_callback_methods)
+        """
         if rc != 0:
             print("Could not connect!")
             self.host = None
@@ -164,7 +180,11 @@ class MqttConnection:
                     print_exc()
         return
 
+
     def __on_disconnect(self, client, userdata, rc):
+        """
+        Called whenever a disconnect has occurred, notifying every registered method (see add_callback_methods)
+        """
         if rc != 0:
             print("Unexpected disconnect!")
         else:
