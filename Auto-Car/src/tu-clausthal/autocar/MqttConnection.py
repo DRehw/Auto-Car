@@ -46,7 +46,8 @@ class MqttConnection:
 
     def add_callback_methods(self, on_message=None, on_subscribe=None, on_connect=None, on_disconnect=None):
         """
-        Used to register a methods as callback methods
+        Used to register a method to get a callback whenever new data is recevied / a topic is subscribed to /
+        the local client connects to the MQTT broker / the local client disconnects from the MQTT broker
         """
         if on_message is not None:
             self.on_message.append(on_message)
