@@ -7,6 +7,9 @@ from History import History
 
 class MapTest:
 
+    '''This class creates a global map (2D grid) of the cars surroundings, and provides the methods to convert the map
+    into an image, which can be displayed on the GUI.'''
+
     use_interpolation = True
 
     car_point_radius = 14
@@ -32,15 +35,26 @@ class MapTest:
         self.gui = None
 
     def gui_init(self, gui):
+        '''initializes GUI'''
         self.gui = gui
 
     def get_global_coords_from_lidar_scan(self, car_pos, car_heading, lidar_scan_angle, lidar_scan_dist):
+        '''
+        Calculates the global coordinates of a detected lidar point using car position, rotation and
+        the angle and distance of the lidar point
+        '''
         global_angle_rad = math.radians(car_heading + lidar_scan_angle + self.euler_offset)
         global_x = int(round(lidar_scan_dist/10 * math.sin(global_angle_rad) + car_pos[0]/10))
         global_y = int(round(-lidar_scan_dist/10 * math.cos(global_angle_rad) + car_pos[1]/10))
         return global_x, global_y
 
     def on_data_change(self, changed_data_str):
+        '''
+        Is registered as an observer method of CurrentData (see _init_). Is called whenever CurrentData receives new
+        sensor/lidar data, receiving a data string "lidar"/"sensor" corresponding to the type of data received.
+        Determines what is to be done when such data is received, i.e. adding lidar data to map/adding sensor data to
+        history.
+        '''
         if changed_data_str == "lidar":
             self.last_lidar_set = CurrentData.get_value_from_tag_from_lidar("pcl")
             self.last_lidar_set_ts = CurrentData.get_value_from_tag_from_lidar("timestamp")
@@ -57,11 +71,18 @@ class MapTest:
                 self.add_last_lidar_set_to_map()
                 self.wait_for_next_sensor_data = False
 
-    #to be calculated when car is in "default position"
     def calculate_euler_offset(self):
+        '''
+        Calculates offset for the car rotation to arrive at the "global rotation".
+        to be used when car is in "default position"
+        '''
         self.euler_offset = CurrentData.get_value_from_tag_from_sensor("euler")[0] - 90
 
     def get_interpolated_pos_and_euler(self, timestamp):
+        '''
+        returns the approximated car position and rotation for a specified timestamp using linear interpolation.
+        Only used if use_interpolation == True. (see self.add_last_lidar_set_to_map)
+        '''
         pos_euler_history_len = len(self.pos_euler_history)
         if pos_euler_history_len > 0:
             first_entry = self.pos_euler_history.get(0)
@@ -103,6 +124,7 @@ class MapTest:
                 return last_entry[1], last_entry[2]
 
     def add_last_lidar_set_to_map(self):
+        '''adds the last collected lidar set (after converting it into global coordinates) to the map.'''
         self.lidar_counter += 1
         for i, scan in enumerate(self.last_lidar_set):
             if 0 <= scan[1] <= 120 or 240 <= scan[1] <= 360:
@@ -120,6 +142,7 @@ class MapTest:
             self.reset_poor_map_data()
 
     def add_point_to_map(self, x, y):
+        '''adds a point (described by x and y coordinates to the map'''
         # print("{} {}".format(x, y))
         for i in range(-2, 3):
             for j in range(-2, 3):
@@ -133,12 +156,17 @@ class MapTest:
                         self.grid[x + i][y + j] += 3
 
     def reset_map(self):
+        '''Resets the map to a blank (np.zeros) grid.
+        To be used when euler/rotation is reseted or when map data is faulty.'''
         self.grid = np.zeros((self.width, self.height), np.uint8)
 
     def reset_poor_map_data(self):
+        '''removes points from map which don't pass a minimum threshold of times measured'''
         self.grid[self.grid < 2] = 0
 
     def _get_map_as_ppm(self):
+        '''Generates a 2D-grid representing a visually intuitive 8-bit graphic representative of the map.
+        Adds car position to the new grid. Used in self.get_map_as_photo_img'''
         self.ppm_array = np.copy(self.grid)
         car_pos = CurrentData.get_value_from_tag_from_sensor("position")
         car_heading = CurrentData.get_value_from_tag_from_sensor("euler")
@@ -172,5 +200,6 @@ class MapTest:
         return self.ppm_header + b' ' + self.ppm_array.tobytes()
 
     def get_map_as_photo_img(self):
+        '''generates an image representing the map and returns the image'''
         img = PhotoImage(width=self.width, height=self.height, data=self._get_map_as_ppm(), format='PPM')
         return img

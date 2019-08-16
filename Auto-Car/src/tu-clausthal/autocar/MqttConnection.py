@@ -34,6 +34,7 @@ class MqttConnection:
 
     @staticmethod
     def get_json_cmd(speed, steer):
+        '''Returns the json string relating to a specific speed and steer command, which is to be sent to the car.'''
         millis = int(round(time() * 1000))
         if speed < 75 or speed > 105:
             speed = 90
@@ -44,6 +45,9 @@ class MqttConnection:
                "\"timestamp\": {}}}".format(speed, steer, millis)
 
     def add_callback_methods(self, on_message=None, on_subscribe=None, on_connect=None, on_disconnect=None):
+        """
+        Used to register a methods as callback methods
+        """
         if on_message is not None:
             self.on_message.append(on_message)
         if on_subscribe is not None:
@@ -54,6 +58,7 @@ class MqttConnection:
             self.on_disconnect.append(on_disconnect)
 
     def connect(self, host="localhost"):
+        '''Connects local mqtt-client to mqtt-broker'''
         if ~self.__is_connecting and ~self.__is_connected:
             print("Trying to connect")
             self.__is_connecting = True
@@ -68,17 +73,21 @@ class MqttConnection:
         return self.__is_connecting
 
     def publish(self, topic, msg):
+        '''Helper method for publishing data via MQTT'''
         if ~self.__is_connecting and self.__is_connected:
             self.client.publish(topic, msg)
 
     def send_car_command(self, speed, steer):
+        '''Sends/publishes a specific speed and steer command to the car'''
         # print("Sending command")
         self.publish("aadc/rc", MqttConnection.get_json_cmd(speed, steer))
 
     def disconnect(self):
+        '''Disonnects local mqtt-client to mqtt-broker'''
         self.client.disconnect()
 
     def subscribe(self, *topics):
+        '''Helper method for subscribing to topics'''
         if ~self.__is_connecting and self.__is_connected:
             topics = list(topics)
             for i in range(len(topics)):
