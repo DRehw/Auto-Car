@@ -7,8 +7,10 @@ from History import History
 
 class MapTest:
 
-    """This class creates a global map (2D grid) of the cars surroundings, using lidar, rotation and posx data, and provides the methods to convert the map
-    into an image, which can be displayed on the GUI."""
+    """
+    This class creates a global map (2D occupancy grid) of the cars surroundings, using lidar, rotation and position
+    data, and provides the methods to convert the map into an image, which can be displayed on the GUI.
+    """
 
     use_interpolation = True
 
@@ -50,10 +52,10 @@ class MapTest:
 
     def on_data_change(self, changed_data_str):
         """
-        Is registered as an observer method of CurrentData (see _init_). Is called whenever CurrentData receives new
-        sensor/lidar data, receiving a data string "lidar"/"sensor" corresponding to the type of data received.
-        Determines what is to be done when such data is received, i.e. adding lidar data to map/adding sensor data to
-        history.
+        Is registered as an observer method of CurrentDatas __on_data_change method (see _init_). Is called whenever
+        CurrentData receives new sensor/lidar data, receiving a data string "lidar"/"sensor" corresponding to the type
+        of data received. Determines what is to be done when such data is received, i.e. adding lidar data to
+        map/adding sensor data to history.
         """
         if changed_data_str == "lidar":
             self.last_lidar_set = CurrentData.get_value_from_tag_from_lidar("pcl")
@@ -73,8 +75,8 @@ class MapTest:
 
     def calculate_euler_offset(self):
         """
-        Calculates offset for the car rotation to arrive at the "global rotation".
-        to be used when car is in "default position"
+        Calculates offset for the car rotation to arrive at the cars "global orientation".
+        To be used when car is in "default position"
         """
         self.euler_offset = CurrentData.get_value_from_tag_from_sensor("euler")[0] - 90
 
@@ -143,7 +145,7 @@ class MapTest:
 
     def add_point_to_map(self, x, y):
         """adds a point (described by x and y coordinates) to the map by increasing the integer values of the
-        corresponding position in the grid as well as its immediate surroundings"""
+        corresponding element in the grid as well as its immediate surroundings"""
         # print("{} {}".format(x, y))
         for i in range(-2, 3):
             for j in range(-2, 3):
