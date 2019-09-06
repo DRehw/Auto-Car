@@ -1,4 +1,8 @@
 class History:
+    """
+    History class implements a list with maximum length given on object creation. Whenever the maximum length is
+    exceeded, the oldest element in the list is thrown out.
+    """
 
     def __init__(self, length):
         self.length = length

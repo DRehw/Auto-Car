@@ -5,18 +5,22 @@ from json import loads
 
 from CurrentData import CurrentData
 
-__is_recording = False
-__is_playing = False
+__is_recording = False  # status variable
+__is_playing = False  # status variable
 __buffer_size = -1  # -1 would use system default buffer size
-__sim_w_buffer_size = 20 # number of messages before a write operation
-__sim_r_buffer_size = 20
-__sim_buffer = []
+__sim_w_buffer_size = 20  # number of messages before a write operation
+__sim_r_buffer_size = 20  # number of messages to read from the file at once
+__sim_buffer = []  # message buffer
 __sim_file_loc = ""
 __stop_thread = False
 __thread = None
 
 
 def stop():
+    """
+    Stops the the recording and playback.
+    :return:
+    """
     global __is_playing, __is_recording, __stop_thread
     if __is_recording:
         stop_recording()
@@ -25,6 +29,11 @@ def stop():
 
 
 def start_recording(location):
+    """
+    Starts the recording.
+    :param location: location of the .txt file to be loaded.
+    :return:
+    """
     global __sim_file_loc, __is_recording
     # __sim_file = open(location, "w+")
     try:
@@ -34,6 +43,7 @@ def start_recording(location):
         return
     __sim_file_loc = location
     __is_recording = True
+    # The file gets closed right away, because it is only written to after the buffer is full
     file.close()
     CurrentData.register_method_as_observer(on_new_data)
     print("Started recording.")
@@ -41,6 +51,10 @@ def start_recording(location):
 
 
 def stop_recording():
+    """
+    Stops the recording.
+    :return:
+    """
     global __is_recording, __sim_buffer
     if __is_recording:
         if len(__sim_buffer) > 0:
@@ -54,14 +68,21 @@ def stop_recording():
 
 
 def on_new_data(new_data_str):
+    """
+    Observer method, which gets called whenever new data is there (it doesn't get passed as an argument).
+    :param new_data_str: String which data has been updated. (either "lidar" or "sensor")
+    :return:
+    """
     # print("On new data")
     global __sim_buffer, __sim_w_buffer_size
     msg = None
+    # create a tuple for every message with the content of the message and the topic it has been posted in
     if new_data_str == "lidar":
         msg = ("aadc/lidar", CurrentData.get_lidar_json())
     elif new_data_str == "sensor":
         msg = ("aadc/sensor", CurrentData.get_sensor_json())
     if msg:
+        # sort the messages in the buffer
         timestamp = msg[1].get("timestamp")
         i = 0
         for i in range(len(__sim_buffer)):
@@ -69,16 +90,19 @@ def on_new_data(new_data_str):
                 i -= 1
                 break
         __sim_buffer.insert(i+1, (timestamp, msg))
-        # print("Insert to buffer")
         if len(__sim_buffer) >= __sim_w_buffer_size:
-            # print("Write buffer to file")
             write_buffer_to_file()
 
 
 def write_buffer_to_file():
+    """
+    Write the buffer to the destined location in __sim_file_loc
+    :return:
+    """
     global __sim_buffer, __sim_file_loc
     if len(__sim_file_loc) > 4:
         try:
+            # open file in append mode
             file = open(__sim_file_loc, "a")
         except (OSError, IOError):
             print("Could not open file: '{}'".format(__sim_file_loc))
@@ -92,6 +116,12 @@ def write_buffer_to_file():
 
 
 def start_playback(location, mqtt_connection):
+    """
+    Start the playback of the file at the given location.
+    :param location: Location of the file
+    :param mqtt_connection: MqttConnection object
+    :return:
+    """
 
     if not path.isfile(location):
         print("File path {} does not exist.".format(location))
@@ -101,6 +131,7 @@ def start_playback(location, mqtt_connection):
         global __thread, __stop_thread
         if mqtt_connection.is_connected():
             __stop_thread = False
+            # playback the messages in the file in a new thread to not block the normal execution
             __thread = Thread(target=playback_thread, args=[location, mqtt_connection])
             __thread.start()
         else:
@@ -109,6 +140,10 @@ def start_playback(location, mqtt_connection):
 
 
 def stop_playback():
+    """
+    Stop the playback if it's running.
+    :return:
+    """
     global __stop_thread, __is_playing
     if __is_playing:
         __stop_thread = True
@@ -116,10 +151,21 @@ def stop_playback():
 
 
 def playback_thread(location, mqtt_connection):
+    """
+    Function to be executed in a new thread for the playback of a file.
+    :param location: File location.
+    :param mqtt_connection: MqttConnection object used for mqtt communication
+    :return:
+    """
 
     global __sim_r_buffer_size, __is_playing, __stop_thread
 
     def get_next_lines(file):
+        """
+        Inner function of playback_thread to get the next __sim_r_buffer_size lines form the file.
+        :param file:
+        :return:
+        """
         lines = []
         for i in range(__sim_r_buffer_size):
             line = file.readline()
@@ -150,13 +196,11 @@ def playback_thread(location, mqtt_connection):
             return
         if file:
             eof = False
+            # actual playback loop
             while not eof:
                 next_lines = get_next_lines(file)
-                print("First loop")
-                # Playback next_lines
                 index = 0
                 while not eof and index < len(next_lines):
-                    print("Second Loopü")
                     if __stop_thread:
                         print("Stopped the message playback successfully.")
                         return
@@ -175,6 +219,5 @@ def playback_thread(location, mqtt_connection):
                         index += 1
                     else:
                         sleep(0.03)
-                print("After second loop")
             print("Played back all data.")
             return
