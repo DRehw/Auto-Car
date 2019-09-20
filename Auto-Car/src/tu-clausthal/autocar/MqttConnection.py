@@ -1,6 +1,8 @@
 """
-
+MqttConnection handles the connection and communication with the MQTT broker, which provides the sensor/lidar data from
+the car and receives the steering data.
 """
+
 from json import loads
 from time import time
 from traceback import print_exc
@@ -10,12 +12,11 @@ from CurrentData import CurrentData
 
 
 class MqttConnection:
-    """
-    This class handles the connection and communication with the MQTT broker, which provides the sensor/lidar data from
-    the car and receives the steering data.
-    """
 
     def __init__(self):
+        """
+        Constructor
+        """
         self.client = mqtt.Client("Auto-Car-Client")
         self.__is_connected = False
         self.__is_connecting = False

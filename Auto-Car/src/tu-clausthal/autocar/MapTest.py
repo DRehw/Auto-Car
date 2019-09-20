@@ -1,3 +1,8 @@
+"""
+MapTest creates a global map (2D occupancy grid) of the cars surroundings, using lidar, rotation and position
+data, and provides the methods to convert the map into an image, which can be displayed on the GUI.
+"""
+
 from CurrentData import CurrentData
 from tkinter import PhotoImage
 import numpy as np
@@ -6,12 +11,6 @@ from History import History
 
 
 class MapTest:
-
-    """
-    This class creates a global map (2D occupancy grid) of the cars surroundings, using lidar, rotation and position
-    data, and provides the methods to convert the map into an image, which can be displayed on the GUI.
-    """
-
     use_interpolation = True
 
     car_point_radius = 14
@@ -20,6 +19,9 @@ class MapTest:
     car_heading_point_range = range(-car_heading_point_radius, car_heading_point_radius + 1)
 
     def __init__(self, width=800, height=800):
+        """
+        Constructor
+        """
         CurrentData.register_method_as_observer(self.on_data_change)
         if width > 0:
             self.width = width  # x_max
@@ -168,7 +170,8 @@ class MapTest:
         self.grid[self.grid < 2] = 0
 
     def _get_map_as_ppm(self):
-        """Generates a 2D-grid representing a visually intuitive 8-bit graphic representative of the map.
+        """Generates a 2D-grid representing a visually intuitive 8-bit rendition of the map (background = white,
+        obstacles = black).
         Adds car position and rotation to the new grid. Used in self.get_map_as_photo_img"""
         self.ppm_array = np.copy(self.grid)
         car_pos = CurrentData.get_value_from_tag_from_sensor("position")
