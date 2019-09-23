@@ -341,52 +341,51 @@ class MainGui:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.window.mainloop()
 
-    """
-    closes all windows
-    """
 
     def on_closing(self):
+        """
+        closes all windows
+        """
         self.controller.on_window_close()
         self.window.destroy()
         return
 
-    """
-    set speed interval [-15,15]
-    """
 
     def speed_scale_set(self, speed):
+        """
+        set speed interval [-15,15]
+        """
         if -15 <= speed <= 15:
             self.speed_scale.set(speed)
 
-    """
-    set steer interval [-30,30]
-    """
 
     def steer_scale_set(self, steer):
+        """
+        set steer interval [-30,30]
+        """
         if -30 <= steer <= 30:
             self.steer_scale.set(steer)
 
-    """
-    if mouse is released set speed to 0
-    """
 
     def speed_scale_mouse_release(self, event):
+        """
+        if mouse is released set speed to 0
+        """
         self.speed_scale.set(0)
 
-    """
-    updates map with newest picture of the occupancy grid
-    """
 
     def update_map(self, tk_photo_image):
+        """
+        updates map with newest picture of the occupancy grid
+        """
         self.image = tk_photo_image
         self.map_canvas.itemconfig(self.image_on_canvas, image=self.image)
-        # self.map_canvas.create_image(0, 0, image=tk_photo_image, anchor=tk.NW)
 
-    """
-    sets color of buttons if pressed
-    """
 
     def connect_to_car_btn_set_color(self, color):
+        """
+        sets color of buttons if pressed
+        """
         self.connect_to_car_btn.configure(bg=color)
 
     def manual_control_btn_set_color(self, color):
@@ -418,34 +417,34 @@ class MainGui:
     def get_play_path(self):
         return self.play_path_string_var.get()
 
-    """
-    displays current speed
-    """
 
     def set_auto_speed_label_text(self, speed):
+        """
+        displays current speed
+        """
         self.__display_speed.set((speed-90)*(-1))
 
-    """
-    displays current steer
-    """
 
     def set_auto_steer_label_text(self, steer):
+        """
+        displays current steer
+        """
         self.__display_steer.set((steer-90)*(-1))
 
-    """
-    update car position on map
-    """
 
     def update_car_pos_label(self, car_pos):
+        """
+        update car position on map
+        """
         x = car_pos[0]/10
         y = car_pos[1]/10
         self.__display_pos.set("{:6.1f} | {:6.1f}".format(x, y))
 
-    """
-    sets car heading label
-    """
 
     def update_car_heading_label(self, heading):
+        """
+        sets car heading label
+        """
         self.__display_heading.set("{:4.1f}".format(heading))
 
     def send_mqtt(self):
@@ -458,11 +457,11 @@ class MainGui:
             print_exc()
         return
 
-    """
-    connect to car or local broker
-    """
 
     def connect_to_local_broker(self):
+        """
+        connect to car or local broker
+        """
         self.controller.start_mosquitto_async()
         return
     
@@ -474,10 +473,10 @@ class MainGui:
         self.controller.subscribe()
         return
 
-    """
-    send drive commands
-    """
 
     def cmd_send(self):
+        """
+        send drive commands
+        """
         self.controller.start_cmd_mosq_path()
         return

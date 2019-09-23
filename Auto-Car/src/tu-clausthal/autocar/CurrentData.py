@@ -37,12 +37,11 @@ class CurrentData:
             self.sensor_data_list.append([sensor_timestamp, sensor_position, sensor_euler])
             if len(self.sensor_data_list) > 20:
                 del self.sensor_data_list[0]
-            # print(CurrentData.get_value_from_tag_from_sensor("euler")[0])
 
         def set_lidar_json(self, lidar_json):
             parsed_lidar_data = CurrentData.get_value_from_tag_from_json(lidar_json, "pcl")
 
-            filtered_lidar_data = [data for data in parsed_lidar_data if not (data[0] <= 10)]  # and data[2] < 1920.5
+            filtered_lidar_data = [data for data in parsed_lidar_data if not (data[0] <= 10)]
             lidar_json["pcl"] = filtered_lidar_data
             self.__lidar_json = lidar_json
 
@@ -50,7 +49,6 @@ class CurrentData:
             return self.__lidar_json
 
         def set_sensor_json(self, sensor_json):
-            # print("Adding sensor json: {}".format(sensor_json))
             parsed_euler_data = CurrentData.get_value_from_tag_from_json(sensor_json, "euler")
             parsed_position_data = CurrentData.get_value_from_tag_from_json(sensor_json, "position")
 
@@ -59,7 +57,6 @@ class CurrentData:
             sensor_json["position"] = parsed_position_data
             sensor_json["euler"] = corrected_euler_data
             self.__sensor_json = sensor_json
-            # print("set_senor_json worked")
 
             self.add_sensor_data_to_list()
         def get_sensor_json(self):
@@ -79,28 +76,23 @@ class CurrentData:
     """
     instance = None
 
-    """
-    Constructor of CurrentData which ensures, that there is only one instance of __CurrentData
-    """
     def __init__(self):
+        """
+        Constructor of CurrentData which ensures, that there is only one instance of __CurrentData
+        """
         if not CurrentData.instance:
             CurrentData.instance = CurrentData.__CurrentData()
         return
 
-    """
-    Called whenever either new lidar or sensor data is passed via
-        "set_lidar_json" or "set_sensor_json" by MqttConnection.
-    It then calls every registered method.
-    """
     @staticmethod
     def __on_data_change(changed_data_str):
-        # print("new data")
-        # pos = CurrentData.get_value_from_tag_from_sensor("position")
-        # euler = CurrentData.get_value_from_tag_from_sensor("euler")
-        # print("Pos: [{}, {}], Euler: {}".format(int(round(pos[0] / 10)), int(round(pos[1] / 10)), euler[0]))
+        """
+        Called whenever either new lidar or sensor data is passed via
+        "set_lidar_json" or "set_sensor_json" by MqttConnection.
+        It then calls every registered method.
+        """
         if CurrentData.instance:
             for method in CurrentData.instance.get_observer_methods():
-                # print("method to run: " + str(method))
                 try:
                     method(changed_data_str)
                 except(Exception) as e:
@@ -108,83 +100,83 @@ class CurrentData:
                         print_exc()
         return
 
-    """
-    Used to register a method to get a callback whenever new data is received
-    """
     @staticmethod
     def register_method_as_observer(method):
+        """
+        Used to register a method to get a callback whenever new data is received
+        """
         if CurrentData.instance:
             print("Adding {} as a observer!".format(str(method)))
             CurrentData.instance.add_observer_method(method)
 
-    """
-    Used to remove a method as an observer
-    """
     @staticmethod
     def remove_method_as_observer(method):
+        """
+        Used to remove a method as an observer
+        """
         if CurrentData.instance:
             CurrentData.instance.remove_observer_method(method)
 
-    """
-    Not for usual use. Only called by MqttConnection when new data arrives.
-    It sets the data and triggers the callback
-    """
     @staticmethod
     def set_lidar_json(lidar_json):
+        """
+        Not for usual use. Only called by MqttConnection when new data arrives.
+        It sets the data and triggers the callback
+        """
         if CurrentData.instance:
             CurrentData.instance.set_lidar_json(lidar_json)
             CurrentData.__on_data_change("lidar")
 
-    """
-    Internal method to get the lidar json from the instance
-    """
     @staticmethod
     def get_lidar_json():
+        """
+        Internal method to get the lidar json from the instance
+        """
         if CurrentData.instance:
             return CurrentData.instance.get_lidar_json()
 
-    """
-    Not for usual use. Only called by MqttConnection when new data arrives.
-    It sets the data and triggers the callback
-    """
     @staticmethod
     def set_sensor_json(sensor_json):
+        """
+        Not for usual use. Only called by MqttConnection when new data arrives.
+        It sets the data and triggers the callback
+        """
         if CurrentData.instance:
             CurrentData.instance.set_sensor_json(sensor_json)
             CurrentData.__on_data_change("sensor")
 
-    """
-    Internal method to get the sensor json from the instance
-    """
     @staticmethod
     def get_sensor_json():
+        """
+        Internal method to get the sensor json from the instance
+        """
         if CurrentData.instance:
             return CurrentData.instance.get_sensor_json()
 
-    """
-    Used to get a value form the lidar data which is in json format. You just have to provide it with a
-    tag in form of a string.
-    """
     @staticmethod
     def get_value_from_tag_from_lidar(tag_str):
+        """
+        Used to get a value form the lidar data which is in json format. You just have to provide it with a
+        tag in form of a string.
+        """
         if CurrentData.instance:
             return CurrentData.get_value_from_tag_from_json(CurrentData.get_lidar_json(), tag_str)
 
-    """
-    Used to get a value form the sensor data which is in json format. You just have to provide it with a
-    tag in form of a string.
-    """
     @staticmethod
     def get_value_from_tag_from_sensor(tag_str):
+        """
+        Used to get a value form the sensor data which is in json format. You just have to provide it with a
+        tag in form of a string.
+        """
         if CurrentData.instance:
             return CurrentData.get_value_from_tag_from_json(CurrentData.get_sensor_json(), tag_str)
 
-    """
-    Helper method to get a value from a given json-tag and given json object.
-    You can obtain a json object by calling json.loads(json_as_string) for example.
-    """
     @staticmethod
     def get_value_from_tag_from_json(json_obj, tag_str):
+        """
+        Helper method to get a value from a given json-tag and given json object.
+        You can obtain a json object by calling json.loads(json_as_string) for example.
+        """
         res = None
         if json_obj is not None:
             for key, value in json_obj.items():
