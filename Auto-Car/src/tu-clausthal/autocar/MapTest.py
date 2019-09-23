@@ -182,7 +182,6 @@ class MapTest:
             car_x = int(round(car_pos[0]/10))
             car_y = int(round(car_pos[1]/10))
             car_heading[0] = 360 - car_heading[0]
-            # car_heading[0] = car_heading[0] + 180
             for i in MapTest.car_point_range:
                 for j in MapTest.car_point_range:
                     if 0 <= car_x + i < self.width and 0 <= car_y + j < self.height:
@@ -192,9 +191,6 @@ class MapTest:
                             self.ppm_array[car_x + i][car_y + j] = grey_val
             heading_x = int(car_x + MapTest.car_point_radius * math.sin(math.radians(self.euler_offset + car_heading[0])))
             heading_y = int(car_y + MapTest.car_point_radius * -math.cos(math.radians(self.euler_offset + car_heading[0])))
-            # print("{}, {}".format(MapTest.car_point_radius * math.sin(self.euler_offset + car_heading[0]),
-            #                      MapTest.car_point_radius * math.cos(self.euler_offset + car_heading[0])))
-            # print("{}".format(self.euler_offset + car_heading[0]))
 
             for i in MapTest.car_heading_point_range:
                 for j in MapTest.car_heading_point_range:
